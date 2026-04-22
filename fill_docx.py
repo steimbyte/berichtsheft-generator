@@ -173,6 +173,7 @@ def main():
     parser.add_argument('--freitag', type=str, default='')
     parser.add_argument('--thema', type=str, default='')
     parser.add_argument('--datum', type=str, default='')
+    parser.add_argument('--ausbildungsjahr', type=int, default=3, help='Ausbildungsjahr (Standard: 3)')
     
     args = parser.parse_args()
     
@@ -216,6 +217,10 @@ def main():
             '{Donnerstag}': args.donnerstag,
             '{Freitag}': args.freitag,
             '{week_topic}': args.thema,
+            '{DATUMSZAHLUNG}': args.datum,
+            '{WOCHENNUMMER}': f"KW {args.kw:02d}",
+            '{AUSBILDUNGSJAHR}': str(args.ausbildungsjahr),
+            '{Ausbildungsjahr}': str(args.ausbildungsjahr),
         }
         
         doc = Document(str(docx_path))
