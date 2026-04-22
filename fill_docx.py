@@ -8,6 +8,12 @@ Usage:
         --montag "Text" --dienstag "Text" --mittwoch "Text" \
         --donnerstag "Text" --freitag "Text" --thema "Text" \
         --datum "02.03.2026 - 08.03.2026"
+
+Platzhalter:
+    {Montag}, {Dienstag}, {Mittwoch}, {Donnerstag}, {Freitag}
+    {week_topic}, {Abteilung}
+    {DATUMSZAHLUNG}, {WOCHENNUMMER}, {AUSBILDUNGSJAHR}
+    {AUSBILDUNGSNACHWEIS_NR}, {Day-of-signature}.{JAHRESJAHR}
 """
 
 import argparse
@@ -221,6 +227,7 @@ def main():
             '{WOCHENNUMMER}': f"KW {args.kw:02d}",
             '{AUSBILDUNGSJAHR}': str(args.ausbildungsjahr),
             '{Ausbildungsjahr}': str(args.ausbildungsjahr),
+            '{AUSBILDUNGSNACHWEIS_NR}': str(args.nr),
         }
         
         doc = Document(str(docx_path))
