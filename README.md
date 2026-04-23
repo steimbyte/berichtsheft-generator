@@ -1,31 +1,63 @@
 # Berichtsheft-Generator
 
-Python-Tool zur automatischen Generierung von Berichtsheft-Ausbildungsnachweisen für die OSZ IMT Berlin.
+CLI-Tool zum automatischen Ausfüllen von Berichtsheft-DOCX-Vorlagen für AI Agents.
 
-## Workflow
+## Für Agent-Nutzung
 
-1. **Kopiere die DOCX-Vorlage** in den KW-Ordner:
+Dieses Tool ist primär als **Tool-Call** für AI Agents konzipiert (OpenCode, Pi, Hermes, etc.).
+
+### Tool-Definition (JSON)
+
+```json
+{
+  "name": "berichtsheft_generator",
+  "description": "Füllt eine Berichtsheft-DOCX-Vorlage mit den übergebenen Daten und exportiert sie zu PDF via LibreOffice",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "kw": {"type": "integer", "description": "Kalenderwoche (z.B. 10)"},
+      "jahr": {"type": "integer", "description": "Jahr (z.B. 2026)"},
+      "nr": {"type": "integer", "description": "Ausbildungsnachweis-Nummer"},
+      "abteilung": {"type": "string", "enum": ["Betrieb", "Berufsschule"]},
+      "montag": {"type": "string", "description": "Text für Montag"},
+      "dienstag": {"type": "string", "description": "Text für Dienstag"},
+      "mittwoch": {"type": "string", "description": "Text für Mittwoch"},
+      "donnerstag": {"type": "string", "description": "Text für Donnerstag"},
+      "freitag": {"type": "string", "description": "Text für Freitag"},
+      "thema": {"type": "string", "description": "Thema der Woche"},
+      "datum": {"type": "string", "description": "Datumsbereich (z.B. '02.03.2026 - 08.03.2026')"}
+    },
+    "required": ["kw", "jahr", "nr", "abteilung"]
+  }
+}
+```
+
+### Agent-Integration (Pi/OpenCode)
+
+```bash
+# Direkter Aufruf
+python3 fill_docx.py --kw 10 --jahr 2026 --nr 130 \
+  --montag "Montag-Text" --dienstag "Dienstag-Text" \
+  --mittwoch "Mittwoch-Text" --donnerstag "Donnerstag-Text" \
+  --freitag "Freitag-Text" --thema "Thema der Woche" \
+  --abteilung "Betrieb" --datum "02.03.2026 - 08.03.2026"
+
+# PDF-Export via LibreOffice
+libreoffice --headless --convert-to pdf --outdir . "Berichtsheft Täglich KW 10.docx"
+```
+
+## Manueller Workflow
+
+1. **DOCX-Vorlage** in KW-Ordner kopieren:
    ```
    Nextcloud/Dokumente/Ausbildung-Cancom/Berichtsheft/[JAHR]/KW[XX]/Berichtsheft Täglich KW [XX].docx
    ```
 
-2. **Fülle die Vorlage per CLI:**
-   ```bash
-   python3 fill_docx.py --kw 10 --jahr 2026 --nr 130 \
-       --montag "Montag-Text" --dienstag "Dienstag-Text" \
-       --mittwoch "Mittwoch-Text" --donnerstag "Donnerstag-Text" \
-       --freitag "Freitag-Text" --thema "Thema der Woche" \
-       --abteilung "Betrieb"
-   ```
+2. **Füllen:** `python3 fill_docx.py --kw 10 ...`
 
-3. **Exportiere zu PDF via LibreOffice:**
-   ```bash
-   libreoffice --headless --convert-to pdf --outdir . "Berichtsheft Täglich KW 10.docx"
-   ```
+3. **PDF exportieren:** `libreoffice --headless --convert-to pdf ...`
 
 ## DOCX-Vorlage Platzhalter
-
-Die DOCX-Vorlage muss folgende Platzhalter enthalten:
 
 | Platzhalter | Beschreibung |
 |-------------|--------------|
@@ -36,7 +68,7 @@ Die DOCX-Vorlage muss folgende Platzhalter enthalten:
 | `{Freitag}` | Text für Freitag |
 | `{week_topic}` | Thema der Woche |
 | `{Abteilung}` | Abteilung (Betrieb/Berufsschule) |
-| `{Day-of-signature}.{JAHRESJAHR}` | Datum für Unterschriftsfeld |
+| `{Day-of-signature}.{JAHRESJAHR}` | Datum für Unterschrift |
 
 ## Anforderungen
 
