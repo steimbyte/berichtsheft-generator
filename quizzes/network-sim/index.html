@@ -182,6 +182,42 @@
     /* Device Description */
     .node-desc { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); font-size: 0.4rem; color: var(--text-muted); white-space: nowrap; max-width: 80px; overflow: hidden; text-overflow: ellipsis; }
     
+    /* Realistic Front Panel */
+    .node-front-panel { background: linear-gradient(180deg, #1a1a24 0%, #12121a 100%); border: 2px solid #2a2a34; border-radius: 10px; padding: 8px; position: relative; min-width: 90px; box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05); }
+    .panel-top { text-align: center; margin-bottom: 6px; }
+    .panel-label { font-size: 0.35rem; color: var(--accent); font-weight: 700; letter-spacing: 1px; text-align: center; margin-bottom: 2px; }
+    .node-icon { font-size: 28px; color: var(--accent); }
+    .node-name { font-size: 0.6rem; font-weight: 600; color: var(--text-primary); margin-top: 2px; text-align: center; }
+    .panel-ports { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; margin-bottom: 4px; }
+    .panel-port { display: flex; flex-direction: column; align-items: center; }
+    .panel-port-led { width: 6px; height: 6px; border-radius: 50%; background: #333; border: 1px solid #444; }
+    .panel-port-led.up { background: var(--ok); box-shadow: 0 0 4px var(--ok); }
+    .panel-port-led.down { background: #333; }
+    .panel-port-led.poe { background: var(--warn); box-shadow: 0 0 4px var(--warn); }
+    .panel-leds { display: flex; gap: 4px; justify-content: center; padding-top: 4px; border-top: 1px solid #2a2a34; }
+    .panel-led { width: 4px; height: 4px; border-radius: 50%; }
+    .panel-led.green { background: var(--ok); }
+    .panel-led.yellow { background: var(--warn); }
+    .panel-led.red { background: var(--error); }
+    .panel-led.blue { background: var(--layer7); }
+    
+    /* Interface Description */
+    .interface-desc { font-size: 0.4rem; color: var(--text-muted); text-align: center; width: 20px; overflow: hidden; text-overflow: ellipsis; }
+    
+    /* Cable Color Coding */
+    .cable-legend { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; padding: 8px; }
+    .cable-legend-item { display: flex; align-items: center; gap: 4px; font-size: 0.5rem; }
+    .cable-legend-color { width: 16px; height: 4px; border-radius: 2px; }
+    
+    /* Device Rack View */
+    .rack-view { position: absolute; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px; z-index: 200; display: none; }
+    .rack-view.show { display: block; }
+    .rack-header { font-size: 0.65rem; font-weight: 600; margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .rack-unit { height: 20px; background: #1a1a24; border: 1px solid #333; margin-bottom: 2px; display: flex; align-items: center; padding: 0 8px; font-size: 0.5rem; border-radius: 2px; }
+    .rack-unit.active { border-color: var(--ok); }
+    .rack-unit.blink { animation: blinkLed 0.5s infinite; }
+    @keyframes blinkLed { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    
     /* Mini Map */
     .mini-map { position: absolute; bottom: 60px; right: 12px; width: 150px; height: 100px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; z-index: 100; }
     .mini-map-header { padding: 4px 8px; background: var(--bg-elevated); font-size: 0.5rem; color: var(--text-muted); display: flex; justify-content: space-between; }
@@ -2390,9 +2426,19 @@
       
       el.innerHTML = `
         <div class="port-led ${n.on ? 'up' : 'down'}"></div>
-        <div class="node-icon"><i class="ph ${d.icon}"></i></div>
-        <div class="node-name">${d.name}</div>
-        ${renderPorts(n)}
+        <div class="node-front-panel">
+          <div class="panel-top">
+            ${n.r ? '<div class="panel-label">ROUTER</div>' : n.sw ? '<div class="panel-label">SWITCH</div>' : n.srv ? '<div class="panel-label">SERVER</div>' : ''}
+            <div class="node-icon"><i class="ph ${d.icon}"></i></div>
+            <div class="node-name">${deviceName}</div>
+          </div>
+          <div class="panel-ports">
+            ${renderPorts(n)}
+          </div>
+          <div class="panel-leds">
+            ${renderPanelLeds(n)}
+          </div>
+        </div>
         <div class="node-info">${renderInfo(n)}</div>
         <div class="device-power ${n.on ? 'on' : ''}" onclick="togglePower('${n.id}', event)">⏻</div>
       `;
@@ -2479,15 +2525,15 @@
     }
 
     function renderPorts(n) {
-      if (n.totalPorts === 0) return '<div class="port-hint">🔗 WLAN Ready</div>';
-      let html = '<div class="node-ports">';
+      if (n.totalPorts === 0) return '<div class="port-hint">🔗 WLAN</div>';
+      let html = '<div class="panel-ports-inner">';
       for (let i = 0; i < n.totalPorts; i++) {
         const isU = i >= n.ports;
-        const portNum = isU ? `U${i - n.ports + 1}` : `${i + 1}`;
-        const cls = isU ? 'uplink' : '';
+        const portNum = isU ? `U${i - n.ports + 1}` : `${i}`;
         const used = i < n.usedPorts;
-        html += `<div class="node-port ${cls}${used ? ' connected' : ''}" data-p="${i}">
-          <span class="port-label">${isU ? 'Uplink' : 'Port'} ${portNum}</span>
+        html += `<div class="panel-port" data-p="${i}">
+          <div class="panel-port-led ${used ? 'up' : 'down'}"></div>
+          <div class="interface-desc">${isU ? 'G' : 'F'}${portNum}</div>
         </div>`;
       }
       return html + '</div><div class="port-hint">💡 Ziehe Port zum Verbinden</div>';
@@ -2500,6 +2546,19 @@
       if (n.vlan !== '1') html += `<div class="node-info-row"><span>VLAN:</span><span>${n.vlan}</span></div>`;
       if (n.services.length) html += `<div class="node-info-row"><span>Svc:</span><span>${n.services.join(',')}</span></div>`;
       return html;
+    }
+    
+    function renderPanelLeds(n) {
+      const leds = [];
+      // System LED
+      leds.push(`<div class="panel-led ${n.on ? 'green' : 'red'}" title="System"></div>`);
+      // PoE LED for switches
+      if (n.poeBudget) leds.push(`<div class="panel-led ${n.poeUsed > 0 ? 'green' : 'blue'}" title="PoE"></div>`);
+      // Activity LED
+      leds.push(`<div class="panel-led yellow" title="Activity"></div>`);
+      // Speed LED
+      if (n.sw || n.r) leds.push(`<div class="panel-led green" title="100M"></div>`);
+      return leds.join('');
     }
     
     // ==================== SMART LABELS ====================
