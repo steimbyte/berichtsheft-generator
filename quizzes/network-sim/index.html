@@ -366,6 +366,9 @@
       <button class="tool-btn" onclick="openCLI()"><i class="ph ph-terminal"></i> CLI</button>
       <button class="tool-btn" onclick="openTrafficGen()"><i class="ph ph-lightning"></i> Traffic</button>
       <button class="tool-btn" onclick="openCDP()"><i class="ph ph-broadcast"></i> CDP</button>
+      <button class="tool-btn" onclick="openVTP()"><i class="ph ph-swap"></i> VTP</button>
+      <button class="tool-btn" onclick="openHSRP()"><i class="ph ph-arrows-clockwise"></i> HSRP</button>
+      <button class="tool-btn" onclick="openSyslog()"><i class="ph ph-list-bullets"></i> Syslog</button>
       <button class="tool-btn" onclick="selectConnType()" id="btnConnType"><i class="ph ph-plugs-connected"></i> Kabel</button>
       <button class="tool-btn" onclick="openTemplates()" title="Geräte Vorlagen"><i class="ph ph-stack"></i> Vorlagen</button>
       <button class="tool-btn" onclick="autoConnect()" title="Auto-Connect ausgewählter Geräte"><i class="ph ph-magic-wand"></i> Auto</button>
@@ -1225,6 +1228,176 @@
       <div class="modal-actions">
         <button class="modal-btn secondary" onclick="closeM('qosModal')">Abbrechen</button>
         <button class="modal-btn primary" onclick="applyQoS()"><i class="ph ph-check"></i> Anwenden</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- VTP Modal -->
+  <div class="modal-overlay" id="vtpModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ph ph-swap"></i> VTP (VLAN Trunking Protocol)</div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Mode</label>
+          <select class="form-select" id="vtpMode">
+            <option value="server">Server</option>
+            <option value="client">Client</option>
+            <option value="transparent">Transparent</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Domain</label>
+          <input type="text" class="form-input" id="vtpDomain" placeholder="mynetwork">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="vtpPass" placeholder="optional">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Revision</label>
+          <input type="number" class="form-input" id="vtpRevision" value="0" min="0">
+        </div>
+        <div class="props-section" style="margin-top:10px;">
+          <div class="props-section-title">VTP Status</div>
+          <div id="vtpStatus" style="font-family:'Fira Code',monospace;font-size:0.55rem;background:#000;padding:8px;border-radius:4px;"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="applyVTP()"><i class="ph ph-check"></i> Anwenden</button>
+        <button class="modal-btn secondary" onclick="showVTPStatus()">Status</button>
+        <button class="modal-btn secondary" onclick="closeM('vtpModal')">Schließen</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- HSRP Modal -->
+  <div class="modal-overlay" id="hsrpModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ph ph-arrows-clockwise"></i> HSRP (Hot Standby Router Protocol)</div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Interface</label>
+          <select class="form-select" id="hsrpInterface">
+            <option value="gi0/0">GigabitEthernet0/0</option>
+            <option value="gi0/1">GigabitEthernet0/1</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Standby Group</label>
+          <input type="number" class="form-input" id="hsrpGroup" value="1" min="0" max="255">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority</label>
+          <input type="number" class="form-input" id="hsrpPriority" value="100" min="1" max="255">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Virtual IP</label>
+          <input type="text" class="form-input" id="hsrpVIP" placeholder="192.168.1.254">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Preempt</label>
+          <select class="form-select" id="hsrpPreempt">
+            <option value="yes">Enabled</option>
+            <option value="no">Disabled</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hello Time (sec)</label>
+          <input type="number" class="form-input" id="hsrpHello" value="3" min="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hold Time (sec)</label>
+          <input type="number" class="form-input" id="hsrpHold" value="10" min="1">
+        </div>
+        <div class="props-section" style="margin-top:10px;">
+          <div class="props-section-title">Konfiguration</div>
+          <div style="background:#000;padding:8px;border-radius:4px;font-family:'Fira Code',monospace;font-size:0.55rem;color:var(--ok);">
+            standby <span id="hsrpCfg1">1</span> ip <span id="hsrpCfg2">192.168.1.254</span><br>
+            standby <span id="hsrpCfg3">1</span> priority <span id="hsrpCfg4">100</span><br>
+            standby <span id="hsrpCfg5">1</span> preempt<br>
+            standby <span id="hsrpCfg6">1</span> timers <span id="hsrpCfg7">3 10</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="applyHSRP()"><i class="ph ph-check"></i> Anwenden</button>
+        <button class="modal-btn secondary" onclick="closeM('hsrpModal')">Schließen</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Syslog Modal -->
+  <div class="modal-overlay" id="syslogModal">
+    <div class="modal" style="max-width:600px;">
+      <div class="modal-title"><i class="ph ph-list-bullets"></i> Syslog Viewer</div>
+      <div class="modal-body">
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <select class="form-select" id="syslogFacility" style="flex:1;">
+            <option value="local0">Local0</option>
+            <option value="local1">Local1</option>
+            <option value="local2">Local2</option>
+            <option value="local3">Local3</option>
+            <option value="local4">Local4</option>
+            <option value="local5">Local5</option>
+            <option value="local6">Local6</option>
+            <option value="local7">Local7</option>
+          </select>
+          <select class="form-select" id="syslogSeverity" style="flex:1;">
+            <option value="0">Emergency (0)</option>
+            <option value="1">Alert (1)</option>
+            <option value="2">Critical (2)</option>
+            <option value="3">Error (3)</option>
+            <option value="4">Warning (4)</option>
+            <option value="5">Notice (5)</option>
+            <option value="6">Info (6)</option>
+            <option value="7">Debug (7)</option>
+          </select>
+          <button class="modal-btn secondary" onclick="addSyslogMsg()">+ Add</button>
+        </div>
+        <div id="syslogMessages" style="background:#000;border-radius:6px;padding:10px;font-family:'Fira Code',monospace;font-size:0.55rem;max-height:300px;overflow-y:auto;"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="modal-btn secondary" style="flex:1;" onclick="generateSampleSyslogs()"><i class="ph ph-magic-wand"></i> Sample Logs</button>
+        <button class="modal-btn secondary" style="flex:1;" onclick="clearSyslogs()"><i class="ph ph-trash"></i> Clear</button>
+        <button class="modal-btn secondary" style="flex:1;" onclick="closeM('syslogModal')">Schließen</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- SSH/Telnet Modal -->
+  <div class="modal-overlay" id="sshModal">
+    <div class="modal" style="max-width:550px;">
+      <div class="modal-title"><i class="ph ph-terminal"></i> Remote Access (SSH/Telnet)</div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Connection Type</label>
+          <select class="form-select" id="sshType">
+            <option value="ssh">SSH (Secure)</option>
+            <option value="telnet">Telnet (Unsecure)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Remote Device</label>
+          <select class="form-select" id="sshTarget">
+            <option value="">-- Select Device --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" class="form-input" id="sshUser" placeholder="admin">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="sshPass" placeholder="cisco">
+        </div>
+        <div class="props-section" style="margin-top:10px;">
+          <div class="props-section-title">Session Output</div>
+          <div id="sshOutput" style="background:#000;border-radius:6px;padding:10px;font-family:'Fira Code',monospace;font-size:0.55rem;min-height:150px;color:var(--ok);"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn primary" onclick="connectSSH()"><i class="ph ph-plug"></i> Connect</button>
+        <button class="modal-btn secondary" onclick="closeM('sshModal')">Schließen</button>
       </div>
     </div>
   </div>
@@ -2597,6 +2770,178 @@ exit                - exit current mode
       i.click();
     }
 
+    // ==================== VTP ====================
+    let vtpState = { mode: 'server', domain: '', pass: '', revision: 0 };
+    
+    function openVTP() { document.getElementById('vtpModal').classList.add('show'); showVTPStatus(); }
+    
+    function applyVTP() {
+      vtpState = {
+        mode: document.getElementById('vtpMode').value,
+        domain: document.getElementById('vtpDomain').value,
+        pass: document.getElementById('vtpPass').value,
+        revision: parseInt(document.getElementById('vtpRevision').value) || 0
+      };
+      log('VTP', 'success', `VTP ${vtpState.mode} domain: ${vtpState.domain || 'default'} rev:${vtpState.revision}`);
+      showVTPStatus();
+    }
+    
+    function showVTPStatus() {
+      const el = document.getElementById('vtpStatus');
+      el.innerHTML = `
+<div style="color:var(--ok);">VTP Version: 2</div>
+<div>Configuration Revision: ${vtpState.revision}</div>
+<div>Maximum VLANs supported locally: 255</div>
+<div>VTP Operating Mode: <span style="color:var(--accent)">${vtpState.mode.charAt(0).toUpperCase() + vtpState.mode.slice(1)}</span></div>
+<div>VTP Domain Name: ${vtpState.domain || '(not set)'}</div>
+<div>VTP Password: ${vtpState.pass ? '***' : '(not set)'}</div>
+<div>VTP Pruning Mode: Disabled</div>
+<div>VTP V2 Mode: Enabled</div>
+<div>VTP Traps Generation: Disabled</div>
+<div style="margin-top:8px;color:var(--text-muted);">--- VLANs ---</div>
+<div>VLAN 1: default</div>
+<div>VLAN 10: Verwaltung</div>
+<div>VLAN 20: Produktion</div>
+<div>VLAN 30: Gast</div>
+<div>VLAN 99: Management</div>
+      `;
+    }
+    
+    // ==================== HSRP ====================
+    let hsrpState = {};
+    
+    function openHSRP() {
+      if (!S.sel?.r) { alert('Router auswählen!'); return; }
+      document.getElementById('hsrpModal').classList.add('show');
+      // Update config preview
+      document.getElementById('hsrpCfg2').textContent = document.getElementById('hsrpVIP').value || '192.168.1.254';
+      document.getElementById('hsrpCfg4').textContent = document.getElementById('hsrpPriority').value || '100';
+    }
+    
+    function applyHSRP() {
+      const group = document.getElementById('hsrpGroup').value;
+      const priority = document.getElementById('hsrpPriority').value;
+      const vip = document.getElementById('hsrpVIP').value;
+      const preempt = document.getElementById('hsrpPreempt').value;
+      const hello = document.getElementById('hsrpHello').value;
+      const hold = document.getElementById('hsrpHold').value;
+      
+      if (!vip) { alert('Virtual IP eingeben!'); return; }
+      
+      hsrpState = { group, priority, vip, preempt, hello, hold };
+      log('HSRP', 'success', `Standby ${group}: ${vip} priority ${priority}${preempt === 'yes' ? ' preempt' : ''}`);
+      closeM('hsrpModal');
+    }
+    
+    // ==================== SYSLOG ====================
+    let syslogs = [];
+    const SEVERITY_NAMES = ['Emergency', 'Alert', 'Critical', 'Error', 'Warning', 'Notice', 'Info', 'Debug'];
+    
+    function openSyslog() { document.getElementById('syslogModal').classList.add('show'); renderSyslogs(); }
+    
+    function addSyslogMsg() {
+      const facility = document.getElementById('syslogFacility').value;
+      const severity = parseInt(document.getElementById('syslogSeverity').value);
+      const msgs = [
+        'Interface GigabitEthernet0/0, changed state to up',
+        'IP-OSPF-5-ADJCHG: Process 1, Nbr 192.168.1.2 on GigabitEthernet0/0 is FULL',
+        'SYS-5-CONFIG_I: Configured from console',
+        'LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet0/1, changed state to down',
+        'SPANTREE-2-BLOCKINGSPECIFIC: VLAN 0001 Port(s) FastEthernet0/24 blocked',
+        'DOT1-5-NOTRAP: Port Security violation on FastEthernet0/1',
+        'SSH-5-SSHOPEN: SSH session opened for user admin',
+        'SYS-6-LOGGINGHOST: Logging to 192.168.1.100',
+        'CONFIG-5-DOOR: Config change, user console'
+      ];
+      const msg = msgs[Math.floor(Math.random() * msgs.length)];
+      const now = new Date();
+      const ts = now.toISOString().replace('T', ' ').substring(0, 19);
+      syslogs.unshift({ ts, facility, severity, msg });
+      if (syslogs.length > 50) syslogs.pop();
+      renderSyslogs();
+    }
+    
+    function renderSyslogs() {
+      const el = document.getElementById('syslogMessages');
+      if (syslogs.length === 0) {
+        el.innerHTML = '<div style="color:var(--text-muted);">No syslog messages. Click "Add" or "Sample Logs".</div>';
+        return;
+      }
+      el.innerHTML = syslogs.map(s => {
+        const sevColors = ['#FF0000', '#FF4500', '#DC143C', '#FF6347', '#FFD700', '#00CED1', '#32CD32', '#808080'];
+        const color = sevColors[s.severity] || '#FFF';
+        return `<div style="margin-bottom:6px;padding:4px;border-bottom:1px solid #333;">
+          <span style="color:#666;">${s.ts}</span>
+          <span style="color:${color};">[${s.severity}]</span>
+          <span style="color:#0AF;">${s.facility}</span>
+          <span style="color:#FFF;">${s.msg}</span>
+        </div>`;
+      }).join('');
+    }
+    
+    function generateSampleSyslogs() {
+      const facilities = ['local0', 'local1', 'local2', 'local5'];
+      const sevRange = [3, 4, 5, 6];
+      for (let i = 0; i < 15; i++) {
+        const facility = facilities[Math.floor(Math.random() * facilities.length)];
+        const severity = sevRange[Math.floor(Math.random() * sevRange.length)];
+        document.getElementById('syslogFacility').value = facility;
+        document.getElementById('syslogSeverity').value = severity;
+        addSyslogMsg();
+      }
+    }
+    
+    function clearSyslogs() { syslogs = []; renderSyslogs(); }
+    
+    // ==================== SSH/TELNET ====================
+    function openSSHModal() {
+      document.getElementById('sshModal').classList.add('show');
+      updateSSHTargets();
+    }
+    
+    function updateSSHTargets() {
+      const el = document.getElementById('sshTarget');
+      const opts = S.nodes.filter(n => n.r).map(n => `<option value="${n.id}">${n.name}${n.ip ? ` (${n.ip})` : ''}</option>`).join('');
+      el.innerHTML = '<option value="">-- Select Device --</option>' + opts;
+    }
+    
+    function connectSSH() {
+      const type = document.getElementById('sshType').value;
+      const targetId = document.getElementById('sshTarget').value;
+      const user = document.getElementById('sshUser').value || 'admin';
+      const pass = document.getElementById('sshPass').value || 'cisco';
+      
+      if (!targetId) { alert('Device auswählen!'); return; }
+      
+      const target = S.nodes.find(n => n.id === targetId);
+      const el = document.getElementById('sshOutput');
+      
+      // Simulate connection
+      el.innerHTML = '';
+      if (type === 'ssh') {
+        el.innerHTML += `<div style="color:var(--text-muted);">Connecting to ${target.name} via SSH...</div>`;
+        el.innerHTML += `<div style="color:var(--ok);">SSH-2.0-Cisco_IOS</div>`;
+        el.innerHTML += `<div style="color:var(--ok);">User Access Verification</div>`;
+        el.innerHTML += `<div>Username: ${user}</div>`;
+        el.innerHTML += `<div>Password: ${'*'.repeat(pass.length)}</div>`;
+        el.innerHTML += `<div style="color:var(--ok);">\n--- Login successful ---</div><br>`;
+      } else {
+        el.innerHTML += `<div style="color:var(--warn);">Warning: Telnet is not secure!</div>`;
+        el.innerHTML += `<div>Connecting to ${target.name}...</div><br>`;
+      }
+      
+      el.innerHTML += `
+${target.name}> enable
+${target.name}# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0     ${target.ip || 'unassigned'}     YES manual up                    up
+GigabitEthernet0/1     unassigned      YES manual down                  down
+
+${target.name}# `;
+      
+      log('SSH', 'success', `${type.toUpperCase()} session opened to ${target.name}`);
+    }
+    
     // ==================== STATS & LOG ====================
     function updStats() {
       document.getElementById('sN').textContent = S.nodes.length;
@@ -2804,20 +3149,18 @@ exit                - exit current mode
       }
       if (e.key === 'Escape') {
         desel();
-        closeM('pduModal');
-        closeM('cableModal');
-        closeM('natModal');
-        closeM('aclModal');
-        closeM('cliModal');
-        closeM('trafficModal');
-        closeM('cdpModal');
-        closeM('pingModal');
-        closeM('interfaceModal');
+        closeM('pduModal'); closeM('cableModal'); closeM('natModal'); closeM('aclModal');
+        closeM('cliModal'); closeM('trafficModal'); closeM('cdpModal'); closeM('pingModal');
+        closeM('interfaceModal'); closeM('vtpModal'); closeM('hsrpModal'); closeM('syslogModal');
+        closeM('sshModal');
       }
       if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveTopo(); }
       if (e.ctrlKey && e.key === 'o') { e.preventDefault(); loadTopo(); }
       if (e.ctrlKey && e.key === 'p') { e.preventDefault(); openPDU(); }
       if (e.ctrlKey && e.key === 't') { e.preventDefault(); openTrafficGen(); }
+      if (e.ctrlKey && e.key === 'v') { e.preventDefault(); openVTP(); }
+      if (e.ctrlKey && e.key === 'h') { e.preventDefault(); openHSRP(); }
+      if (e.ctrlKey && e.key === 'l') { e.preventDefault(); openSyslog(); }
       if (e.ctrlKey && e.key === 'a') {
         e.preventDefault();
         S.nodes.forEach(n => document.getElementById(n.id)?.classList.add('selected'));
