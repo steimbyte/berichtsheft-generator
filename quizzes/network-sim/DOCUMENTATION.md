@@ -5,15 +5,26 @@
 Ein vollständiger, browserbasierter Netzwerk-Simulator inspiriert von Cisco Packet Tracer, entwickelt für ITSE IHK AP2 Prüfungsvorbereitung. Vollständig in HTML, CSS und JavaScript implementiert.
 
 **Features:**
-- 20+ Netzwerk-Geräte (PCs, Switches, Router, Server, PoE-Geräte)
+- 25+ Netzwerk-Geräte (PCs, Switches, Router, Server, PoE-Geräte, WAN)
 - Drag & Drop Topologie-Erstellung
-- Port-basierte Verbindungen per Ziehen
-- PDU-Simulation (ICMP, ARP, DHCP, DNS, HTTP, TCP)
+- **Port-basierte Verbindungen per Ziehen** (Draggable Ports!)
+- **4 Kabeltypen**: Kupfer Straight, Crossover, Glasfaser, Seriell
+- PDU-Simulation (ICMP, ARP, DHCP, DNS, HTTP, TCP, UDP)
+- **Packet Capture & Detail View** mit Hex Dump
 - STP (Spanning Tree Protocol)
-- VLAN Konfiguration
+- **EtherChannel** (LACP/PAgP) Konfiguration
+- **Port Security** Konfiguration
+- VLAN & Switchport Konfiguration
+- **Routing Protokolle**: RIP, OSPF, EIGRP
+- **DHCP Pool & Relay (ip helper-address)**
+- **QoS** Konfiguration
 - CLI Terminal mit IOS-Befehlen
 - NAT und ACL Unterstützung
-- Save/Load Topologien
+- **Geräte Vorlagen** (Basic LAN, Router LAN, Corporate, WAN, PoE)
+- **Physical Workspace** mit Rack View
+- **Auto-Connect** für ausgewählte Geräte
+- Save/Load Topologien (JSON)
+- **Realtime & Simulation Modus**
 
 ---
 
