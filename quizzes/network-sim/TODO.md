@@ -78,8 +78,13 @@
 - [x] Device info on hover
 - [x] Connection labels
 - [x] Delete zone visual
-- [x] **Keyboard shortcuts**: Ctrl+S (Save), Ctrl+O (Open), Ctrl+P (PDU), Ctrl+T (Traffic), Ctrl+V (VTP), Ctrl+H (HSRP), Ctrl+L (Syslog)
+- [x] **Keyboard shortcuts**: Ctrl+S, Ctrl+O, Ctrl+P, Ctrl+T, Ctrl+V, Ctrl+H, Ctrl+L, Ctrl+Z (Undo), Ctrl+Y (Redo), Ctrl+D (Duplicate)
 - [x] **Interface configuration** (bandwidth, delay, description)
+- [x] **Undo/Redo** system (50 states)
+- [x] **Snap to Grid** toggle
+- [x] **Mini-map** overview
+- [x] **Right-click context menu**
+- [x] **Lasso multi-selection** (Shift+Drag)
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
