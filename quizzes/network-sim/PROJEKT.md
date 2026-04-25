@@ -73,6 +73,7 @@ python3 -m http.server 8080
 
 ### Commit History
 ```
+cdafc89 feat: Add packet history, port tooltips, auto-naming
 8e438da feat: Improved port UX, device inspector panel
 c92e19d feat: Add topology tree, OSI layers, interface duplex/speed
 199e9fa feat: Major UI/UX improvements
@@ -154,6 +155,6 @@ ITSE IHK AP2 Projekt
 
 ---
 
-**Version:** 1.5  
+**Version:** 1.6  
 **Letzte Änderung:** 2026-04-26  
 **Status:** 🟢 Aktiv

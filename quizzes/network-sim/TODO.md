@@ -93,6 +93,9 @@
 - [x] **Port LED status** indicators
 - [x] **VLAN tags** on connections
 - [x] **Device Inspector panel** - full device details
+- [x] **Packet History panel** - detailed packet list
+- [x] **Port tooltips** - connection info
+- [x] **Auto-naming** devices (PC0, Switch0, Router0...)
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
