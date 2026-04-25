@@ -39,9 +39,9 @@
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Space Grotesk', system-ui, sans-serif; background: var(--bg-deep); color: var(--text-primary); height: 100vh; overflow: hidden; }
-    
+
     .app { display: grid; grid-template-columns: 240px 1fr 360px; grid-template-rows: 48px 1fr 28px; height: 100vh; }
-    
+
     /* Toolbar */
     .toolbar { grid-column: 1 / -1; background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 12px; gap: 6px; }
     .toolbar-title { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; margin-right: 12px; }
@@ -51,7 +51,7 @@
     .tool-btn.active { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); }
     .tool-btn i { font-size: 14px; }
     .tool-btn.primary { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); }
-    
+
     /* Device Panel */
     .device-panel { background: var(--bg-surface); border-right: 1px solid var(--border); padding: 8px; overflow-y: auto; }
     .panel-section { margin-bottom: 8px; }
@@ -67,22 +67,22 @@
     .device-item.network { border-left: 3px solid var(--device); }
     .device-icon { font-size: 22px; margin-bottom: 2px; }
     .device-name { font-size: 0.55rem; font-weight: 500; }
-    
+
     /* Canvas */
     .canvas-area { position: relative; background: var(--bg-deep); overflow: hidden; }
     .canvas { position: absolute; inset: 0; cursor: grab; }
     .canvas.panning { cursor: grabbing; }
-    .canvas-inner { position: absolute; width: 20000px; height: 12000px; background: 
+    .canvas-inner { position: absolute; width: 20000px; height: 12000px; background:
       linear-gradient(rgba(201, 162, 39, 0.05) 1px, transparent 1px),
       linear-gradient(90deg, rgba(201, 162, 39, 0.05) 1px, transparent 1px);
       background-size: 20px 20px; }
-    
+
     .canvas-tools { position: absolute; bottom: 12px; left: 12px; display: flex; gap: 4px; z-index: 100; }
     .canvas-tool { width: 32px; height: 32px; background: var(--glass); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.15s; }
     .canvas-tool:hover { background: var(--glass-light); border-color: var(--accent); }
     .canvas-tool.active { background: var(--accent); color: var(--bg-deep); }
     .canvas-tool.disabled { opacity: 0.4; pointer-events: none; }
-    
+
     /* Real-time Traffic Indicator */
     .traffic-dot { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); animation: trafficPulse 1s infinite; }
     .traffic-dot.sending { background: var(--layer3); }
@@ -91,7 +91,7 @@
       0%, 100% { opacity: 0.4; transform: scale(0.8); }
       50% { opacity: 1; transform: scale(1.2); }
     }
-    
+
     /* Device Status Badge */
     .device-status-badge { position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg-deep); z-index: 5; }
     .device-status-badge.online { background: var(--ok); }
@@ -101,14 +101,14 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
-    
+
     /* Packet Animation Trail */
     .packet-trail-dot { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); opacity: 0; animation: trailFade 0.3s forwards; pointer-events: none; }
     @keyframes trailFade {
       0% { opacity: 0.8; transform: scale(1); }
       100% { opacity: 0; transform: scale(0.2); }
     }
-    
+
     /* Quick Templates Modal */
     .template-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; }
     .template-item { background: var(--glass); border: 1px solid var(--border); border-radius: 8px; padding: 12px 8px; cursor: pointer; text-align: center; transition: all 0.2s; }
@@ -116,7 +116,7 @@
     .template-item i { font-size: 28px; color: var(--accent); margin-bottom: 6px; }
     .template-item-name { font-size: 0.55rem; font-weight: 500; }
     .template-item-desc { font-size: 0.45rem; color: var(--text-muted); margin-top: 2px; }
-    
+
     /* MAC Address Table */
     .mac-panel { position: absolute; top: 60px; right: 380px; width: 320px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; z-index: 200; overflow: hidden; display: none; }
     .mac-panel.show { display: block; }
@@ -126,7 +126,7 @@
     .mac-row.header { background: var(--bg-elevated); color: var(--text-muted); font-family: inherit; }
     .mac-row .vlan { color: var(--accent); }
     .mac-row .interface { color: var(--ok); }
-    
+
     /* Routing Table */
     .route-panel { position: absolute; top: 60px; right: 380px; width: 350px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; z-index: 200; overflow: hidden; display: none; }
     .route-panel.show { display: block; }
@@ -142,19 +142,19 @@
     .route-badge.c { background: var(--ok); color: var(--bg-deep); }
     .route-badge.o { background: var(--device); color: var(--bg-deep); }
     .route-badge.r { background: var(--warn); color: var(--bg-deep); }
-    
+
     /* Latency Indicator */
     .latency-badge { position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); background: var(--bg-surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 4px; font-size: 0.4rem; color: var(--text-muted); white-space: nowrap; pointer-events: none; }
     .latency-badge.excellent { border-color: var(--ok); color: var(--ok); }
     .latency-badge.good { border-color: var(--layer3); color: var(--layer3); }
     .latency-badge.poor { border-color: var(--warn); color: var(--warn); }
-    
+
     /* Connection Latency Bar */
     .conn-latency { position: absolute; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 3px; padding: 1px 3px; font-size: 0.4rem; color: var(--text-muted); pointer-events: none; text-align: center; }
     .conn-latency.fast { border-color: var(--ok); color: var(--ok); }
     .conn-latency.medium { border-color: var(--layer3); color: var(--layer3); }
     .conn-latency.slow { border-color: var(--warn); color: var(--warn); }
-    
+
     /* Packet Animation Enhanced */
     .pkt-anim { position: absolute; width: 16px; height: 16px; border-radius: 50%; pointer-events: none; z-index: 1000; display: flex; align-items: center; justify-content: center; font-size: 10px; }
     .pkt-anim.icmp { background: var(--ok); box-shadow: 0 0 10px var(--ok); }
@@ -165,23 +165,23 @@
     .pkt-anim.udp { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
     .pkt-anim.failed { background: var(--error); box-shadow: 0 0 10px var(--error); }
     .pkt-anim-label { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--bg-surface); padding: 1px 4px; border-radius: 3px; font-size: 0.4rem; white-space: nowrap; }
-    
+
     /* Group Selection Box */
     .group-box { position: absolute; background: rgba(201, 162, 39, 0.1); border: 2px solid var(--accent); border-radius: 8px; padding: 4px 8px; font-size: 0.55rem; color: var(--accent); cursor: move; z-index: 2; display: flex; align-items: center; gap: 4px; }
     .group-box:hover { background: rgba(201, 162, 39, 0.2); }
     .group-box i { font-size: 12px; }
-    
+
     /* Port Error Counter */
     .port-errors { position: absolute; bottom: -8px; right: 0; background: var(--error); color: white; padding: 1px 3px; border-radius: 3px; font-size: 0.35rem; display: none; }
     .port-errors.show { display: block; }
-    
+
     /* Simulation Speed Control */
     .sim-speed { display: flex; align-items: center; gap: 4px; }
     .sim-speed select { background: var(--bg-deep); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; color: var(--text-primary); font-size: 0.6rem; }
-    
+
     /* Device Description */
     .node-desc { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); font-size: 0.4rem; color: var(--text-muted); white-space: nowrap; max-width: 80px; overflow: hidden; text-overflow: ellipsis; }
-    
+
     /* Realistic Front Panel */
     .node-front-panel { background: linear-gradient(180deg, #1a1a24 0%, #12121a 100%); border: 2px solid #2a2a34; border-radius: 10px; padding: 8px; position: relative; min-width: 90px; box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05); }
     .panel-top { text-align: center; margin-bottom: 6px; }
@@ -200,15 +200,15 @@
     .panel-led.yellow { background: var(--warn); }
     .panel-led.red { background: var(--error); }
     .panel-led.blue { background: var(--layer7); }
-    
+
     /* Interface Description */
     .interface-desc { font-size: 0.4rem; color: var(--text-muted); text-align: center; width: 20px; overflow: hidden; text-overflow: ellipsis; }
-    
+
     /* Cable Color Coding */
     .cable-legend { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; padding: 8px; }
     .cable-legend-item { display: flex; align-items: center; gap: 4px; font-size: 0.5rem; }
     .cable-legend-color { width: 16px; height: 4px; border-radius: 2px; }
-    
+
     /* Device Rack View */
     .rack-view { position: absolute; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px; z-index: 200; display: none; }
     .rack-view.show { display: block; }
@@ -217,14 +217,14 @@
     .rack-unit.active { border-color: var(--ok); }
     .rack-unit.blink { animation: blinkLed 0.5s infinite; }
     @keyframes blinkLed { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-    
+
     /* Mini Map */
     .mini-map { position: absolute; bottom: 60px; right: 12px; width: 150px; height: 100px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; z-index: 100; }
     .mini-map-header { padding: 4px 8px; background: var(--bg-elevated); font-size: 0.5rem; color: var(--text-muted); display: flex; justify-content: space-between; }
     .mini-map-canvas { width: 100%; height: calc(100% - 20px); background: var(--bg-deep); position: relative; }
     .mini-map-viewport { position: absolute; border: 1px solid var(--accent); background: rgba(201, 162, 39, 0.2); pointer-events: none; }
     .mini-map-node { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
-    
+
     /* Context Menu */
     .context-menu { position: fixed; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px 0; min-width: 160px; z-index: 10000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: none; }
     .context-menu.show { display: block; }
@@ -232,10 +232,10 @@
     .context-item:hover { background: var(--glass-light); }
     .context-item i { width: 16px; }
     .context-sep { height: 1px; background: var(--border); margin: 4px 0; }
-    
+
     /* Lasso Selection */
     .lasso { position: fixed; border: 2px dashed var(--accent); background: rgba(201, 162, 39, 0.1); pointer-events: none; z-index: 5000; display: none; }
-    
+
     /* Packet History Panel */
     .packet-history { position: absolute; bottom: 120px; left: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; width: 300px; max-height: 250px; z-index: 100; overflow: hidden; display: none; }
     .packet-history.show { display: block; }
@@ -247,27 +247,27 @@
     .packet-history-item .src { color: var(--ok); }
     .packet-history-item .dst { color: var(--warn); }
     .packet-history-item .type { background: var(--accent); color: var(--bg-deep); padding: 1px 4px; border-radius: 3px; }
-    
+
     /* Port Info Tooltip */
     .port-tooltip { position: fixed; background: var(--bg-surface); border: 1px solid var(--accent); border-radius: 6px; padding: 8px 12px; font-size: 0.6rem; z-index: 10000; pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,0.5); max-width: 200px; }
     .port-tooltip-title { font-weight: 600; margin-bottom: 4px; color: var(--accent); }
     .port-tooltip-row { display: flex; justify-content: space-between; padding: 2px 0; }
     .port-tooltip-label { color: var(--text-muted); }
-    
+
     /* Auto-Naming */
     .device-counter { position: absolute; top: 4px; right: 4px; font-size: 0.4rem; color: var(--text-muted); background: var(--bg-deep); padding: 1px 4px; border-radius: 4px; }
-    
+
     /* Network Health Indicator */
     .health-bar { position: absolute; bottom: 4px; left: 4px; width: 40px; height: 4px; background: var(--bg-deep); border-radius: 2px; overflow: hidden; }
     .health-bar-fill { height: 100%; background: var(--ok); transition: width 0.3s; }
     .health-bar-fill.warning { background: var(--warn); }
     .health-bar-fill.error { background: var(--error); }
-    
+
     /* Smart Port Labels */
     .smart-label { position: absolute; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: 0.5rem; pointer-events: none; z-index: 5; white-space: nowrap; }
     .smart-label.ip { border-color: var(--layer3); color: var(--layer3); }
     .smart-label.name { border-color: var(--accent); color: var(--accent); }
-    
+
     /* Interface Statistics Panel */
     .if-stats-panel { position: absolute; bottom: 130px; right: 12px; width: 280px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; z-index: 100; overflow: hidden; }
     .if-stats-header { padding: 8px 12px; background: var(--bg-elevated); display: flex; justify-content: space-between; align-items: center; font-size: 0.65rem; font-weight: 600; cursor: pointer; }
@@ -280,7 +280,7 @@
     .if-stats-row .stat.ok { color: var(--ok); }
     .if-stats-row .stat.warn { color: var(--warn); }
     .if-stats-row .speed { color: var(--layer3); }
-    
+
     /* VLAN Table Panel */
     .vlan-panel { position: absolute; top: 60px; right: 380px; width: 260px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; z-index: 200; overflow: hidden; display: none; }
     .vlan-panel.show { display: block; }
@@ -290,7 +290,7 @@
     .vlan-table th { background: var(--bg-elevated); padding: 4px 6px; text-align: left; color: var(--text-muted); }
     .vlan-table td { padding: 4px 6px; border-bottom: 1px solid var(--border); }
     .vlan-table tr:hover { background: var(--glass-light); }
-    
+
     /* Network Health Dashboard */
     .health-dashboard { position: absolute; top: 60px; left: 260px; width: 200px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; z-index: 100; overflow: hidden; display: none; }
     .health-dashboard.show { display: block; }
@@ -301,7 +301,7 @@
     .health-bar { height: 6px; background: var(--bg-deep); border-radius: 3px; overflow: hidden; }
     .health-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
     .health-value { font-size: 0.6rem; font-weight: 600; margin-top: 2px; }
-    
+
     /* ARP Table */
     .arp-panel { position: absolute; top: 60px; right: 380px; width: 300px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; z-index: 200; overflow: hidden; display: none; }
     .arp-panel.show { display: block; }
@@ -312,33 +312,33 @@
     .arp-row .ip { color: var(--layer3); }
     .arp-row .mac { color: var(--device); }
     .arp-row .interface { color: var(--accent); }
-    
+
     /* Link Status Indicator */
     .link-status { position: absolute; width: 6px; height: 6px; border-radius: 50%; animation: blink 1s infinite; }
     .link-status.up { background: var(--ok); }
     .link-status.down { background: var(--error); }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-    
+
     /* Snap Grid Toggle */
     .snap-toggle { position: absolute; bottom: 60px; left: 160px; z-index: 100; display: flex; align-items: center; gap: 6px; background: var(--glass); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 0.6rem; cursor: pointer; }
     .snap-toggle:hover { border-color: var(--accent); }
     .snap-toggle.active { background: var(--accent); color: var(--bg-deep); }
-    
+
     /* Undo/Redo Buttons */
     .undo-redo { display: flex; gap: 4px; }
     .undo-redo .canvas-tool { width: 28px; height: 28px; font-size: 12px; }
     .undo-redo .canvas-tool.disabled { opacity: 0.3; cursor: not-allowed; }
-    
+
     /* Connection Bezier Curves */
     .conn-line { fill: none; stroke-width: 3; stroke-linecap: round; pointer-events: stroke; transition: stroke-width 0.15s, filter 0.15s; }
     .conn-line:hover { stroke-width: 6; filter: drop-shadow(0 0 8px currentColor); }
     .conn-glow { fill: none; stroke-width: 8; stroke-linecap: round; opacity: 0.3; pointer-events: none; }
-    
+
     /* Packet Animation Improved */
     .packet { position: absolute; width: 16px; height: 16px; border-radius: 50%; pointer-events: none; z-index: 2000; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; }
     .packet::after { content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%; animation: packetPulse 0.5s infinite; }
     @keyframes packetPulse { 0%, 100% { box-shadow: 0 0 10px currentColor; } 50% { box-shadow: 0 0 20px currentColor, 0 0 30px currentColor; } }
-    
+
     /* OSI Layer Visualization */
     .osi-layers { position: absolute; top: 40px; right: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px; min-width: 120px; z-index: 100; }
     .osi-layer { display: flex; align-items: center; gap: 6px; padding: 3px 6px; font-size: 0.55rem; border-radius: 4px; margin: 2px 0; }
@@ -349,24 +349,24 @@
     .osi-L3 { background: #c9a227; }
     .osi-L2 { background: #8060c0; }
     .osi-L1 { background: #606060; }
-    
+
     /* Interface Status LED */
     .port-led { position: absolute; width: 6px; height: 6px; border-radius: 50%; top: 4px; right: 4px; }
     .port-led.up { background: #5a8a6a; box-shadow: 0 0 6px #5a8a6a; }
     .port-led.down { background: #c04040; }
     .port-led.poe { background: #e07020; box-shadow: 0 0 6px #e07020; }
-    
+
     /* Bandwidth Display */
     .conn-bw { font-size: 0.45rem; fill: var(--text-muted); font-family: 'Fira Code', monospace; }
-    
+
     /* Device Power Button */
     .device-power { position: absolute; bottom: 4px; right: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--bg-deep); border: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 8px; }
     .device-power.on { background: var(--ok); border-color: var(--ok); color: white; }
     .device-power:hover { transform: scale(1.2); }
-    
+
     /* VLAN Tag on Connection */
     .conn-vlan { position: absolute; background: var(--device); color: white; padding: 1px 4px; border-radius: 3px; font-size: 0.45rem; font-weight: bold; }
-    
+
     /* Topology Tree */
     .topology-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px; margin: 4px 0; }
     .topology-device { display: flex; align-items: center; gap: 6px; padding: 4px 8px; font-size: 0.6rem; cursor: pointer; border-radius: 4px; }
@@ -374,10 +374,10 @@
     .topology-device.selected { background: var(--accent); color: var(--bg-deep); }
     .topology-child { padding-left: 20px; }
     .topology-line { width: 1px; height: 100%; position: absolute; left: 10px; background: var(--border); }
-    
+
     /* Workspace Tabs */
     .ws-tabs { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 3px; z-index: 100; background: var(--bg-surface); border-radius: 8px; padding: 3px; }
-    
+
     /* Physical Workspace */
     .physical-view { display: none; }
     .physical-view.active { display: block; }
@@ -388,7 +388,7 @@
     .rack-device.offline { border-left: 3px solid var(--error); opacity: 0.6; }
     .rack-status { width: 8px; height: 8px; border-radius: 50%; background: var(--error); }
     .rack-device.online .rack-status { background: var(--ok); }
-    
+
     /* Routing Protocol Modal */
     .routing-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.5rem; font-weight: 600; margin-left: 4px; }
     .routing-badge.rip { background: #FF6347; color: white; }
@@ -396,7 +396,7 @@
     .routing-badge.eigrp { background: #9370DB; color: white; }
     .routing-badge.static { background: var(--accent); color: var(--bg-deep); }
     .routing-badge.connected { background: var(--device); color: white; }
-    
+
     /* Packet Simulation Detail */
     .packet-sim-info { background: var(--bg-deep); border-radius: 6px; padding: 8px; margin-top: 8px; font-family: 'Fira Code', monospace; font-size: 0.5rem; }
     .packet-sim-info .layer { display: flex; gap: 8px; margin: 4px 0; padding: 4px; background: var(--bg-elevated); border-radius: 4px; }
@@ -407,14 +407,14 @@
     .packet-sim-key { color: var(--text-muted); width: 70px; }
     .packet-sim-val { color: var(--text-primary); }
     .hexdump { background: #000; padding: 4px; border-radius: 4px; font-size: 0.45rem; color: var(--ok); word-break: break-all; line-height: 1.3; }
-    
+
     /* DHCP Pool */
     .dhcp-pool { margin-top: 8px; }
     .dhcp-pool-item { background: var(--bg-deep); padding: 6px; border-radius: 4px; margin: 4px 0; font-size: 0.55rem; }
-    
+
     /* Route Metrics */
     .route-metric { color: var(--accent); font-size: 0.5rem; }
-    
+
     /* Device Templates */
     .template-section { padding: 8px; }
     .template-btn { background: var(--glass); border: 1px solid var(--border); border-radius: 6px; padding: 8px; margin: 4px 0; cursor: pointer; transition: all 0.15s; width: 100%; text-align: left; font-size: 0.6rem; }
@@ -423,28 +423,28 @@
     .ws-tab { padding: 5px 12px; background: transparent; border: none; border-radius: 5px; font-size: 0.65rem; cursor: pointer; transition: all 0.15s; }
     .ws-tab:hover { background: var(--glass); }
     .ws-tab.active { background: var(--accent); color: var(--bg-deep); font-weight: 600; }
-    
+
     /* Mode Indicator */
     .mode-badge { position: absolute; top: 8px; left: 12px; padding: 4px 10px; border-radius: 12px; font-size: 0.6rem; font-weight: 600; z-index: 100; }
     .mode-badge.realtime { background: var(--ok); color: var(--bg-deep); }
     .mode-badge.simulation { background: var(--layer3); color: var(--bg-deep); }
-    
+
     /* Connection Hint */
     .conn-hint { position: absolute; top: 50px; right: 12px; background: var(--accent); color: var(--bg-deep); padding: 8px 14px; border-radius: 8px; font-size: 0.65rem; font-weight: 600; z-index: 100; opacity: 0; transition: opacity 0.3s; display: flex; align-items: center; gap: 6px; }
     .conn-hint.show { opacity: 1; }
-    
+
     /* Nodes */
-    .sim-node { 
-      position: absolute; 
-      background: var(--glass); 
-      backdrop-filter: blur(20px); 
-      border: 2px solid var(--border); 
-      border-radius: 10px; 
-      padding: 10px; 
-      cursor: grab; 
-      user-select: none; 
-      min-width: 90px; 
-      text-align: center; 
+    .sim-node {
+      position: absolute;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      cursor: grab;
+      user-select: none;
+      min-width: 90px;
+      text-align: center;
       transition: box-shadow 0.2s, transform 0.1s;
     }
     .sim-node:hover { box-shadow: 0 0 25px var(--glow); }
@@ -454,20 +454,20 @@
     .sim-node.fiber { border-color: var(--fiber); --glow: rgba(64, 128, 192, 0.5); }
     .sim-node.poe { border-color: var(--poe); --glow: rgba(90, 138, 106, 0.5); }
     .sim-node.network { border-color: var(--device); --glow: rgba(128, 96, 192, 0.5); }
-    
+
     .node-icon { font-size: 26px; margin-bottom: 2px; }
     .node-name { font-family: 'Outfit', sans-serif; font-size: 0.65rem; font-weight: 600; margin-bottom: 6px; }
-    
+
     .node-ports { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
-    
+
     /* Port Styling */
-    .node-port { 
-      width: 18px; 
-      height: 18px; 
-      border-radius: 50%; 
-      background: var(--bg-elevated); 
+    .node-port {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
       border: 3px solid var(--border);
-      cursor: crosshair; 
+      cursor: crosshair;
       transition: all 0.2s;
       position: relative;
       display: flex;
@@ -482,8 +482,8 @@
       background: transparent;
       transition: all 0.2s;
     }
-    .node-port:hover { 
-      transform: scale(1.6); 
+    .node-port:hover {
+      transform: scale(1.6);
       border-color: var(--accent);
       background: var(--accent);
       box-shadow: 0 0 20px var(--accent), 0 0 40px rgba(201, 162, 39, 0.3);
@@ -496,8 +496,8 @@
       opacity: 1;
       transform: translateY(-20px);
     }
-    .node-port.connected { 
-      background: var(--ok); 
+    .node-port.connected {
+      background: var(--ok);
       border-color: var(--ok);
     }
     .node-port.connected::before { background: var(--bg-deep); }
@@ -550,16 +550,16 @@
       80% { opacity: 1; }
       100% { opacity: 0; }
     }
-    
+
     @keyframes portPulse {
       0%, 100% { transform: scale(1.4); box-shadow: 0 0 15px var(--accent); }
       50% { transform: scale(1.6); box-shadow: 0 0 25px var(--accent); }
     }
-    
+
     .node-info { margin-top: 6px; padding-top: 4px; border-top: 1px solid var(--border); font-size: 0.5rem; color: var(--text-muted); text-align: left; }
     .node-info-row { display: flex; justify-content: space-between; padding: 1px 0; }
     .node-info-row span:last-child { font-family: 'Fira Code', monospace; color: var(--text-primary); }
-    
+
     /* Connections SVG */
     .conn-svg { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
     .conn-line { fill: none; stroke-width: 4; stroke-linecap: round; pointer-events: stroke; transition: stroke-width 0.15s; }
@@ -570,14 +570,14 @@
     .conn-line:hover { stroke-width: 8; filter: drop-shadow(0 0 10px currentColor); cursor: pointer; pointer-events: stroke; }
     .conn-line.selected { stroke: var(--accent); stroke-width: 8; filter: drop-shadow(0 0 15px var(--accent)); }
     .conn-line.blocked { opacity: 0.3; stroke-dasharray: 12,6; }
-    
+
     .conn-label {
       font-size: 9px;
       fill: var(--text-muted);
       font-family: 'Fira Code', monospace;
       pointer-events: none;
     }
-    
+
     /* Connection Preview */
     .conn-preview { position: fixed; pointer-events: none; z-index: 5000; }
     .conn-preview line { stroke-width: 4; stroke-linecap: round; }
@@ -585,10 +585,10 @@
     .conn-preview.copper-cross line { stroke: var(--copper-cross); filter: drop-shadow(0 0 10px var(--copper-cross)); }
     .conn-preview.fiber line { stroke: var(--fiber); stroke-dasharray: 8,4; filter: drop-shadow(0 0 10px var(--fiber)); }
     .conn-preview.serial line { stroke: var(--serial); filter: drop-shadow(0 0 10px var(--serial)); }
-    
+
     /* Quick Connect Label */
     .quick-connect { position: fixed; background: var(--accent); color: var(--bg-deep); padding: 5px 10px; border-radius: 12px; font-size: 0.6rem; font-weight: 600; pointer-events: none; z-index: 5001; white-space: nowrap; transform: translate(-50%, -120%); }
-    
+
     /* Packets */
     .packet { position: absolute; width: 12px; height: 12px; border-radius: 50%; pointer-events: none; z-index: 2000; }
     .packet.L3 { background: var(--layer3); box-shadow: 0 0 20px var(--layer3); }
@@ -599,36 +599,36 @@
     .packet.dhcp { background: #9370DB; box-shadow: 0 0 20px #9370DB; }
     .packet.dns { background: #20B2AA; box-shadow: 0 0 20px #20B2AA; }
     .packet.http { background: #32CD32; box-shadow: 0 0 20px #32CD32; }
-    
+
     /* Properties Panel */
     .props-panel { background: var(--bg-surface); border-left: 1px solid var(--border); padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
     .props-title { font-family: 'Outfit', sans-serif; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
     .props-section { background: var(--bg-elevated); border-radius: 8px; padding: 8px; }
     .props-section-title { font-size: 0.6rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
-    
+
     .form-group { margin-bottom: 6px; }
     .form-label { font-size: 0.55rem; color: var(--text-muted); margin-bottom: 2px; display: block; }
     .form-input { width: 100%; padding: 6px 8px; background: var(--bg-deep); border: 1px solid var(--border); border-radius: 5px; color: var(--text-primary); font-family: inherit; font-size: 0.7rem; }
     .form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 8px rgba(201, 162, 39, 0.2); }
     .form-select { width: 100%; padding: 6px 8px; background: var(--bg-deep); border: 1px solid var(--border); border-radius: 5px; color: var(--text-primary); font-family: inherit; font-size: 0.7rem; cursor: pointer; }
-    
+
     .data-table { width: 100%; border-collapse: collapse; font-size: 0.55rem; }
     .data-table th { text-align: left; padding: 3px 5px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
     .data-table td { padding: 3px 5px; border-bottom: 1px solid var(--border); font-family: 'Fira Code', monospace; }
-    
+
     .panel-tabs { display: flex; gap: 3px; margin-bottom: 6px; }
     .panel-tab { flex: 1; padding: 5px; background: var(--glass); border: 1px solid var(--border); border-radius: 5px; font-size: 0.6rem; cursor: pointer; text-align: center; transition: all 0.15s; }
     .panel-tab:hover { background: var(--glass-light); }
     .panel-tab.active { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    
+
     /* Event Log */
     .event-log { background: var(--bg-deep); border-radius: 5px; padding: 6px; font-family: 'Fira Code', monospace; font-size: 0.55rem; max-height: 120px; overflow-y: auto; }
     .event-item { padding: 2px 0; display: flex; gap: 5px; align-items: center; }
     .event-time { color: var(--text-muted); font-size: 0.5rem; }
     .event-layer { width: 14px; height: 14px; border-radius: 3px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.45rem; font-weight: 700; color: var(--bg-deep); flex-shrink: 0; }
-    
+
     /* Status Bar */
     .status-bar { grid-column: 1 / -1; background: var(--bg-surface); border-top: 1px solid var(--border); display: flex; align-items: center; padding: 0 12px; gap: 16px; font-size: 0.6rem; }
     .status-item { display: flex; align-items: center; gap: 4px; }
@@ -636,7 +636,7 @@
     .status-value { font-weight: 600; }
     .status-value.ok { color: var(--ok); }
     .status-value.error { color: var(--error); }
-    
+
     /* Modals */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 10000; }
     .modal-overlay.show { display: flex; }
@@ -650,7 +650,7 @@
     .modal-btn.secondary { background: var(--glass); border: 1px solid var(--border); color: var(--text-primary); }
     .modal-btn.secondary:hover { background: var(--glass-light); }
     .modal-btn.danger { background: var(--error); border: none; color: white; }
-    
+
     /* Connection Type Selector */
     .conn-types { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 12px 0; }
     .conn-type { background: var(--glass); border: 2px solid var(--border); border-radius: 8px; padding: 10px 6px; text-align: center; cursor: pointer; transition: all 0.15s; }
@@ -663,29 +663,29 @@
     .conn-type-icon { font-size: 18px; margin-bottom: 4px; }
     .conn-type-name { font-size: 0.55rem; font-weight: 600; }
     .conn-type-desc { font-size: 0.5rem; color: var(--text-muted); margin-top: 2px; }
-    
+
     /* PDU Simulation Panel */
     .sim-panel { position: absolute; bottom: 60px; right: 12px; background: var(--bg-surface); border: 1px solid var(--border-accent); border-radius: 10px; padding: 12px; width: 280px; z-index: 100; display: none; }
     .sim-panel.show { display: block; }
     .sim-panel-title { font-size: 0.7rem; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
-    
+
     /* Capture List */
     .capture-list { max-height: 200px; overflow-y: auto; }
     .capture-item { padding: 6px 8px; border-bottom: 1px solid var(--border); font-size: 0.55rem; cursor: pointer; transition: background 0.1s; }
     .capture-item:hover { background: var(--glass); }
     .capture-item.selected { background: rgba(201, 162, 39, 0.2); }
-    
+
     /* Packet Detail */
     .packet-detail { margin-top: 10px; padding: 8px; background: var(--bg-deep); border-radius: 6px; font-family: 'Fira Code', monospace; font-size: 0.5rem; }
     .packet-detail pre { white-space: pre-wrap; word-break: break-all; }
-    
+
     /* Delete Zone */
     .delete-zone { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); background: var(--error); color: white; padding: 8px 20px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 100; }
     .delete-zone.show { opacity: 1; }
-    
+
     /* Network Cloud */
     .cloud-shape { position: absolute; background: var(--glass); border: 2px solid var(--fiber); border-radius: 50% 50% 50% 20%; padding: 20px 30px; }
-    
+
     @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; } }
   </style>
 </head>
@@ -697,21 +697,21 @@
       <div style="display:flex;align-items:center;gap:4px;margin-right:8px;">
         <button class="tool-btn" onclick="toggleTopology()" id="btnTopology" title="Topology"><i class="ph ph-tree-structure"></i></button>
       </div>
-      
+
       <button class="tool-btn" onclick="setMode('realtime')" id="btnRT"><i class="ph ph-clock"></i> Realtime</button>
       <button class="tool-btn" onclick="setMode('simulation')" id="btnSim"><i class="ph ph-play"></i> Simulation</button>
-      
+
       <div class="toolbar-spacer"></div>
-      
+
       <button class="tool-btn" onclick="openPDU()" id="btnPDU"><i class="ph ph-paper-plane-tilt"></i> PDU</button>
       <button class="tool-btn" onclick="openCapture()" id="btnCapture"><i class="ph ph-eye"></i> Capture</button>
       <button class="tool-btn" onclick="runSTP()"><i class="ph ph-git-branch"></i> STP</button>
       <button class="tool-btn" onclick="openNAT()"><i class="ph ph-arrows-split"></i> NAT</button>
       <button class="tool-btn" onclick="openRouting()"><i class="ph ph-path"></i> Routing</button>
       <button class="tool-btn" onclick="openACL()"><i class="ph ph-shield"></i> ACL</button>
-      
+
       <div class="toolbar-spacer"></div>
-      
+
       <button class="tool-btn" onclick="openCLI()"><i class="ph ph-terminal"></i> CLI</button>
       <button class="tool-btn" onclick="openTrafficGen()"><i class="ph ph-lightning"></i> Traffic</button>
       <button class="tool-btn" onclick="openCDP()"><i class="ph ph-broadcast"></i> CDP</button>
@@ -734,14 +734,16 @@
       <button class="tool-btn" onclick="autoConnect()" title="Auto-Connect ausgewählter Geräte"><i class="ph ph-magic-wand"></i> Auto</button>
       <button class="tool-btn" onclick="openDHCPPool()" title="DHCP Pool"><i class="ph ph-database"></i> DHCP</button>
       <button class="tool-btn" onclick="openDHCPHelper()" title="DHCP Relay"><i class="ph ph-arrows-left-right"></i> Helper</button>
-      
+      <button class="tool-btn" onclick="autoSave()" id="btnAutoSave" title="Auto-Save"><i class="ph ph-cloud-check"></i> AutoSave</button>
+      <button class="tool-btn" onclick="exportImage()" title="Als Bild"><i class="ph ph-image"></i></button>
+
       <div class="toolbar-spacer"></div>
-      
+
       <button class="tool-btn" onclick="saveTopo()"><i class="ph ph-download-simple"></i></button>
       <button class="tool-btn" onclick="loadTopo()"><i class="ph ph-upload-simple"></i></button>
       <button class="tool-btn" onclick="clearAll()" style="color: var(--error);"><i class="ph ph-trash"></i></button>
     </div>
-    
+
     <!-- Device Panel -->
     <div class="device-panel">
       <div class="search-box">
@@ -773,7 +775,7 @@
         <div class="device-grid" id="wanDev"></div>
       </div>
     </div>
-    
+
     <!-- Topology Panel (Collapsible) -->
     <div id="topologyPanel" style="position:absolute;top:60px;left:260px;width:200px;max-height:400px;background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:8px;z-index:200;display:none;overflow-y:auto;">
       <div style="font-size:0.65rem;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
@@ -782,17 +784,17 @@
       </div>
       <div id="topologyTree"></div>
     </div>
-    
+
     <!-- Canvas -->
     <div class="canvas-area">
       <div class="mode-badge realtime" id="modeBadge">REALTIME</div>
-      
+
       <div class="ws-tabs">
         <div class="ws-tab active" onclick="setWS('logical')">Logical</div>
         <div class="ws-tab" onclick="setWS('physical')">Physical</div>
         <div class="ws-tab" onclick="setWS('config')">Config</div>
       </div>
-      
+
       <!-- Physical Workspace (hidden by default) -->
       <div class="physical-view" id="physicalView">
         <div style="padding: 12px;">
@@ -802,18 +804,18 @@
           </div>
         </div>
       </div>
-      
+
       <div class="conn-hint" id="connHint">
         <i class="ph ph-plugs-connected"></i> <span id="connHintText">Port ziehen zum Verbinden</span>
       </div>
-      
+
       <div class="canvas" id="canvas">
         <div class="canvas-inner" id="canvasInner">
           <svg class="conn-svg" id="connSvg"></svg>
           <div id="nodesContainer"></div>
         </div>
       </div>
-      
+
       <div class="canvas-tools">
         <div class="undo-redo">
           <button class="canvas-tool disabled" onclick="undo()" id="btnUndo" title="Undo (Ctrl+Z)"><i class="ph ph-arrow-u-up-left"></i></button>
@@ -822,15 +824,16 @@
         <button class="canvas-tool" onclick="zoomIn()" title="Zoom In"><i class="ph ph-plus"></i></button>
         <button class="canvas-tool" onclick="zoomOut()" title="Zoom Out"><i class="ph ph-minus"></i></button>
         <button class="canvas-tool" onclick="resetView()" title="Reset View"><i class="ph ph-arrows-out"></i></button>
-        <button class="canvas-tool" onclick="fitAll()" title="Fit All"><i class="ph ph-frame-corners"></i></button>
+        <button class="canvas-tool" onclick="fitAll()" title="Fit All (F)"><i class="ph ph-frame-corners"></i></button>
         <button class="canvas-tool" onclick="deleteSelected()" title="Delete (Del)"><i class="ph ph-trash"></i></button>
+        <button class="canvas-tool" onclick="centerSelected()" title="Center (C)"><i class="ph ph-crosshair"></i></button>
       </div>
-      
+
       <!-- Snap to Grid Toggle -->
       <div class="snap-toggle active" id="snapToggle" onclick="toggleSnap()">
         <i class="ph ph-grid-four"></i> <span id="snapLabel">Snap: ON</span>
       </div>
-      
+
       <!-- Mini Map -->
       <div class="mini-map" id="miniMap">
         <div class="mini-map-header">
@@ -841,7 +844,7 @@
           <div class="mini-map-viewport" id="miniViewport"></div>
         </div>
       </div>
-      
+
       <!-- Packet History Panel -->
       <div class="packet-history" id="packetHistory">
         <div class="packet-history-header">
@@ -850,10 +853,10 @@
         </div>
         <div class="packet-history-list" id="packetHistoryList"></div>
       </div>
-      
+
       <!-- Port Tooltip -->
       <div class="port-tooltip" id="portTooltip" style="display:none;"></div>
-      
+
       <!-- Interface Statistics Panel -->
       <div class="if-stats-panel" id="ifStatsPanel">
         <div class="if-stats-header" onclick="toggleIfStatsContent()">
@@ -862,7 +865,7 @@
         </div>
         <div class="if-stats-content" id="ifStatsContent" style="display:none;"></div>
       </div>
-      
+
       <!-- VLAN Table Panel -->
       <div class="vlan-panel" id="vlanPanel">
         <div class="vlan-header">
@@ -876,7 +879,7 @@
           </table>
         </div>
       </div>
-      
+
       <!-- Health Dashboard -->
       <div class="health-dashboard" id="healthDashboard">
         <div class="health-header">
@@ -885,7 +888,7 @@
         </div>
         <div class="health-content" id="healthContent"></div>
       </div>
-      
+
       <!-- ARP Table Panel -->
       <div class="arp-panel" id="arpPanel">
         <div class="arp-header">
@@ -897,7 +900,7 @@
           <div id="arpTableBody"></div>
         </div>
       </div>
-      
+
       <!-- MAC Address Table -->
       <div class="mac-panel" id="macPanel">
         <div class="mac-header">
@@ -917,7 +920,7 @@
           <div id="macTableBody"></div>
         </div>
       </div>
-      
+
       <!-- Routing Table -->
       <div class="route-panel" id="routePanel">
         <div class="route-header">
@@ -933,7 +936,7 @@
           <div id="routeTableBody"></div>
         </div>
       </div>
-      
+
       <!-- NAT Table -->
       <div class="route-panel" id="natPanel" style="width:360px;">
         <div class="route-header">
@@ -949,11 +952,11 @@
           <div id="natTableBody"></div>
         </div>
       </div>
-      
+
       <div class="delete-zone" id="deleteZone">
         <i class="ph ph-trash"></i> Hier ablegen zum Löschen
       </div>
-      
+
       <!-- Context Menu -->
       <div class="context-menu" id="contextMenu">
         <div class="context-item" onclick="ctxDelete()"><i class="ph ph-trash" style="color:var(--error)"></i> Löschen</div>
@@ -963,10 +966,10 @@
         <div class="context-item" onclick="ctxCopy()"><i class="ph ph-copy"></i> Duplizieren</div>
         <div class="context-item" onclick="ctxInspect()"><i class="ph ph-magnifying-glass"></i> Inspizieren</div>
       </div>
-      
+
       <!-- Lasso Selection -->
       <div class="lasso" id="lasso"></div>
-      
+
       <!-- Simulation Panel -->
       <div class="sim-panel" id="simPanel">
         <div class="sim-panel-title">
@@ -982,11 +985,11 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Properties Panel -->
     <div class="props-panel">
       <div class="props-title"><i class="ph ph-sliders"></i> Eigenschaften</div>
-      
+
       <div class="panel-tabs">
         <div class="panel-tab active" onclick="setPTab('cfg')">Config</div>
         <div class="panel-tab" onclick="setPTab('arp')">ARP</div>
@@ -994,7 +997,7 @@
         <div class="panel-tab" onclick="setPTab('rt')">Route</div>
         <div class="panel-tab" onclick="setPTab('stp')">STP</div>
       </div>
-      
+
       <!-- Config Tab -->
       <div id="tabCfg" class="tab-content active">
         <div id="noSel" class="props-section">
@@ -1084,7 +1087,7 @@
           </button>
         </div>
       </div>
-      
+
       <!-- ARP Tab -->
       <div id="tabARP" class="tab-content">
         <div class="props-section">
@@ -1092,7 +1095,7 @@
           <table class="data-table"><thead><tr><th>IP Adresse</th><th>MAC Adresse</th><th>Interface</th></tr></thead><tbody id="arpBody"></tbody></table>
         </div>
       </div>
-      
+
       <!-- MAC Tab -->
       <div id="tabMAC" class="tab-content">
         <div class="props-section">
@@ -1100,7 +1103,7 @@
           <table class="data-table"><thead><tr><th>MAC</th><th>VLAN</th><th>Port</th><th>Typ</th></tr></thead><tbody id="macBody"></tbody></table>
         </div>
       </div>
-      
+
       <!-- Route Tab -->
       <div id="tabRT" class="tab-content">
         <div class="props-section">
@@ -1123,7 +1126,7 @@
           <i class="ph ph-shield-check"></i> Port Security
         </button>
       </div>
-      
+
       <!-- STP Tab -->
       <div id="tabSTP" class="tab-content">
         <div class="props-section">
@@ -1135,7 +1138,7 @@
           <div id="stpPorts"></div>
         </div>
       </div>
-      
+
       <!-- Event Log -->
       <div class="props-section" style="flex:1;min-height:0;display:flex;flex-direction:column;">
         <div class="props-section-title" style="display:flex;justify-content:space-between;align-items:center;">
@@ -1144,7 +1147,7 @@
         </div>
         <div class="event-log" id="eventLog" style="flex:1;min-height:0;"></div>
       </div>
-      
+
       <!-- Stats -->
       <div class="props-section">
         <div class="node-info-row"><span>Knoten:</span><span id="sN">0</span></div>
@@ -1153,7 +1156,7 @@
         <div class="node-info-row"><span>PDUs:</span><span id="sPDUs">0</span></div>
       </div>
     </div>
-    
+
     <!-- Status Bar -->
     <div class="status-bar">
       <div class="status-item"><span class="status-label">Modus:</span><span class="status-value" id="sMode">Echtzeit</span></div>
@@ -1163,7 +1166,7 @@
       <div class="status-item"><span class="status-label">Kabel:</span><span class="status-value" id="sCable">Kupfer</span></div>
     </div>
   </div>
-  
+
   <!-- PDU Modal -->
   <div class="modal-overlay" id="pduModal">
     <div class="modal">
@@ -1212,7 +1215,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Cable Type Modal -->
   <div class="modal-overlay" id="cableModal">
     <div class="modal">
@@ -1250,7 +1253,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- NAT Modal -->
   <div class="modal-overlay" id="natModal">
     <div class="modal">
@@ -1273,7 +1276,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- ACL Modal -->
   <div class="modal-overlay" id="aclModal">
     <div class="modal">
@@ -1318,7 +1321,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Port Security Modal -->
   <div class="modal-overlay" id="portSecurityModal">
     <div class="modal">
@@ -1360,7 +1363,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Switchport Modal -->
   <div class="modal-overlay" id="switchportModal">
     <div class="modal">
@@ -1406,7 +1409,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- CLI Modal -->
   <div class="modal-overlay" id="cliModal">
     <div class="modal" style="max-width: 640px;">
@@ -1424,7 +1427,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Traffic Generator Modal -->
   <div class="modal-overlay" id="trafficModal">
     <div class="modal">
@@ -1461,7 +1464,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- CDP Modal -->
   <div class="modal-overlay" id="cdpModal">
     <div class="modal" style="max-width: 550px;">
@@ -1481,7 +1484,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Ping Results Modal -->
   <div class="modal-overlay" id="pingModal">
     <div class="modal">
@@ -1494,7 +1497,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Interface Config Modal -->
   <div class="modal-overlay" id="interfaceModal">
     <div class="modal">
@@ -1569,7 +1572,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Routing Protocol Modal -->
   <div class="modal-overlay" id="routingModal">
     <div class="modal">
@@ -1610,7 +1613,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Packet Detail Modal -->
   <div class="modal-overlay" id="packetDetailModal">
     <div class="modal" style="max-width: 600px;">
@@ -1621,7 +1624,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- DHCP Pool Modal -->
   <div class="modal-overlay" id="dhcpModal">
     <div class="modal">
@@ -1662,7 +1665,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- DHCP Relay Modal -->
   <div class="modal-overlay" id="dhcpHelperModal">
     <div class="modal">
@@ -1693,7 +1696,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- EtherChannel Modal -->
   <div class="modal-overlay" id="etherChannelModal">
     <div class="modal">
@@ -1732,7 +1735,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- QoS Modal -->
   <div class="modal-overlay" id="qosModal">
     <div class="modal">
@@ -1767,7 +1770,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- VTP Modal -->
   <div class="modal-overlay" id="vtpModal">
     <div class="modal">
@@ -1805,7 +1808,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- HSRP Modal -->
   <div class="modal-overlay" id="hsrpModal">
     <div class="modal">
@@ -1861,7 +1864,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Syslog Modal -->
   <div class="modal-overlay" id="syslogModal">
     <div class="modal" style="max-width:600px;">
@@ -1899,7 +1902,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- SSH/Telnet Modal -->
   <div class="modal-overlay" id="sshModal">
     <div class="modal" style="max-width:550px;">
@@ -1937,7 +1940,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Device Templates -->
   <div class="modal-overlay" id="templateModal">
     <div class="modal">
@@ -2048,7 +2051,7 @@
         <div style="color:var(--ok)">Cisco IOS Simulation v15.x</div>
         <div style="color:var(--text-muted)">Commands: help, show ?, configure terminal, interface, exit</div>
       `;
-      
+
       // Show keyboard shortcuts hint
       setTimeout(() => {
         log('System', 'info', 'Tastenkürzel: Entf=Löschen, Esc=Schließen, Strg+A=Alle wählen');
@@ -2075,7 +2078,7 @@
       S.pz = Panzoom(document.getElementById('canvasInner'), { maxScale: 3, minScale: 0.1 });
       document.getElementById('canvas').addEventListener('wheel', S.pz.zoomWithWheel);
     }
-    
+
     function zoomIn() { S.pz.zoomIn(); updZoom(); }
     function zoomOut() { S.pz.zoomOut(); updZoom(); }
     function resetView() { S.pz.reset(); updZoom(); }
@@ -2094,9 +2097,9 @@
       S.pz.pan(-minX * scale + 50, -minY * scale + 50);
       updZoom();
     }
-    
+
     function updZoom() { document.getElementById('sZoom').textContent = Math.round(S.pz.getScale() * 100) + '%'; updateMiniMap(); }
-    
+
     // ==================== UNDO/REDO ====================
     function saveState() {
       const state = JSON.stringify({ nodes: S.nodes.map(n => ({...n, x: n.x, y: n.y})), conns: S.conns });
@@ -2105,7 +2108,7 @@
       S.redoStack = [];
       updUndoRedo();
     }
-    
+
     function undo() {
       if (S.undoStack.length === 0) return;
       const current = JSON.stringify({ nodes: S.nodes.map(n => ({...n, x: n.x, y: n.y})), conns: S.conns });
@@ -2115,7 +2118,7 @@
       updUndoRedo();
       log('System', 'info', 'Undo');
     }
-    
+
     function redo() {
       if (S.redoStack.length === 0) return;
       const current = JSON.stringify({ nodes: S.nodes.map(n => ({...n, x: n.x, y: n.y})), conns: S.conns });
@@ -2125,7 +2128,7 @@
       updUndoRedo();
       log('System', 'info', 'Redo');
     }
-    
+
     function restoreState(state) {
       clearAll(false);
       state.nodes.forEach(n => {
@@ -2146,12 +2149,12 @@
       updPortVisuals();
       updStats();
     }
-    
+
     function updUndoRedo() {
       document.getElementById('btnUndo').classList.toggle('disabled', S.undoStack.length === 0);
       document.getElementById('btnRedo').classList.toggle('disabled', S.redoStack.length === 0);
     }
-    
+
     // ==================== SNAP TO GRID ====================
     function toggleSnap() {
       S.snapToGrid = !S.snapToGrid;
@@ -2159,37 +2162,37 @@
       document.getElementById('snapLabel').textContent = `Snap: ${S.snapToGrid ? 'ON' : 'OFF'}`;
       log('System', 'info', `Snap to grid ${S.snapToGrid ? 'enabled' : 'disabled'}`);
     }
-    
+
     function snapPos(x, y) {
       if (!S.snapToGrid) return { x, y };
       return { x: Math.round(x / S.gridSize) * S.gridSize, y: Math.round(y / S.gridSize) * S.gridSize };
     }
-    
+
     // ==================== MINI MAP ====================
     function updateMiniMap() {
       if (S.nodes.length === 0) {
         document.getElementById('miniNodeCount').textContent = '0';
         return;
       }
-      
+
       const canvas = document.getElementById('miniMapCanvas');
       const viewport = document.getElementById('miniViewport');
       const mapW = canvas.clientWidth;
       const mapH = canvas.clientHeight;
-      
+
       // Calculate bounds
       const minX = Math.min(...S.nodes.map(n => n.x));
       const maxX = Math.max(...S.nodes.map(n => n.x + 100));
       const minY = Math.min(...S.nodes.map(n => n.y));
       const maxY = Math.max(...S.nodes.map(n => n.y + 80));
-      
+
       const worldW = maxX - minX + 200;
       const worldH = maxY - minY + 200;
       const scale = Math.min(mapW / worldW, mapH / worldH, 0.1);
-      
+
       // Clear old nodes
       canvas.querySelectorAll('.mini-map-node').forEach(n => n.remove());
-      
+
       // Add node dots
       S.nodes.forEach(n => {
         const dot = document.createElement('div');
@@ -2198,7 +2201,7 @@
         dot.style.top = ((n.y - minY + 40) * scale) + 'px';
         canvas.appendChild(dot);
       });
-      
+
       // Update viewport indicator
       const mainCanvas = document.getElementById('canvas');
       const rect = mainCanvas.getBoundingClientRect();
@@ -2207,10 +2210,10 @@
       viewport.style.top = (-S.pz.pan.y / sc * scale + 2) + 'px';
       viewport.style.width = (rect.width / sc * scale) + 'px';
       viewport.style.height = (rect.height / sc * scale) + 'px';
-      
+
       document.getElementById('miniNodeCount').textContent = S.nodes.length;
     }
-    
+
     // ==================== CONTEXT MENU ====================
     function showContextMenu(e, node) {
       e.preventDefault();
@@ -2220,18 +2223,18 @@
       menu.style.top = e.clientY + 'px';
       menu.classList.add('show');
     }
-    
+
     function hideContextMenu() {
       document.getElementById('contextMenu').classList.remove('show');
       S.ctxNode = null;
     }
-    
+
     function ctxDelete() { if (S.ctxNode) { S.sel = S.ctxNode; deleteSelected(); } hideContextMenu(); }
     function ctxConfig() { if (S.ctxNode) { sel(S.ctxNode, document.getElementById(S.ctxNode.id)); } hideContextMenu(); }
     function ctxCLI() { if (S.ctxNode) { S.sel = S.ctxNode; openCLI(); } hideContextMenu(); }
     function ctxCopy() { if (S.ctxNode) { const el = document.getElementById(S.ctxNode.id); const rect = el.getBoundingClientRect(); const dev = DEVS.end.find(d => d.name === S.ctxNode.name) || DEVS.sw.find(d => d.name === S.ctxNode.name) || DEVS.r.find(d => d.name === S.ctxNode.name); if (dev) createNode(dev, S.ctxNode.x + 50, S.ctxNode.y + 50); } hideContextMenu(); }
     function ctxInspect() { hideContextMenu(); openInspectPanel(S.ctxNode); }
-    
+
     function openInspectPanel(n) {
       if (!n) return;
       const panel = document.getElementById('inspectPanel') || createInspectPanel();
@@ -2263,7 +2266,7 @@
       `;
       panel.style.display = 'block';
     }
-    
+
     function createInspectPanel() {
       const panel = document.createElement('div');
       panel.id = 'inspectPanel';
@@ -2278,12 +2281,12 @@
       document.querySelector('.canvas-area').appendChild(panel);
       return panel;
     }
-    
-    function closeInspectPanel() { 
-      const panel = document.getElementById('inspectPanel'); 
-      if (panel) panel.style.display = 'none'; 
+
+    function closeInspectPanel() {
+      const panel = document.getElementById('inspectPanel');
+      if (panel) panel.style.display = 'none';
     }
-    
+
     function togglePower(id, event) {
       event.stopPropagation();
       const n = S.nodes.find(x => x.id === id);
@@ -2299,14 +2302,14 @@
       }
       log('System', 'info', `${n.name} ${n.on ? 'eingeschaltet' : 'ausgeschaltet'}`);
     }
-    
+
     // ==================== LASSO SELECTION ====================
     let lassoStart = null;
-    
+
     function initLasso() {
       const canvas = document.getElementById('canvas');
       const lasso = document.getElementById('lasso');
-      
+
       canvas.addEventListener('mousedown', e => {
         if (e.button === 0 && e.shiftKey && !e.target.closest('.sim-node')) {
           lassoStart = { x: e.clientX, y: e.clientY };
@@ -2317,7 +2320,7 @@
           lasso.style.display = 'block';
         }
       });
-      
+
       document.addEventListener('mousemove', e => {
         if (lassoStart) {
           const dx = e.clientX - lassoStart.x;
@@ -2328,7 +2331,7 @@
           lasso.style.top = (dy < 0 ? e.clientY : lassoStart.y) + 'px';
         }
       });
-      
+
       document.addEventListener('mouseup', e => {
         if (lassoStart) {
           const rect = {
@@ -2337,7 +2340,7 @@
             right: Math.max(lassoStart.x, e.clientX),
             bottom: Math.max(lassoStart.y, e.clientY)
           };
-          
+
           S.nodes.forEach(n => {
             const el = document.getElementById(n.id);
             if (!el) return;
@@ -2345,7 +2348,7 @@
             const inLasso = nRect.left < rect.right && nRect.right > rect.left && nRect.top < rect.bottom && nRect.bottom > rect.top;
             el.classList.toggle('selected', inLasso);
           });
-          
+
           lassoStart = null;
           lasso.style.display = 'none';
         }
@@ -2355,26 +2358,26 @@
     function initCanvas() {
       const cv = document.getElementById('canvas');
       let pan = false, sx = 0, sy = 0;
-      
+
       cv.addEventListener('mousedown', e => {
         if (e.button === 1 || e.target.id === 'canvasInner') {
           pan = true; sx = e.clientX; sy = e.clientY;
           cv.classList.add('panning');
         }
       });
-      
+
       document.addEventListener('mousemove', e => {
         if (pan) {
           S.pz.pan(e.clientX - sx, e.clientY - sy);
           sx = e.clientX; sy = e.clientY;
         }
       });
-      
+
       document.addEventListener('mouseup', () => {
         pan = false;
         cv.classList.remove('panning');
       });
-      
+
       // Drop devices
       cv.addEventListener('dragover', e => e.preventDefault());
       cv.addEventListener('drop', e => {
@@ -2384,7 +2387,7 @@
         const sc = S.pz.getScale();
         createNode(d, (e.clientX - rect.left) / sc - 50, (e.clientY - rect.top) / sc - 40);
       });
-      
+
       // Click on canvas to deselect
       cv.addEventListener('click', e => {
         if (e.target.id === 'canvasInner' || e.target.tagName === 'line') {
@@ -2417,13 +2420,13 @@
       };
       if (n.r) n.routes = [{ net: '0.0.0.0', mask: '0.0.0.0', gw: '*', iface: 'Gi0/0' }];
       S.nodes.push(n);
-      
+
       const el = document.createElement('div');
       el.id = id;
       el.className = `sim-node ${n.sw || n.r ? 'network' : d.type === 'fiber' ? 'fiber' : d.poe ? 'poe' : 'copper'}`;
       el.style.left = x + 'px';
       el.style.top = y + 'px';
-      
+
       el.innerHTML = `
         <div class="port-led ${n.on ? 'up' : 'down'}"></div>
         <div class="node-front-panel">
@@ -2442,22 +2445,22 @@
         <div class="node-info">${renderInfo(n)}</div>
         <div class="device-power ${n.on ? 'on' : ''}" onclick="togglePower('${n.id}', event)">⏻</div>
       `;
-      
+
       document.getElementById('nodesContainer').appendChild(el);
-      
+
       // Right-click context menu
       el.addEventListener('contextmenu', e => showContextMenu(e, n));
-      
+
       // NODE DRAG - Always works!
       let dragSt = null;
       el.addEventListener('mousedown', e => {
         if (e.target.closest('.node-port')) return;
         e.preventDefault();
         e.stopPropagation();
-        
+
         dragSt = { node: n, el, startX: e.clientX, startY: e.clientY, origX: n.x, origY: n.y, moved: false };
         el.classList.add('dragging');
-        
+
         const onMove = e => {
           const dx = e.clientX - dragSt.startX, dy = e.clientY - dragSt.startY;
           if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragSt.moved = true;
@@ -2468,7 +2471,7 @@
           dragSt.el.style.top = dragSt.node.y + 'px';
           drawConns();
         };
-        
+
         const onUp = () => {
           el.classList.remove('dragging');
           if (dragSt.moved) {
@@ -2487,18 +2490,18 @@
           document.removeEventListener('mousemove', onMove);
           document.removeEventListener('mouseup', onUp);
         };
-        
+
         document.addEventListener('mousemove', onMove);
         document.addEventListener('mouseup', onUp);
       });
-      
+
       // Select on click
       el.addEventListener('click', e => {
         if (e.target.closest('.node-port')) return;
         e.stopPropagation();
         sel(n, el);
       });
-      
+
       // PORT CONNECTION - Drag from port to port!
       el.querySelectorAll('.node-port').forEach((port, idx) => {
         port.addEventListener('mousedown', e => {
@@ -2516,7 +2519,7 @@
           hidePortTooltip();
         });
       });
-      
+
       log('Gerät', 'success', `${n.name} hinzugefügt`);
       updStats();
       updateMiniMap();
@@ -2547,7 +2550,7 @@
       if (n.services.length) html += `<div class="node-info-row"><span>Svc:</span><span>${n.services.join(',')}</span></div>`;
       return html;
     }
-    
+
     function renderPanelLeds(n) {
       const leds = [];
       // System LED
@@ -2560,16 +2563,16 @@
       if (n.sw || n.r) leds.push(`<div class="panel-led green" title="100M"></div>`);
       return leds.join('');
     }
-    
+
     // ==================== SMART LABELS ====================
     function updateSmartLabels() {
       // Remove old labels
       document.querySelectorAll('.smart-label').forEach(l => l.remove());
-      
+
       S.nodes.forEach(n => {
         const el = document.getElementById(n.id);
         if (!el) return;
-        
+
         // IP label
         if (n.ip && document.getElementById('chkShowIP')?.checked) {
           const label = document.createElement('div');
@@ -2579,7 +2582,7 @@
           label.style.top = (n.y - 15) + 'px';
           document.getElementById('nodesContainer').appendChild(label);
         }
-        
+
         // Device counter badge
         if (n.usedPorts > 0 || n.totalPorts > 0) {
           const badge = el.querySelector('.device-counter');
@@ -2587,10 +2590,10 @@
         }
       });
     }
-    
+
     // ==================== AUTO-NAME DEVICES ====================
     const deviceCounters = { pc: 0, laptop: 0, sw: 0, r: 0, http: 0, dns: 0, dhcp: 0, mail: 0, ipcam: 0, ap: 0 };
-    
+
     function getNextName(type) {
       const prefixes = { pc: 'PC', laptop: 'Laptop', sw2960: 'Switch', sw3560: 'Switch', sw3750: 'Switch', r1941: 'Router', r2901: 'Router', r4321: 'Router', http: 'Server', dns: 'DNS', dhcp: 'DHCP', mail: 'Mail', ipcam: 'Camera', ap: 'AP' };
       const base = prefixes[type] || type.charAt(0).toUpperCase() + type.slice(1);
@@ -2607,45 +2610,45 @@
 
     function startPortConnect(e, n, portIdx, el) {
       connState = { sourceNode: n, sourcePort: portIdx, sourceElement: el };
-      
+
       const port = el.querySelectorAll('.node-port')[portIdx];
       port.classList.add('connecting');
-      
+
       previewLine = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       previewLine.classList.add('conn-preview', S.cableType);
       previewLine.innerHTML = '<line x1="0" y1="0" x2="0" y2="0"/>';
       document.body.appendChild(previewLine);
-      
+
       quickConnect = document.createElement('div');
       quickConnect.className = 'quick-connect';
       quickConnect.textContent = `${n.name}:${portIdx + 1}`;
       document.body.appendChild(quickConnect);
-      
+
       document.getElementById('connHint').classList.add('show');
       document.getElementById('connHintText').textContent = 'Ziehe zu anderem Port...';
-      
+
       document.addEventListener('mousemove', onPortMove);
       document.addEventListener('mouseup', endPortConnect);
     }
 
     function onPortMove(e) {
       if (!connState || !previewLine) return;
-      
+
       const port = connState.sourceElement.querySelectorAll('.node-port')[connState.sourcePort];
       const rect = port.getBoundingClientRect();
       const line = previewLine.querySelector('line');
-      
+
       line.setAttribute('x1', rect.left + rect.width / 2);
       line.setAttribute('y1', rect.top + rect.height / 2);
       line.setAttribute('x2', e.clientX);
       line.setAttribute('y2', e.clientY);
-      
+
       quickConnect.style.left = e.clientX + 'px';
       quickConnect.style.top = e.clientY + 'px';
-      
+
       const target = document.elementFromPoint(e.clientX, e.clientY);
       const targetPort = target?.closest('.node-port');
-      
+
       if (targetPort && targetPort !== port) {
         const targetNodeEl = targetPort.closest('.sim-node');
         const targetNodeData = S.nodes.find(x => x.id === targetNodeEl.id);
@@ -2662,28 +2665,28 @@
 
     function endPortConnect(e) {
       if (!connState) return;
-      
+
       if (previewLine) { previewLine.remove(); previewLine = null; }
       if (quickConnect) { quickConnect.remove(); quickConnect = null; }
-      
+
       const port = connState.sourceElement.querySelectorAll('.node-port')[connState.sourcePort];
       port.classList.remove('connecting');
-      
+
       document.getElementById('connHint').classList.remove('show');
-      
+
       const target = document.elementFromPoint(e.clientX, e.clientY);
       const targetPort = target?.closest('.node-port');
-      
+
       if (targetPort && targetPort !== port) {
         const targetNodeEl = targetPort.closest('.sim-node');
         const targetNode = S.nodes.find(x => x.id === targetNodeEl.id);
         const targetPortIdx = parseInt(targetPort.dataset.p);
-        
+
         if (targetNode && targetNode.id !== connState.sourceNode.id) {
           makeConn(connState.sourceNode, connState.sourcePort, targetNode, targetPortIdx);
         }
       }
-      
+
       connState = null;
       document.removeEventListener('mousemove', onPortMove);
       document.removeEventListener('mouseup', endPortConnect);
@@ -2701,9 +2704,9 @@
         log('Verbindung', 'fail', `${n2.name}: Kein freier Port!`);
         return;
       }
-      
+
       // Check if connection already exists
-      const exists = S.conns.find(c => 
+      const exists = S.conns.find(c =>
         (c.n1 === n1.id && c.p1 === p1) || (c.n1 === n2.id && c.p1 === p2) ||
         (c.n2 === n1.id && c.p2 === p1) || (c.n2 === n2.id && c.p2 === p2)
       );
@@ -2711,18 +2714,18 @@
         log('Verbindung', 'fail', 'Port bereits verbunden!');
         return;
       }
-      
+
       const c = {
         id: 'c' + S.cid++,
         n1: n1.id, p1, n2: n2.id, p2,
         type: S.cableType,
         len: 0, atten: 0, blocked: false
       };
-      
+
       S.conns.push(c);
       n1.usedPorts++;
       n2.usedPorts++;
-      
+
       updConnParams();
       drawConns();
       updPortVisuals();
@@ -2744,22 +2747,22 @@
     function drawConns() {
       const svg = document.getElementById('connSvg');
       svg.innerHTML = '';
-      
+
       S.conns.forEach(c => {
         const n1 = S.nodes.find(n => n.id === c.n1);
         const n2 = S.nodes.find(n => n.id === c.n2);
         if (!n1 || !n2) return;
-        
+
         const scale = S.pz.getScale();
         const p1x = n1.x + 45 + (c.p1 - n1.totalPorts / 2 + 0.5) * 18;
         const p1y = n1.y + getNodeHeight(n1);
         const p2x = n2.x + 45 + (c.p2 - n2.totalPorts / 2 + 0.5) * 18;
         const p2y = n2.y + getNodeHeight(n2);
-        
+
         // Calculate midpoint for label
         const mx = (p1x + p2x) / 2;
         const my = (p1y + p2y) / 2;
-        
+
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         line.setAttribute('x1', p1x);
         line.setAttribute('y1', p1y);
@@ -2767,13 +2770,13 @@
         line.setAttribute('y2', p2y);
         line.setAttribute('class', `conn-line ${c.type}`);
         line.setAttribute('data-cid', c.id);
-        
+
         if (c.blocked) line.classList.add('blocked');
-        
+
         line.addEventListener('click', () => selectConn(c));
-        
+
         svg.appendChild(line);
-        
+
         // Connection label
         const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         label.setAttribute('x', mx);
@@ -2783,7 +2786,7 @@
         const typeLabel = c.type === 'copper-str' ? 'CU' : c.type === 'copper-cross' ? 'X' : c.type === 'fiber' ? 'FO' : 'SER';
         label.textContent = typeLabel;
         svg.appendChild(label);
-        
+
         // Bandwidth label
         const bw = c.type === 'fiber' ? '1G' : c.type === 'serial' ? '2M' : '100M';
         const bwLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -2793,7 +2796,7 @@
         bwLabel.setAttribute('text-anchor', 'middle');
         bwLabel.textContent = bw;
         svg.appendChild(bwLabel);
-        
+
         // VLAN tag if applicable
         if (c.vlan && c.vlan !== '1') {
           const vlanTag = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -2851,7 +2854,7 @@
         alert('Mindestens 2 Geräte auswählen (STRG+Klick)');
         return;
       }
-      
+
       for (let i = 0; i < selNodes.length - 1; i++) {
         const n1 = selNodes[i], n2 = selNodes[i + 1];
         const p1 = findFreePort(n1), p2 = findFreePort(n2);
@@ -2875,10 +2878,10 @@
       document.querySelectorAll('.sim-node').forEach(e => e.classList.remove('selected'));
       el.classList.add('selected');
       updateTopologyTree();
-      
+
       document.getElementById('noSel').style.display = 'none';
       document.getElementById('nodeCfg').style.display = 'block';
-      
+
       document.getElementById('pName').value = n.name;
       document.getElementById('pType').value = n.type;
       document.getElementById('pMAC').value = n.mac;
@@ -2888,13 +2891,13 @@
       document.getElementById('pDNS').value = n.dns || '';
       document.getElementById('pVLAN').value = n.vlan || '1';
       document.getElementById('pPortMode').value = n.portMode || 'access';
-      
+
       document.getElementById('sSel').textContent = n.name;
-      
+
       const showVlan = n.sw || n.r;
       document.getElementById('vlanSection').style.display = showVlan ? 'block' : 'none';
       document.getElementById('portModeGroup').style.display = showVlan ? 'block' : 'none';
-      
+
       const showPoe = n.poe || n.poeBudget > 0;
       document.getElementById('poeSection').style.display = showPoe ? 'block' : 'none';
       if (showPoe) {
@@ -2904,15 +2907,15 @@
           <div class="node-info-row"><span>Verfügbar:</span><span>${n.poeBudget - n.poeUsed}W</span></div>
         `;
       }
-      
+
       const showSrv = n.services.length > 0;
       document.getElementById('serverSection').style.display = showSrv ? 'block' : 'none';
       if (showSrv) {
-        document.getElementById('serverServices').innerHTML = n.services.map(s => 
+        document.getElementById('serverServices').innerHTML = n.services.map(s =>
           `<div class="node-info-row"><span>${s}</span><span style="color:var(--ok)">●</span></div>`
         ).join('');
       }
-      
+
       // Port list
       const portList = document.getElementById('portList');
       portList.innerHTML = Array(n.totalPorts).fill(0).map((_, i) => {
@@ -2924,7 +2927,7 @@
           <span style="color:${conn ? 'var(--ok)' : 'var(--text-muted)'}">${otherNode ? '→ ' + otherNode.name : 'Frei'}</span>
         </div>`;
       }).join('');
-      
+
       updARPTab(n);
       updMACTab(n);
       updRTTab(n);
@@ -2944,7 +2947,7 @@
       if (!S.sel) return;
       saveState();
       const n = S.sel;
-      
+
       S.conns = S.conns.filter(c => {
         if (c.n1 === n.id || c.n2 === n.id) {
           const other = c.n1 === n.id ? c.n2 : c.n1;
@@ -2954,10 +2957,10 @@
         }
         return true;
       });
-      
+
       document.getElementById(n.id).remove();
       S.nodes = S.nodes.filter(x => x.id !== n.id);
-      
+
       log('System', 'info', `${n.name} gelöscht`);
       desel();
       drawConns();
@@ -2966,13 +2969,13 @@
     }
 
     function updARPTab(n) {
-      document.getElementById('arpBody').innerHTML = Object.entries(n.arp).map(([ip, m]) => 
+      document.getElementById('arpBody').innerHTML = Object.entries(n.arp).map(([ip, m]) =>
         `<tr><td>${ip}</td><td>${m}</td><td>-</td></tr>`
       ).join('') || '<tr><td colspan="3" style="color:var(--text-muted)">Leer</td></tr>';
     }
 
     function updMACTab(n) {
-      document.getElementById('macBody').innerHTML = Object.entries(n.macTable).map(([m, v]) => 
+      document.getElementById('macBody').innerHTML = Object.entries(n.macTable).map(([m, v]) =>
         `<tr><td>${m}</td><td>${v.vlan}</td><td>${v.port}</td><td>D</td></tr>`
       ).join('') || '<tr><td colspan="4" style="color:var(--text-muted)">Leer</td></tr>';
     }
@@ -2985,8 +2988,8 @@
         if (r.type === 'connected') return '<span class="routing-badge connected">C</span>';
         return '<span class="routing-badge static">S</span>';
       };
-      
-      document.getElementById('rtBody').innerHTML = n.routes.map(r => 
+
+      document.getElementById('rtBody').innerHTML = n.routes.map(r =>
         `<tr><td>${r.net}</td><td>${r.mask}</td><td>${r.gw}</td><td>${r.iface}</td><td>${routeType(r)}</td></tr>`
       ).join('') || '<tr><td colspan="5" style="color:var(--text-muted)">Nur Router</td></tr>';
     }
@@ -2998,10 +3001,10 @@
         return;
       }
       const isRoot = S.stpRoot === n.id;
-      document.getElementById('stpStatus').innerHTML = isRoot 
-        ? '<div style="color:var(--ok);font-weight:bold;">★ ROOT BRIDGE</div>' 
+      document.getElementById('stpStatus').innerHTML = isRoot
+        ? '<div style="color:var(--ok);font-weight:bold;">★ ROOT BRIDGE</div>'
         : '<div style="color:var(--warn)">Non-Root</div>';
-      
+
       document.getElementById('stpPorts').innerHTML = Array(n.ports).fill(0).map((_, i) => {
         const state = S.stpState[n.id]?.[i] || 'designated';
         const colors = { root: 'var(--ok)', designated: 'var(--accent)', alternate: 'var(--warn)', blocking: 'var(--error)' };
@@ -3042,7 +3045,7 @@
         log('Route', 'success', `S ${net}/${mask} → ${gw}`);
       }
     }
-    
+
     function enableRIP() {
       if (!S.sel?.r) return;
       S.sel.routing.rip = true;
@@ -3054,7 +3057,7 @@
       updRTTab(S.sel);
       log('RIP', 'success', `RIP auf ${S.sel.name} aktiviert`);
     }
-    
+
     function enableOSPF() {
       if (!S.sel?.r) return;
       S.sel.routing.ospf = true;
@@ -3065,7 +3068,7 @@
       updRTTab(S.sel);
       log('OSPF', 'success', `OSPF auf ${S.sel.name} aktiviert`);
     }
-    
+
     function getNetAddr(ip, mask) {
       const ipParts = ip.split('.').map(Number);
       const maskParts = mask.split('.').map(Number);
@@ -3086,23 +3089,23 @@
       S.ws = ws;
       document.querySelectorAll('.ws-tab').forEach(t => t.classList.toggle('active', t.textContent.toLowerCase() === ws));
       document.getElementById('sWS').textContent = ws.charAt(0).toUpperCase() + ws.slice(1);
-      
+
       // Physical workspace
       document.getElementById('physicalView').classList.toggle('active', ws === 'physical');
       if (ws === 'physical') updatePhysicalView();
     }
-    
+
     function updatePhysicalView() {
       const el = document.getElementById('rackDevices');
       const racks = {};
-      
+
       // Group devices by approximate location
       S.nodes.forEach(n => {
         const rackId = Math.floor(n.x / 300);
         if (!racks[rackId]) racks[rackId] = [];
         racks[rackId].push(n);
       });
-      
+
       let html = '';
       Object.entries(racks).forEach(([rid, devices]) => {
         html += `<div style="margin-bottom: 16px;">
@@ -3115,7 +3118,7 @@
         });
         html += '</div>';
       });
-      
+
       el.innerHTML = html || '<div style="color:var(--text-muted);text-align:center;">Keine Geräte platziert</div>';
     }
 
@@ -3128,25 +3131,25 @@
     function runSTP() {
       const switches = S.nodes.filter(n => n.sw);
       if (switches.length < 1) { log('STP', 'info', 'Mindestens 1 Switch benötigt'); return; }
-      
+
       const sorted = switches.sort((a, b) => a.mac.localeCompare(b.mac));
       S.stpRoot = sorted[0].id;
       document.getElementById('sSTP').textContent = sorted[0].name;
-      
+
       switches.forEach(sw => {
         S.stpState[sw.id] = {};
         for (let i = 0; i < sw.ports; i++) {
           S.stpState[sw.id][i] = sw.id === S.stpRoot ? 'designated' : (i === 0 ? 'root' : 'blocking');
         }
       });
-      
+
       S.conns.forEach(c => {
         const n1 = S.nodes.find(n => n.id === c.n1), n2 = S.nodes.find(n => n.id === c.n2);
         if (n1?.sw && n2?.sw) {
           c.blocked = S.stpState[n1.id]?.[c.p1] === 'blocking' || S.stpState[n2.id]?.[c.p2] === 'blocking';
         }
       });
-      
+
       drawConns();
       switches.forEach(sw => updSTPTab(sw));
       log('STP', 'success', `Root: ${sorted[0].name}`);
@@ -3155,12 +3158,12 @@
     // ==================== NAT & ACL ====================
     function openNAT() { document.getElementById('natModal').classList.add('show'); }
     function openACL() { document.getElementById('aclModal').classList.add('show'); updateACLList(); }
-    
+
     function openPortSecurity() {
       if (!S.sel?.sw) { alert('Nur für Switches!'); return; }
       document.getElementById('portSecurityModal').classList.add('show');
     }
-    
+
     function applyPortSecurity() {
       const max = document.getElementById('psMax').value;
       const action = document.getElementById('psAction').value;
@@ -3168,7 +3171,7 @@
       log('PortSec', 'info', `switchport port-security violation ${action}`);
       closeM('portSecurityModal');
     }
-    
+
     function applySwitchport() {
       const mode = document.getElementById('swMode').value;
       const vlan = document.getElementById('swVlan').value;
@@ -3183,7 +3186,7 @@
         el.innerHTML = '<div style="color:var(--text-muted);font-size:0.55rem;">Keine Regeln definiert</div>';
         return;
       }
-      el.innerHTML = S.acls.map((a, i) => 
+      el.innerHTML = S.acls.map((a, i) =>
         `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-size:0.55rem;">
           <span>${a.action.toUpperCase()} ${a.src} ${a.wild}</span>
           <button onclick="removeACL(${i})" style="background:none;border:none;color:var(--error);cursor:pointer;">×</button>
@@ -3225,16 +3228,16 @@
     function execCLI() {
       const cmd = document.getElementById('cliInput').value.trim();
       if (!cmd) return;
-      
+
       S.cliHistory.push(cmd);
       S.cliHistoryIdx = S.cliHistory.length;
-      
+
       const term = document.getElementById('cliTerm');
       term.innerHTML += `<div><span style="color:var(--ok)">></span> <span style="color:var(--text-bright)">${cmd}</span></div>`;
-      
+
       const out = processCLI(cmd);
       if (out) term.innerHTML += `<div style="color:var(--text-primary)">${out.replace(/\n/g, '<br>')}</div>`;
-      
+
       document.getElementById('cliInput').value = '';
       term.scrollTop = term.scrollHeight;
     }
@@ -3243,7 +3246,7 @@
       if (!S.sel) return '';
       const n = S.sel;
       const c = cmd.toLowerCase();
-      
+
       // RIP commands
       if (c.includes('router rip')) { n.routing.rip = true; return 'RIP routing protocol enabled'; }
       if (c.includes('network ') && n.routing.rip) {
@@ -3251,13 +3254,13 @@
         if (net) { n.routes.push({ net: net[1], mask: '255.255.255.0', gw: '0.0.0.0', iface: 'RIP', type: 'rip' }); updRTTab(n); }
         return `Network ${net ? net[1] : 'added'} added to RIP`;
       }
-      
+
       // OSPF commands
       if (c.includes('router ospf ')) { n.routing.ospf = true; return 'OSPF routing protocol enabled'; }
-      
+
       // EIGRP commands
       if (c.includes('router eigrp ')) { n.routing.eigrp = true; return 'EIGRP enabled'; }
-      
+
       if (c === '?' || c === 'help') return `
 show ?              - show commands
 show ip             - IP configuration
@@ -3272,18 +3275,18 @@ ip address <ip> <m> - set IP
 no shutdown         - enable interface
 exit                - exit current mode
       `;
-      
+
       if (c === 'show ?') return `
   ip              - IP information
   ip route       - Routing table
   ip protocols   - Routing protocols
-  mac            - MAC address table  
+  mac            - MAC address table
   arp             - ARP table
   vlan            - VLAN information
   interfaces      - Interface status
   running-config  - Current config
       `;
-      
+
       if (c === 'exit') { closeM('cliModal'); return ''; }
       if (c === 'show ip') return `Interface: ${n.ip || 'N/A'}\nSubnet: ${n.subnet}\nGateway: ${n.gateway || 'N/A'}\nDNS: ${n.dns || 'N/A'}`;
       if (c === 'show ip route') {
@@ -3304,7 +3307,7 @@ exit                - exit current mode
       if (c === 'show arp') return Object.entries(n.arp).map(([ip, m]) => `${ip} ${m}`).join('\n') || 'Leer';
       if (c === 'show vlan') return `VLAN ${n.vlan} configured`;
       if (c === 'show interfaces') return `GigabitEthernet0/0 is up\n  IP: ${n.ip || 'unassigned'}\n  MTU: 1500 bytes`;
-      
+
       if (c.startsWith('ip address ')) {
         const parts = cmd.split(' ').filter(Boolean);
         if (parts.length >= 4) {
@@ -3314,10 +3317,10 @@ exit                - exit current mode
           return `IP address set to ${n.ip} ${n.subnet}`;
         }
       }
-      
+
       return `Unknown command: ${cmd}`;
     }
-    
+
     function maskToCIDR(mask) {
       const parts = mask.split('.').map(Number);
       const binary = parts.map(p => p.toString(2).padStart(8, '0')).join('');
@@ -3333,36 +3336,36 @@ exit                - exit current mode
       btn.classList.toggle('active', !isVisible);
       if (!isVisible) updateTopologyTree();
     }
-    
+
     function updateTopologyTree() {
       const tree = document.getElementById('topologyTree');
       if (S.nodes.length === 0) {
         tree.innerHTML = '<div style="color:var(--text-muted);font-size:0.6rem;">Keine Geräte</div>';
         return;
       }
-      
+
       // Group by connection
       const rootNodes = S.nodes.filter(n => {
         return !S.conns.some(c => c.n2 === n.id);
       });
-      
+
       let html = '';
       const visited = new Set();
-      
+
       function renderNode(n, level = 0) {
         if (visited.has(n.id)) return;
         visited.add(n.id);
-        
+
         const isSelected = S.sel?.id === n.id;
         const icon = n.r ? 'ph-globe' : n.sw ? 'ph-git-branch' : n.srv ? 'ph-hard-drives' : 'ph-desktop';
         const color = n.r ? 'var(--device)' : n.sw ? 'var(--copper)' : 'var(--ok)';
-        
+
         html += `<div class="topology-device ${isSelected ? 'selected' : ''}" style="padding-left:${level * 16 + 8}px;" onclick="selectNodeById('${n.id}')">
           <i class="ph ${icon}" style="color:${color}"></i>
           <span>${n.name}</span>
           ${n.ip ? `<span style="color:var(--text-muted);font-size:0.5rem;">${n.ip}</span>` : ''}
         </div>`;
-        
+
         // Find connected nodes
         S.conns.forEach(c => {
           if (c.n1 === n.id) {
@@ -3371,17 +3374,17 @@ exit                - exit current mode
           }
         });
       }
-      
+
       if (rootNodes.length === 0 && S.nodes.length > 0) {
         // No clear root, render all
         S.nodes.forEach(n => renderNode(n, 0));
       } else {
         rootNodes.forEach(n => renderNode(n, 0));
       }
-      
+
       tree.innerHTML = html;
     }
-    
+
     function selectNodeById(id) {
       const n = S.nodes.find(x => x.id === id);
       const el = document.getElementById(id);
@@ -3390,7 +3393,7 @@ exit                - exit current mode
         updateTopologyTree();
       }
     }
-    
+
     // ==================== OSI LAYER VISUALIZATION ====================
     function showOSILayers(activeLayer) {
       let html = '<div style="font-size:0.55rem;font-weight:600;margin-bottom:6px;color:var(--text-muted);">OSI Layers</div>';
@@ -3403,7 +3406,7 @@ exit                - exit current mode
         { num: 2, name: 'Data Link', cls: 'osi-L2', icon: 'D' },
         { num: 1, name: 'Physical', cls: 'osi-L1', icon: 'Ph' }
       ];
-      
+
       layers.forEach(l => {
         const isActive = activeLayer && (
           (activeLayer === 'L7' && l.num >= 5) ||
@@ -3416,10 +3419,10 @@ exit                - exit current mode
           <span>L${l.num} ${l.name}</span>
         </div>`;
       });
-      
+
       return html;
     }
-    
+
     function updateOSIPanel(layer) {
       let panel = document.getElementById('osiPanel');
       if (!panel) {
@@ -3430,22 +3433,22 @@ exit                - exit current mode
       }
       panel.innerHTML = showOSILayers(layer);
     }
-    
+
     // ==================== PDU / SIMULATION ====================
     function openPDU() {
-      const opts = S.nodes.filter(n => n.end || n.srv || n.r).map(n => 
+      const opts = S.nodes.filter(n => n.end || n.srv || n.r).map(n =>
         `<option value="${n.id}">${n.name}${n.ip ? ` (${n.ip})` : ''}</option>`
       ).join('');
       document.getElementById('pduSrc').innerHTML = opts;
       document.getElementById('pduDst').innerHTML = '<option value="">-- --</option>' + opts;
       document.getElementById('pduModal').classList.add('show');
     }
-    
+
     function openRouting() {
       updateRoutingRouterList();
       document.getElementById('routingModal').classList.add('show');
     }
-    
+
     function updateRoutingRouterList() {
       const routers = S.nodes.filter(n => n.r);
       const el = document.getElementById('routingRouterList');
@@ -3462,12 +3465,12 @@ exit                - exit current mode
         </div>`;
       }).join('');
     }
-    
+
     function applyRouting() {
       const proto = document.getElementById('routingProto').value;
       const net = document.getElementById('routingNet').value;
       const wild = document.getElementById('routingWild').value;
-      
+
       S.nodes.filter(n => n.r).forEach(r => {
         if (proto === 'rip') {
           r.routing.rip = true;
@@ -3478,19 +3481,19 @@ exit                - exit current mode
         }
         updRTTab(r);
       });
-      
+
       log('Routing', 'success', `${proto.toUpperCase()} Netzwerk ${net || 'default'} konfiguriert`);
       closeM('routingModal');
     }
-    
+
     function wildcardToMask(wild) {
       return wild.split('.').map(v => 255 - parseInt(v)).join('.');
     }
-    
+
     function openDHCPPool() {
       document.getElementById('dhcpModal').classList.add('show');
     }
-    
+
     function applyDHCPPool() {
       const pool = {
         name: document.getElementById('dhcpPool').value,
@@ -3505,11 +3508,11 @@ exit                - exit current mode
       log('DHCP', 'success', `Pool ${pool.name} erstellt: ${pool.network}/${pool.mask}`);
       closeM('dhcpModal');
     }
-    
+
     function openDHCPHelper() {
       document.getElementById('dhcpHelperModal').classList.add('show');
     }
-    
+
     function applyDHCPHelper() {
       const iface = document.getElementById('helperInterface').value;
       const server = document.getElementById('helperServer').value;
@@ -3517,33 +3520,33 @@ exit                - exit current mode
       log('DHCP', 'success', `ip helper-address ${server} auf ${iface}`);
       closeM('dhcpHelperModal');
     }
-    
+
     function openEtherChannel() {
       document.getElementById('etherChannelModal').classList.add('show');
     }
-    
+
     function applyEtherChannel() {
       const group = document.getElementById('ecGroup').value;
       const mode = document.getElementById('ecMode').value;
       log('EtherChannel', 'success', `Channel-Group ${group} Mode ${mode}`);
       closeM('etherChannelModal');
     }
-    
+
     function openQoS() {
       document.getElementById('qosModal').classList.add('show');
     }
-    
+
     function applyQoS() {
       const mode = document.getElementById('qosMode').value;
       const rate = document.getElementById('qosRate').value;
       log('QoS', 'success', `QoS ${mode} ${rate ? '@ ' + rate + 'Mbps' : ''}`);
       closeM('qosModal');
     }
-    
+
     function openTemplates() {
       document.getElementById('templateModal').classList.add('show');
     }
-    
+
     function loadTemplate(name) {
       clearAll();
       const templates = {
@@ -3580,10 +3583,10 @@ exit                - exit current mode
           { type: 'ap', name: 'AP0', x: 650, y: 350 }
         ]
       };
-      
+
       const template = templates[name];
       if (!template) return;
-      
+
       template.forEach(d => {
         const devDef = findDeviceDef(d.type);
         if (devDef) {
@@ -3592,11 +3595,11 @@ exit                - exit current mode
           document.getElementById(n.id).querySelector('.node-name').textContent = d.name;
         }
       });
-      
+
       log('Template', 'success', `${name} geladen`);
       closeM('templateModal');
     }
-    
+
     function findDeviceDef(type) {
       for (const cat of Object.values(DEVS)) {
         const found = cat.find(d => d.id === type);
@@ -3618,7 +3621,7 @@ exit                - exit current mode
       const dst = S.nodes.find(n => n.id === document.getElementById('pduDst').value);
       const type = document.getElementById('pduType').value;
       const layer = document.getElementById('pduLayer').value;
-      
+
       if (!src || !dst) return;
       closeM('pduModal');
       simPDU(src, dst, type, layer);
@@ -3628,7 +3631,7 @@ exit                - exit current mode
       S.pduCnt++;
       log(layer, 'info', `${src.name} → ${dst.name}: ${type.toUpperCase()}`);
       updateOSIPanel(layer);
-      
+
       // Store packet for capture
       const packet = {
         id: S.pduCnt,
@@ -3646,14 +3649,14 @@ exit                - exit current mode
       S.capturedPackets.push(packet);
       updateCaptureList();
       addToPacketHistory(packet);
-      
+
       // Update interface statistics
       const packetSize = type === 'icmp' ? 64 : type === 'arp' ? 42 : type === 'dhcp' ? 350 : 512;
       updateIfStat(src.id, src.usedPorts - 1, 'out', packetSize);
       updateIfStat(dst.id, dst.usedPorts - 1, 'in', packetSize);
       if (showIfStats) renderIfStats();
       if (showHealthDashboard) renderHealthDashboard();
-      
+
       // Store packet for capture
       const packet = {
         id: S.pduCnt,
@@ -3669,49 +3672,49 @@ exit                - exit current mode
       };
       S.capturedPackets.push(packet);
       updateCaptureList();
-      
+
       const path = findPath(src, dst);
       if (!path) { log(layer, 'fail', 'Kein Pfad verfügbar!'); updStats(); return; }
-      
+
       animatePath(path, type, layer, () => {
         log(layer, 'success', `${dst.name} erreicht!`);
         updateOSIPanel(null);
-        
+
         // Show packet detail on click
         showPacketDetail(packet);
         updStats();
       });
     }
-    
+
     function updateCaptureList() {
       const el = document.getElementById('captureList');
       if (S.capturedPackets.length === 0) {
         el.innerHTML = '<div style="color:var(--text-muted);font-size:0.55rem;text-align:center;">Keine Pakete</div>';
         return;
       }
-      el.innerHTML = S.capturedPackets.slice().reverse().slice(0, 20).map((p, i) => 
+      el.innerHTML = S.capturedPackets.slice().reverse().slice(0, 20).map((p, i) =>
         `<div class="capture-item" onclick="showPacketDetail(S.capturedPackets[${S.capturedPackets.length - 1 - i}])">
           <span style="color:var(--layer3)">#${p.id}</span> ${p.src} → ${p.dst} <span style="color:var(--text-muted)">[${p.type.toUpperCase()}]</span>
         </div>`
       ).join('');
     }
-    
+
     // ==================== PACKET HISTORY ====================
     let packetHistory = [];
     let showPacketHistory = false;
-    
+
     function togglePacketHistory() {
       showPacketHistory = !showPacketHistory;
       document.getElementById('packetHistory').classList.toggle('show', showPacketHistory);
       document.getElementById('btnPktHist').classList.toggle('active', showPacketHistory);
     }
-    
+
     function addToPacketHistory(packet) {
       packetHistory.unshift(packet);
       if (packetHistory.length > 100) packetHistory.pop();
       renderPacketHistory();
     }
-    
+
     function renderPacketHistory() {
       const el = document.getElementById('packetHistoryList');
       if (packetHistory.length === 0) {
@@ -3728,46 +3731,46 @@ exit                - exit current mode
         </div>
       `).join('');
     }
-    
+
     function clearPacketHistory() {
       packetHistory = [];
       renderPacketHistory();
     }
-    
+
     function showPacketDetailById(id) {
       const p = S.capturedPackets.find(x => x.id === id) || packetHistory.find(x => x.id === id);
       if (p) showPacketDetail(p);
     }
-    
+
     // ==================== INTERFACE STATISTICS ====================
     let showIfStats = false;
     let ifStatsExpanded = false;
     const interfaceStats = {}; // { nodeId_portIdx: { in: 0, out: 0, errors: 0, drop: 0 } }
-    
+
     function toggleIfStats() {
       showIfStats = !showIfStats;
       document.getElementById('ifStatsPanel').style.display = showIfStats ? 'block' : 'none';
       document.getElementById('btnIfStats').classList.toggle('active', showIfStats);
       if (showIfStats) renderIfStats();
     }
-    
+
     function toggleIfStatsContent() {
       ifStatsExpanded = !ifStatsExpanded;
       document.getElementById('ifStatsContent').style.display = ifStatsExpanded ? 'block' : 'none';
       document.getElementById('ifStatsToggle').classList.toggle('open', ifStatsExpanded);
     }
-    
+
     function updateIfStat(nodeId, portIdx, direction, bytes) {
       const key = `${nodeId}_${portIdx}`;
       if (!interfaceStats[key]) interfaceStats[key] = { in: 0, out: 0, errors: 0, drop: 0 };
       if (direction === 'in') interfaceStats[key].in += bytes;
       else interfaceStats[key].out += bytes;
     }
-    
+
     function renderIfStats() {
       const content = document.getElementById('ifStatsContent');
       let html = '<div class="if-stats-row header"><span>Interface</span><span>In</span><span>Out</span><span>Status</span></div>';
-      
+
       S.nodes.forEach(n => {
         for (let i = 0; i < n.totalPorts; i++) {
           const key = `${n.id}_${i}`;
@@ -3784,16 +3787,16 @@ exit                - exit current mode
           </div>`;
         }
       });
-      
+
       content.innerHTML = html || '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:0.55rem;">No interfaces</div>';
     }
-    
+
     function formatBytes(b) {
       if (b < 1024) return b + ' B';
       if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
       return (b / (1024 * 1024)).toFixed(2) + ' MB';
     }
-    
+
     // ==================== VLAN TABLE ====================
     let showVlanPanel = false;
     const vlans = [
@@ -3802,14 +3805,14 @@ exit                - exit current mode
       { id: 20, name: 'Sales', ports: [], status: 'active' },
       { id: 99, name: 'Native', ports: [], status: 'active' }
     ];
-    
+
     function toggleVlanPanel() {
       showVlanPanel = !showVlanPanel;
       document.getElementById('vlanPanel').classList.toggle('show', showVlanPanel);
       document.getElementById('btnVlan').classList.toggle('active', showVlanPanel);
       if (showVlanPanel) renderVlanTable();
     }
-    
+
     function renderVlanTable() {
       const body = document.getElementById('vlanTableBody');
       // Update port assignments
@@ -3827,17 +3830,17 @@ exit                - exit current mode
         </tr>
       `).join('');
     }
-    
+
     // ==================== HEALTH DASHBOARD ====================
     let showHealthDashboard = false;
-    
+
     function toggleHealthDashboard() {
       showHealthDashboard = !showHealthDashboard;
       document.getElementById('healthDashboard').classList.toggle('show', showHealthDashboard);
       document.getElementById('btnHealth').classList.toggle('active', showHealthDashboard);
       if (showHealthDashboard) renderHealthDashboard();
     }
-    
+
     function renderHealthDashboard() {
       const content = document.getElementById('healthContent');
       const totalNodes = S.nodes.length;
@@ -3850,13 +3853,13 @@ exit                - exit current mode
       }).length;
       const packets = packetHistory.length;
       const errors = packetHistory.filter(p => !p.success).length;
-      
+
       const uptime = totalNodes > 0 ? Math.round((onlineNodes / totalNodes) * 100) : 100;
       const linkHealth = totalLinks > 0 ? Math.round((activeLinks / totalLinks) * 100) : 100;
       const packetHealth = packets > 0 ? Math.max(0, 100 - (errors / packets * 100)) : 100;
-      
+
       const getColor = (v) => v > 80 ? 'var(--ok)' : v > 50 ? 'var(--warn)' : 'var(--error)';
-      
+
       content.innerHTML = `
         <div class="health-metric">
           <div class="health-metric-label">Device Uptime</div>
@@ -3880,18 +3883,18 @@ exit                - exit current mode
         </div>
       `;
     }
-    
+
     // ==================== ARP TABLE ====================
     let showArpPanel = false;
     const arpTable = [];
-    
+
     function toggleArpPanel() {
       showArpPanel = !showArpPanel;
       document.getElementById('arpPanel').classList.toggle('show', showArpPanel);
       document.getElementById('btnArp').classList.toggle('active', showArpPanel);
       if (showArpPanel) renderArpTable();
     }
-    
+
     function addArpEntry(ip, mac, interfaceName) {
       const existing = arpTable.findIndex(a => a.ip === ip);
       if (existing >= 0) arpTable.splice(existing, 1);
@@ -3899,7 +3902,7 @@ exit                - exit current mode
       if (arpTable.length > 50) arpTable.pop();
       if (showArpPanel) renderArpTable();
     }
-    
+
     function renderArpTable() {
       const body = document.getElementById('arpTableBody');
       if (arpTable.length === 0) {
@@ -3914,7 +3917,7 @@ exit                - exit current mode
         </div>
       `).join('');
     }
-    
+
     // Auto-populate ARP when devices are connected
     function updateArpFromConnections() {
       S.conns.forEach(c => {
@@ -3926,11 +3929,11 @@ exit                - exit current mode
         }
       });
     }
-    
+
     // ==================== MAC ADDRESS TABLE ====================
     let showMacPanel = false;
     const macTable = [];
-    
+
     function toggleMacTable() {
       showMacPanel = !showMacPanel;
       document.getElementById('macPanel').classList.toggle('show', showMacPanel);
@@ -3940,7 +3943,7 @@ exit                - exit current mode
         renderMacTable();
       }
     }
-    
+
     function buildMacTable() {
       macTable.length = 0;
       S.nodes.forEach(n => {
@@ -3972,21 +3975,21 @@ exit                - exit current mode
         });
       });
     }
-    
+
     function renderMacTable() {
       const body = document.getElementById('macTableBody');
       const vlanFilter = document.getElementById('macVlanFilter').value;
-      
+
       let filtered = macTable;
       if (vlanFilter !== 'all') {
         filtered = macTable.filter(m => m.vlan === parseInt(vlanFilter));
       }
-      
+
       if (filtered.length === 0) {
         body.innerHTML = '<div style="padding:10px;text-align:center;color:var(--text-muted);font-size:0.55rem;">No MAC entries</div>';
         return;
       }
-      
+
       body.innerHTML = filtered.map(m => `
         <div class="mac-row">
           <span style="color:var(--device);">${m.mac}</span>
@@ -3995,10 +3998,10 @@ exit                - exit current mode
         </div>
       `).join('');
     }
-    
+
     // ==================== ROUTING TABLE ====================
     let showRoutePanel = false;
-    
+
     function toggleRouteTable() {
       showRoutePanel = !showRoutePanel;
       document.getElementById('routePanel').classList.toggle('show', showRoutePanel);
@@ -4008,26 +4011,26 @@ exit                - exit current mode
         renderRouteTable();
       }
     }
-    
+
     function populateRouteDeviceSelect() {
       const select = document.getElementById('routeDeviceSelect');
       const routers = S.nodes.filter(n => n.r);
       select.innerHTML = routers.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
     }
-    
+
     function renderRouteTable() {
       const body = document.getElementById('routeTableBody');
       const deviceId = document.getElementById('routeDeviceSelect').value;
       const router = S.nodes.find(n => n.id === deviceId);
-      
+
       if (!router) {
         body.innerHTML = '<div style="padding:10px;text-align:center;color:var(--text-muted);font-size:0.55rem;">Select a router</div>';
         return;
       }
-      
+
       // Build routing table
       const routes = [];
-      
+
       // Direct connections
       S.conns.forEach(c => {
         if (c.n1 === router.id || c.n2 === router.id) {
@@ -4046,7 +4049,7 @@ exit                - exit current mode
           }
         }
       });
-      
+
       // Own subnet
       if (router.ip) {
         const parts = router.ip.split('.');
@@ -4060,7 +4063,7 @@ exit                - exit current mode
           interface: router.name
         });
       }
-      
+
       // Default route if gateway is set
       if (router.gateway) {
         routes.push({
@@ -4072,7 +4075,7 @@ exit                - exit current mode
           interface: 'via default'
         });
       }
-      
+
       // Connected routes from other routers (simulated)
       S.nodes.filter(n => n.r && n.id !== router.id).forEach(r => {
         if (r.ip) {
@@ -4088,12 +4091,12 @@ exit                - exit current mode
           });
         }
       });
-      
+
       if (routes.length === 0) {
         body.innerHTML = '<div style="padding:10px;text-align:center;color:var(--text-muted);font-size:0.55rem;">No routes</div>';
         return;
       }
-      
+
       body.innerHTML = routes.map(r => `
         <div class="route-row">
           <span class="network">${r.network}</span>
@@ -4103,11 +4106,11 @@ exit                - exit current mode
         </div>
       `).join('');
     }
-    
+
     // ==================== NAT TABLE ====================
     let showNatPanel = false;
     const natTranslations = [];
-    
+
     function toggleNatTable() {
       showNatPanel = !showNatPanel;
       document.getElementById('natPanel').style.display = showNatPanel ? 'block' : 'none';
@@ -4117,13 +4120,13 @@ exit                - exit current mode
         renderNatTable();
       }
     }
-    
+
     function populateNatDeviceSelect() {
       const select = document.getElementById('natDeviceSelect');
       const routers = S.nodes.filter(n => n.r);
       select.innerHTML = routers.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
     }
-    
+
     function addNatTranslation(insideIp, outsideIp, protocol) {
       natTranslations.unshift({
         insideIp,
@@ -4135,17 +4138,17 @@ exit                - exit current mode
       if (natTranslations.length > 50) natTranslations.pop();
       if (showNatPanel) renderNatTable();
     }
-    
+
     function renderNatTable() {
       const body = document.getElementById('natTableBody');
       const deviceId = document.getElementById('natDeviceSelect').value;
       const router = S.nodes.find(n => n.id === deviceId);
-      
+
       if (!router) {
         body.innerHTML = '<div style="padding:10px;text-align:center;color:var(--text-muted);font-size:0.55rem;">Select a router</div>';
         return;
       }
-      
+
       // Generate some sample NAT entries based on router config
       let entries = [];
       if (router.nat && router.nat.inside) {
@@ -4163,12 +4166,12 @@ exit                - exit current mode
           { insideIp: '192.168.1.100', outsideIp: router.ip, protocol: 'ICMP', timeout: '30s' }
         ];
       }
-      
+
       if (entries.length === 0) {
         body.innerHTML = '<div style="padding:10px;text-align:center;color:var(--text-muted);font-size:0.55rem;">No NAT translations</div>';
         return;
       }
-      
+
       body.innerHTML = entries.map(e => `
         <div class="route-row">
           <span class="network">${e.insideIp}</span>
@@ -4178,7 +4181,7 @@ exit                - exit current mode
         </div>
       `).join('');
     }
-    
+
     // ==================== DEVICE SEARCH ====================
     function filterDevices() {
       const query = document.getElementById('deviceSearch').value.toLowerCase();
@@ -4187,14 +4190,14 @@ exit                - exit current mode
         item.style.display = name.includes(query) ? '' : 'none';
       });
     }
-    
+
     // ==================== SELECT ALL ====================
     function selectAll() {
       S.sel = S.nodes.map(n => n.id);
       document.querySelectorAll('.node').forEach(el => el.classList.add('selected'));
       log('System', 'info', `Alle ${S.nodes.length} Geräte ausgewählt`);
     }
-    
+
     // ==================== QUICK TEMPLATES ====================
     const QUICK_TEMPLATES = [
       { name: 'Kleines LAN', icon: 'ph-house', desc: '2 PC + 1 Switch', nodes: [{ type: 'end', name: 'PC0' }, { type: 'end', name: 'PC1' }, { type: 'sw', name: 'Switch0' }] },
@@ -4204,7 +4207,7 @@ exit                - exit current mode
       { name: 'WAN Link', icon: 'ph-cloud', desc: '2 Router + WAN', nodes: [{ type: 'r', name: 'Router0' }, { type: 'r', name: 'Router1' }, { type: 'wan', name: 'WAN0' }] },
       { name: 'PoE Setup', icon: 'ph-lightning', desc: '2 AP + PoE Switch', nodes: [{ type: 'end', name: 'PC0' }, { type: 'poe', name: 'PoE Switch0' }, { type: 'end', name: 'AccessPoint0' }] }
     ];
-    
+
     function openQuickTemplates() {
       const content = QUICK_TEMPLATES.map((t, i) => `
         <div class="template-item" onclick="loadTemplate(${i})">
@@ -4213,28 +4216,28 @@ exit                - exit current mode
           <div class="template-item-desc">${t.desc}</div>
         </div>
       `).join('');
-      
+
       document.getElementById('modalContent').innerHTML = `
         <div style="font-size:0.75rem;font-weight:600;margin-bottom:10px;"><i class="ph ph-layout"></i> Schnellvorlagen</div>
         <div class="template-grid">${content}</div>
       `;
       openM('modal');
     }
-    
+
     function loadTemplate(idx) {
       closeM('modal');
       clearAll(true);
       const t = QUICK_TEMPLATES[idx];
       const offsetX = 400, offsetY = 300;
       const spacing = 150;
-      
+
       t.nodes.forEach((n, i) => {
         const dev = findDeviceTemplate(n.type, n.name);
         if (dev) {
           createNode(dev, offsetX + (i % 3) * spacing, offsetY + Math.floor(i / 3) * 120, true);
         }
       });
-      
+
       // Auto-connect
       if (t.nodes.length > 1) {
         for (let i = 0; i < t.nodes.length - 1; i++) {
@@ -4245,10 +4248,10 @@ exit                - exit current mode
           }
         }
       }
-      
+
       log('System', 'info', `Vorlage "${t.name}" geladen`);
     }
-    
+
     function findDeviceTemplate(type, name) {
       const DEVS_ALL = [...(DEVS.end || []), ...(DEVS.sw || []), ...(DEVS.r || []), ...(DEVS.srv || []), ...(DEVS.poe || []), ...(DEVS.wan || [])];
       return DEVS_ALL.find(d => {
@@ -4261,15 +4264,15 @@ exit                - exit current mode
         return false;
       });
     }
-    
+
     // ==================== TRAFFIC ANIMATION ====================
     let showTrafficAnim = false;
     let trafficInterval = null;
-    
+
     function toggleTrafficAnim() {
       showTrafficAnim = !showTrafficAnim;
       document.getElementById('btnTrafficAnim').classList.toggle('active', showTrafficAnim);
-      
+
       if (showTrafficAnim) {
         trafficInterval = setInterval(animateTrafficDots, 1000);
         animateTrafficDots();
@@ -4280,13 +4283,13 @@ exit                - exit current mode
         log('System', 'info', 'Traffic Animation deaktiviert');
       }
     }
-    
+
     function animateTrafficDots() {
       if (!showTrafficAnim) return;
-      
+
       // Remove old dots
       document.querySelectorAll('.traffic-dot').forEach(d => d.remove());
-      
+
       // Add dots on active connections
       S.conns.forEach(c => {
         if (Math.random() > 0.5) {
@@ -4302,29 +4305,29 @@ exit                - exit current mode
         }
       });
     }
-    
+
     // ==================== DEVICE STATUS BADGES ====================
     function updateDeviceStatusBadges() {
       S.nodes.forEach(n => {
         const el = document.getElementById(n.id);
         if (!el) return;
-        
+
         // Remove old badge
         const oldBadge = el.querySelector('.device-status-badge');
         if (oldBadge) oldBadge.remove();
-        
+
         // Add new badge
         const badge = document.createElement('div');
         badge.className = 'device-status-badge ' + (n.on === false ? 'offline' : 'online');
         el.appendChild(badge);
       });
     }
-    
+
     // Add to simPDU to show traffic animation during packet send
     const _origSimPDU = simPDU;
     simPDU = function(src, dst, type, layer) {
       _origSimPDU(src, dst, type, layer);
-      
+
       if (showTrafficAnim) {
         // Add a busy dot on sending device
         const srcEl = document.getElementById(src.id);
@@ -4340,17 +4343,17 @@ exit                - exit current mode
         }
       }
     };
-    
+
     // ==================== PORT TOOLTIP ====================
     let portTooltip = null;
-    
+
     function showPortTooltip(e, n, portIdx) {
       const tooltip = document.getElementById('portTooltip');
       const isU = portIdx >= n.ports;
       const portName = isU ? `Uplink ${portIdx - n.ports + 1}` : `FastEthernet0/${portIdx}`;
       const conn = S.conns.find(c => (c.n1 === n.id && c.p1 === portIdx) || (c.n2 === n.id && c.p2 === portIdx));
       const neighbor = conn ? S.nodes.find(x => x.id === (conn.n1 === n.id ? conn.n2 : conn.n1)) : null;
-      
+
       tooltip.innerHTML = `
         <div class="port-tooltip-title">${portName}</div>
         <div class="port-tooltip-row"><span class="port-tooltip-label">Status:</span><span>${conn ? 'Connected' : 'Not Connected'}</span></div>
@@ -4362,11 +4365,11 @@ exit                - exit current mode
       tooltip.style.top = (e.clientY + 15) + 'px';
       tooltip.style.display = 'block';
     }
-    
+
     function hidePortTooltip() {
       document.getElementById('portTooltip').style.display = 'none';
     }
-    
+
     function showPacketDetail(p) {
       const content = document.getElementById('packetDetailContent');
       content.innerHTML = `
@@ -4384,7 +4387,7 @@ exit                - exit current mode
       `;
       document.getElementById('packetDetailModal').classList.add('show');
     }
-    
+
     function generateHexDump() {
       const bytes = Array(16).fill().map(() => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join(' ');
       const ascii = bytes.split(' ').map(b => String.fromCharCode(parseInt(b, 16))).map(c => c >= ' ' && c <= '~' ? c : '.').join('');
@@ -4412,7 +4415,7 @@ exit                - exit current mode
       const ci = document.getElementById('canvasInner');
       let i = 0;
       const pduCircles = [];
-      
+
       // Create source and destination labels
       function createLabel(n, text) {
         const lbl = document.createElement('div');
@@ -4423,34 +4426,34 @@ exit                - exit current mode
         ci.appendChild(lbl);
         setTimeout(() => lbl.remove(), 1000);
       }
-      
+
       function next() {
-        if (i >= path.length - 1) { 
-          cb(); 
-          return; 
+        if (i >= path.length - 1) {
+          cb();
+          return;
         }
         const from = path[i], to = path[i + 1];
-        
+
         // Create enhanced packet
         const pkt = document.createElement('div');
         pkt.className = 'pkt-anim ' + type;
         pkt.style.left = (from.x + 40) + 'px';
         pkt.style.top = (from.y + 30) + 'px';
-        
+
         // Add packet label
         const lbl = document.createElement('span');
         lbl.className = 'pkt-anim-label';
         lbl.textContent = type.toUpperCase();
         pkt.appendChild(lbl);
-        
+
         ci.appendChild(pkt);
         pduCircles.push(pkt);
-        
+
         // Find connection for bandwidth/latency
-        const conn = S.conns.find(c => 
+        const conn = S.conns.find(c =>
           (c.n1 === from.id && c.n2 === to.id) || (c.n1 === to.id && c.n2 === from.id)
         );
-        
+
         // Calculate duration based on connection type
         let dur = 400;
         if (conn) {
@@ -4458,7 +4461,7 @@ exit                - exit current mode
           else if (conn.type?.includes('serial')) dur = 600;
           else dur = 300;
         }
-        
+
         // Add trail dots
         const trailCount = 3;
         const trails = [];
@@ -4470,23 +4473,23 @@ exit                - exit current mode
           ci.appendChild(trail);
           trails.push(trail);
         }
-        
+
         // Animate packet and trails
         const startX = from.x + 40, startY = from.y + 30;
         const endX = to.x + 40, endY = to.y + 30;
         const animDur = dur;
         const steps = 20;
         let step = 0;
-        
+
         function animStep() {
           step++;
           const progress = step / steps;
           const x = startX + (endX - startX) * progress;
           const y = startY + (endY - startY) * progress;
-          
+
           pkt.style.left = x + 'px';
           pkt.style.top = y + 'px';
-          
+
           // Trail effect
           const trailProgress = Math.max(0, progress - 0.2);
           trails.forEach((tr, idx) => {
@@ -4497,7 +4500,7 @@ exit                - exit current mode
             tr.style.top = trY + 'px';
             tr.style.opacity = trProg > 0 ? (0.5 - idx * 0.15) : 0;
           });
-          
+
           if (step < steps) {
             requestAnimationFrame(animStep);
           } else {
@@ -4506,18 +4509,18 @@ exit                - exit current mode
             setTimeout(() => {
               pkt.style.transform = 'scale(1)';
               pkt.style.opacity = '0.5';
-              
+
               // Show arrival effect
               const burst = document.createElement('div');
               burst.style.cssText = `position:absolute;left:${endX - 10}px;top:${endY - 10}px;width:30px;height:30px;border-radius:50%;border:2px solid var(--ok);pointer-events:none;z-index:998;opacity:1;`;
               ci.appendChild(burst);
               burst.animate([{transform:'scale(0.5)',opacity:1},{transform:'scale(2)',opacity:0}], {duration:300});
               setTimeout(() => burst.remove(), 300);
-              
+
               // Show source label on first hop
               if (i === 0) createLabel(from, from.name);
               createLabel(to, to.name);
-              
+
               pkt.remove();
               trails.forEach(tr => tr.remove());
               log(layer, 'info', `${from.name} → ${to.name}`);
@@ -4528,7 +4531,7 @@ exit                - exit current mode
         }
         animStep();
       }
-      
+
       // Show source label
       createLabel(path[0], path[0].name);
       next();
@@ -4579,12 +4582,206 @@ exit                - exit current mode
       };
       i.click();
     }
-
+    
+    // ==================== AUTO SAVE ====================
+    let autoSaveInterval = null;
+    let lastAutoSave = null;
+    
+    function autoSave() {
+      const btn = document.getElementById('btnAutoSave');
+      if (autoSaveInterval) {
+        // Turn off auto-save
+        clearInterval(autoSaveInterval);
+        autoSaveInterval = null;
+        btn.classList.remove('active');
+        log('System', 'info', 'Auto-Save deaktiviert');
+      } else {
+        // Turn on auto-save
+        btn.classList.add('active');
+        saveToLocalStorage();
+        autoSaveInterval = setInterval(saveToLocalStorage, 30000); // Every 30 seconds
+        lastAutoSave = new Date();
+        log('System', 'success', 'Auto-Save aktiviert (alle 30s)');
+      }
+    }
+    
+    function saveToLocalStorage() {
+      const data = { nodes: S.nodes, conns: S.conns, version: '2.1' };
+      localStorage.setItem('netsim_autosave', JSON.stringify(data));
+      lastAutoSave = new Date();
+      log('System', 'info', 'Auto-Save: ' + lastAutoSave.toLocaleTimeString());
+    }
+    
+    function loadFromLocalStorage() {
+      const saved = localStorage.getItem('netsim_autosave');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          if (data.nodes && data.nodes.length > 0) {
+            if (confirm('Gespeicherte Topologie gefunden. Laden?')) {
+              clearAll(false);
+              data.nodes.forEach(n => {
+                const dev = { id: n.type, name: n.name, icon: n.icon, ports: n.ports, uplink: n.uplink, services: n.services };
+                createNode(dev, n.x, n.y, false);
+              });
+              data.conns.forEach(c => {
+                const n1 = S.nodes.find(x => x.id === c.n1);
+                const n2 = S.nodes.find(x => x.id === c.n2);
+                if (n1 && n2) makeConn(n1, c.p1, n2, c.p2, c.type, false);
+              });
+              saveState();
+              log('System', 'success', 'Auto-Save geladen');
+            }
+          }
+        } catch (e) {
+          console.error('Auto-Save load error:', e);
+        }
+      }
+    }
+    
+    // ==================== EXPORT IMAGE ====================
+    function exportImage() {
+      log('System', 'info', 'Exportiere als Bild...');
+      
+      // Create a canvas from the SVG/HTML
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const canvasInner = document.getElementById('canvasInner');
+      
+      // Get bounds of all nodes
+      if (S.nodes.length === 0) {
+        alert('Keine Geräte zum Exportieren');
+        return;
+      }
+      
+      const minX = Math.min(...S.nodes.map(n => n.x)) - 50;
+      const minY = Math.min(...S.nodes.map(n => n.y)) - 50;
+      const maxX = Math.max(...S.nodes.map(n => n.x + 100)) + 50;
+      const maxY = Math.max(...S.nodes.map(n => n.y + 100)) + 50;
+      
+      canvas.width = maxX - minX;
+      canvas.height = maxY - minY;
+      
+      // Fill background
+      ctx.fillStyle = '#0a0a0f';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw grid
+      ctx.strokeStyle = 'rgba(201, 162, 39, 0.1)';
+      ctx.lineWidth = 0.5;
+      for (let x = 0; x < canvas.width; x += 20) {
+        ctx.beginPath();
+        ctx.moveTo(x - minX, 0);
+        ctx.lineTo(x - minX, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += 20) {
+        ctx.beginPath();
+        ctx.moveTo(0, y - minY);
+        ctx.lineTo(canvas.width, y - minY);
+        ctx.stroke();
+      }
+      
+      // Draw connections
+      S.conns.forEach(c => {
+        const n1 = S.nodes.find(x => x.id === c.n1);
+        const n2 = S.nodes.find(x => x.id === c.n2);
+        if (!n1 || !n2) return;
+        
+        const x1 = n1.x + 50 - minX, y1 = n1.y + 40 - minY;
+        const x2 = n2.x + 50 - minX, y2 = n2.y + 40 - minY;
+        
+        ctx.strokeStyle = c.type === 'fiber' ? '#4080c0' : c.type === 'serial' ? '#606060' : '#e07020';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      });
+      
+      // Draw nodes
+      S.nodes.forEach(n => {
+        const x = n.x - minX, y = n.y - minY;
+        
+        // Node background
+        ctx.fillStyle = '#1a1a24';
+        ctx.strokeStyle = '#2a2a34';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(x, y, 90, 80, 8);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Icon (simplified)
+        ctx.fillStyle = '#c9a227';
+        ctx.font = '24px Arial';
+        ctx.textAlign = 'center';
+        const icon = n.r ? '🌐' : n.sw ? '🔀' : n.srv ? '🖥️' : '💻';
+        ctx.fillText(icon, x + 45, y + 35);
+        
+        // Name
+        ctx.fillStyle = '#e8e8f0';
+        ctx.font = '10px Space Grotesk';
+        ctx.fillText(n.name.substring(0, 12), x + 45, y + 65);
+        
+        // IP if exists
+        if (n.ip) {
+          ctx.fillStyle = '#c9a227';
+          ctx.font = '8px Fira Code';
+          ctx.fillText(n.ip, x + 45, y + 75);
+        }
+      });
+      
+      // Download
+      const link = document.createElement('a');
+      link.download = 'network-topology-' + Date.now() + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      log('System', 'success', 'Bild exportiert');
+    }
+    
+    // ==================== CENTER SELECTED ====================
+    function centerSelected() {
+      if (S.nodes.length === 0) return;
+      
+      if (S.sel && S.sel.length > 0) {
+        // Center on selected nodes
+        const selNodes = S.nodes.filter(n => S.sel.includes(n.id));
+        if (selNodes.length === 0) {
+          fitAll();
+          return;
+        }
+        const avgX = selNodes.reduce((sum, n) => sum + n.x, 0) / selNodes.length;
+        const avgY = selNodes.reduce((sum, n) => sum + n.y, 0) / selNodes.length;
+        
+        const canvas = document.getElementById('canvas');
+        const cx = canvas.clientWidth / 2;
+        const cy = canvas.clientHeight / 2;
+        
+        S.pz.pan(cx - avgX * S.pz.getScale() - 50, cy - avgY * S.pz.getScale() - 40);
+        log('System', 'info', 'Auswahl zentriert');
+      } else {
+        fitAll();
+      }
+      updZoom();
+    }
+    
+    // ==================== VIEW MODE ====================
+    let currentView = 'logical';
+    
+    function toggleViewMode() {
+      const views = ['logical', 'physical', 'config'];
+      const idx = views.indexOf(currentView);
+      currentView = views[(idx + 1) % views.length];
+      log('System', 'info', `View: ${currentView.charAt(0).toUpperCase() + currentView.slice(1)}`);
+      // View modes could be expanded for physical workspace
+    }
+    
     // ==================== VTP ====================
     let vtpState = { mode: 'server', domain: '', pass: '', revision: 0 };
-    
+
     function openVTP() { document.getElementById('vtpModal').classList.add('show'); showVTPStatus(); }
-    
+
     function applyVTP() {
       vtpState = {
         mode: document.getElementById('vtpMode').value,
@@ -4595,7 +4792,7 @@ exit                - exit current mode
       log('VTP', 'success', `VTP ${vtpState.mode} domain: ${vtpState.domain || 'default'} rev:${vtpState.revision}`);
       showVTPStatus();
     }
-    
+
     function showVTPStatus() {
       const el = document.getElementById('vtpStatus');
       el.innerHTML = `
@@ -4616,10 +4813,10 @@ exit                - exit current mode
 <div>VLAN 99: Management</div>
       `;
     }
-    
+
     // ==================== HSRP ====================
     let hsrpState = {};
-    
+
     function openHSRP() {
       if (!S.sel?.r) { alert('Router auswählen!'); return; }
       document.getElementById('hsrpModal').classList.add('show');
@@ -4627,7 +4824,7 @@ exit                - exit current mode
       document.getElementById('hsrpCfg2').textContent = document.getElementById('hsrpVIP').value || '192.168.1.254';
       document.getElementById('hsrpCfg4').textContent = document.getElementById('hsrpPriority').value || '100';
     }
-    
+
     function applyHSRP() {
       const group = document.getElementById('hsrpGroup').value;
       const priority = document.getElementById('hsrpPriority').value;
@@ -4635,20 +4832,20 @@ exit                - exit current mode
       const preempt = document.getElementById('hsrpPreempt').value;
       const hello = document.getElementById('hsrpHello').value;
       const hold = document.getElementById('hsrpHold').value;
-      
+
       if (!vip) { alert('Virtual IP eingeben!'); return; }
-      
+
       hsrpState = { group, priority, vip, preempt, hello, hold };
       log('HSRP', 'success', `Standby ${group}: ${vip} priority ${priority}${preempt === 'yes' ? ' preempt' : ''}`);
       closeM('hsrpModal');
     }
-    
+
     // ==================== SYSLOG ====================
     let syslogs = [];
     const SEVERITY_NAMES = ['Emergency', 'Alert', 'Critical', 'Error', 'Warning', 'Notice', 'Info', 'Debug'];
-    
+
     function openSyslog() { document.getElementById('syslogModal').classList.add('show'); renderSyslogs(); }
-    
+
     function addSyslogMsg() {
       const facility = document.getElementById('syslogFacility').value;
       const severity = parseInt(document.getElementById('syslogSeverity').value);
@@ -4670,7 +4867,7 @@ exit                - exit current mode
       if (syslogs.length > 50) syslogs.pop();
       renderSyslogs();
     }
-    
+
     function renderSyslogs() {
       const el = document.getElementById('syslogMessages');
       if (syslogs.length === 0) {
@@ -4688,7 +4885,7 @@ exit                - exit current mode
         </div>`;
       }).join('');
     }
-    
+
     function generateSampleSyslogs() {
       const facilities = ['local0', 'local1', 'local2', 'local5'];
       const sevRange = [3, 4, 5, 6];
@@ -4700,32 +4897,32 @@ exit                - exit current mode
         addSyslogMsg();
       }
     }
-    
+
     function clearSyslogs() { syslogs = []; renderSyslogs(); }
-    
+
     // ==================== SSH/TELNET ====================
     function openSSHModal() {
       document.getElementById('sshModal').classList.add('show');
       updateSSHTargets();
     }
-    
+
     function updateSSHTargets() {
       const el = document.getElementById('sshTarget');
       const opts = S.nodes.filter(n => n.r).map(n => `<option value="${n.id}">${n.name}${n.ip ? ` (${n.ip})` : ''}</option>`).join('');
       el.innerHTML = '<option value="">-- Select Device --</option>' + opts;
     }
-    
+
     function connectSSH() {
       const type = document.getElementById('sshType').value;
       const targetId = document.getElementById('sshTarget').value;
       const user = document.getElementById('sshUser').value || 'admin';
       const pass = document.getElementById('sshPass').value || 'cisco';
-      
+
       if (!targetId) { alert('Device auswählen!'); return; }
-      
+
       const target = S.nodes.find(n => n.id === targetId);
       const el = document.getElementById('sshOutput');
-      
+
       // Simulate connection
       el.innerHTML = '';
       if (type === 'ssh') {
@@ -4739,7 +4936,7 @@ exit                - exit current mode
         el.innerHTML += `<div style="color:var(--warn);">Warning: Telnet is not secure!</div>`;
         el.innerHTML += `<div>Connecting to ${target.name}...</div><br>`;
       }
-      
+
       el.innerHTML += `
 ${target.name}> enable
 ${target.name}# show ip interface brief
@@ -4748,10 +4945,10 @@ GigabitEthernet0/0     ${target.ip || 'unassigned'}     YES manual up           
 GigabitEthernet0/1     unassigned      YES manual down                  down
 
 ${target.name}# `;
-      
+
       log('SSH', 'success', `${type.toUpperCase()} session opened to ${target.name}`);
     }
-    
+
     // ==================== STATS & LOG ====================
     function updStats() {
       document.getElementById('sN').textContent = S.nodes.length;
@@ -4764,7 +4961,7 @@ ${target.name}# `;
       const bg = { L3: 'var(--layer3)', L4: 'var(--layer4)', L7: 'var(--layer7)', Config: 'var(--accent)', STP: 'var(--ok)', VLAN: 'var(--device)', Route: 'var(--device)', System: 'var(--text-muted)', Gerät: 'var(--ok)', Verbindung: 'var(--ok)', Capture: 'var(--layer7)', ACL: 'var(--warn)', Traffic: 'var(--layer3)', CDP: 'var(--layer7)', Interface: 'var(--accent)', fail: 'var(--error)', info: 'var(--accent)', success: 'var(--ok)' };
       S.events.unshift({ t, layer, type, msg });
       if (S.events.length > 100) S.events.pop();
-      document.getElementById('eventLog').innerHTML = S.events.slice(0, 20).map(e => 
+      document.getElementById('eventLog').innerHTML = S.events.slice(0, 20).map(e =>
         `<div class="event-item">
           <span class="event-time">${e.t}</span>
           <span class="event-layer" style="background:${bg[e.layer] || bg[type] || 'var(--accent)'}">${e.layer.charAt(0)}</span>
@@ -4774,35 +4971,35 @@ ${target.name}# `;
     }
 
     function clearLog() { S.events = []; document.getElementById('eventLog').innerHTML = ''; }
-    
+
     // ==================== TRAFFIC GENERATOR ====================
     let trafficInterval = null;
-    
+
     function openTrafficGen() {
-      const opts = S.nodes.filter(n => n.end || n.srv || n.r).map(n => 
+      const opts = S.nodes.filter(n => n.end || n.srv || n.r).map(n =>
         `<option value="${n.id}">${n.name}${n.ip ? ` (${n.ip})` : ''}</option>`
       ).join('');
       document.getElementById('trafficSrc').innerHTML = opts;
       document.getElementById('trafficDst').innerHTML = '<option value="">-- --</option>' + opts;
       document.getElementById('trafficModal').classList.add('show');
     }
-    
+
     function startTraffic() {
       const srcId = document.getElementById('trafficSrc').value;
       const dstId = document.getElementById('trafficDst').value;
       const proto = document.getElementById('trafficProto').value;
       const size = parseInt(document.getElementById('trafficSize').value) || 64;
       const interval = parseInt(document.getElementById('trafficInterval').value) || 1000;
-      
+
       if (!srcId || !dstId) { alert('Quelle und Ziel auswählen'); return; }
-      
+
       closeM('trafficModal');
-      
+
       const src = S.nodes.find(n => n.id === srcId);
       const dst = S.nodes.find(n => n.id === dstId);
-      
+
       log('Traffic', 'info', `Traffic Generator: ${src.name} → ${dst.name} [${proto}]`);
-      
+
       let count = 0;
       trafficInterval = setInterval(() => {
         count++;
@@ -4810,7 +5007,7 @@ ${target.name}# `;
         log('Traffic', 'info', `Packet #${count} sent (${size}B @ ${interval}ms)`);
       }, interval);
     }
-    
+
     function stopTraffic() {
       if (trafficInterval) {
         clearInterval(trafficInterval);
@@ -4818,15 +5015,15 @@ ${target.name}# `;
         log('Traffic', 'info', 'Traffic Generator gestoppt');
       }
     }
-    
+
     // ==================== CDP ====================
     let cdpMessages = [];
-    
+
     function openCDP() {
       document.getElementById('cdpModal').classList.add('show');
       updateCDPMessages();
     }
-    
+
     function runCDP() {
       cdpMessages = [];
       S.nodes.forEach(n => {
@@ -4848,7 +5045,7 @@ ${target.name}# `;
       updateCDPMessages();
       log('CDP', 'success', `${cdpMessages.length} CDP Nachrichten`);
     }
-    
+
     function updateCDPMessages() {
       const el = document.getElementById('cdpMessages');
       if (cdpMessages.length === 0) {
@@ -4857,20 +5054,20 @@ ${target.name}# `;
       }
       el.innerHTML = cdpMessages.map(m => `<div style="padding:6px;border-bottom:1px solid var(--border);"><div style="color:var(--ok);">${m.device}</div><div style="color:var(--text-muted);">Interface: ${m.interface}</div><div>Neighbour: <span style="color:var(--accent)">${m.neighbor}</span> (${m.ip})</div><div style="color:var(--text-muted);font-size:0.5rem;">${m.platform} | ${m.capability}</div></div>`).join('');
     }
-    
+
     function clearCDP() { cdpMessages = []; updateCDPMessages(); }
-    
+
     // ==================== PING RESULTS ====================
     function runPing(src, dst) {
       const results = [];
       document.getElementById('pingResults').innerHTML = `<div style="color:var(--ok);">Pinging from ${src.name} to ${dst.name}...</div><br>`;
-      
+
       for (let i = 0; i < 4; i++) {
         const delay = 10 + Math.random() * 50;
         const ttl = 64;
         const success = Math.random() > 0.1;
         results.push({ seq: i + 1, time: delay.toFixed(2), ttl, success });
-        
+
         setTimeout(() => {
           const el = document.getElementById('pingResults');
           if (success) {
@@ -4881,22 +5078,22 @@ ${target.name}# `;
           el.scrollTop = el.scrollHeight;
         }, (i + 1) * 300);
       }
-      
+
       setTimeout(() => {
         const sent = 4, received = results.filter(r => r.success).length;
         const loss = ((sent - received) / sent * 100).toFixed(0);
         const avgTime = results.filter(r => r.success).reduce((a, b) => a + parseFloat(b.time), 0) / received;
         document.getElementById('pingResults').innerHTML += `<br><div style="color:var(--text-muted);">--- Ping Statistics ---\n4 packets transmitted, ${received} received, ${loss}% loss\nround-trip min/avg/max = ${Math.min(...results.filter(r=>r.success).map(r=>parseFloat(r.time))).toFixed(2)}/${avgTime.toFixed(2)}/${Math.max(...results.filter(r=>r.success).map(r=>parseFloat(r.time))).toFixed(2)} ms</div>`;
       }, 1500);
-      
+
       document.getElementById('pingModal').classList.add('show');
     }
-    
+
     // ==================== INTERFACE CONFIG ====================
     function openInterface() {
       document.getElementById('interfaceModal').classList.add('show');
     }
-    
+
     function applyInterface() {
       const iface = document.getElementById('intInterface').value;
       const desc = document.getElementById('intDesc').value;
@@ -4908,7 +5105,7 @@ ${target.name}# `;
       const bw = document.getElementById('intBandwidth').value;
       const delay = document.getElementById('intDelay').value;
       const status = document.getElementById('intStatus').value;
-      
+
       log('Interface', 'info', `interface ${iface}`);
       if (desc) log('Interface', 'info', `description ${desc}`);
       if (ip) {
@@ -4921,10 +5118,10 @@ ${target.name}# `;
       log('Interface', 'info', `bandwidth ${bw}`);
       log('Interface', 'info', `delay ${delay}`);
       log('Interface', 'info', `${status === 'up' ? 'no shutdown' : 'shutdown'}`);
-      
+
       closeM('interfaceModal');
     }
-    
+
     // ==================== ENHANCED PDU ====================
     function sendPDU() {
       const src = S.nodes.find(n => n.id === document.getElementById('pduSrc').value);
@@ -4933,14 +5130,14 @@ ${target.name}# `;
       const layer = document.getElementById('pduLayer').value;
       const repeat = parseInt(document.getElementById('pduRepeat')?.value) || 1;
       const interval = parseInt(document.getElementById('pduInterval')?.value) || 1000;
-      
+
       if (!src || !dst) return;
       closeM('pduModal');
-      
+
       if (type === 'icmp') {
         runPing(src, dst);
       }
-      
+
       for (let i = 0; i < repeat; i++) {
         setTimeout(() => simPDU(src, dst, type, layer), i * interval);
       }
@@ -4956,7 +5153,7 @@ ${target.name}# `;
       if (doSave) saveState();
       log('System', 'info', 'Canvas geleert');
     }
-    
+
     function duplicateSelected() {
       if (!S.sel) return;
       const dev = DEVS.end.find(d => d.name === S.sel.name) || DEVS.sw.find(d => d.name === S.sel.name) || DEVS.r.find(d => d.name === S.sel.name);
@@ -4966,7 +5163,7 @@ ${target.name}# `;
     // Keyboard shortcuts
     document.addEventListener('keydown', e => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-      
+
       if (e.key === 'Delete' || e.key === 'Backspace') {
         if (S.sel) deleteSelected();
       }
@@ -4990,6 +5187,18 @@ ${target.name}# `;
         e.preventDefault();
         S.nodes.forEach(n => document.getElementById(n.id)?.classList.add('selected'));
       }
+      // F = Fit all
+      if (e.key === 'f' || e.key === 'F') { e.preventDefault(); fitAll(); }
+      // C = Center selected
+      if (e.key === 'c' || e.key === 'C') { e.preventDefault(); centerSelected(); }
+      // R = Reset zoom
+      if (e.key === 'r' || e.key === 'R') { e.preventDefault(); resetView(); }
+      // G = Toggle grid snap
+      if (e.key === 'g' || e.key === 'G') { e.preventDefault(); toggleSnap(); }
+      // N = New/Clear
+      if (e.key === 'n' || e.key === 'N') { e.preventDefault(); if(confirm('Topologie leeren?')) clearAll(); }
+      // L = Cycle views
+      if (e.key === 'l' || e.key === 'L') { e.preventDefault(); toggleViewMode(); }
     });
 
     init();
