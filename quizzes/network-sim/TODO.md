@@ -104,6 +104,8 @@
 - [x] **Quick Templates** - 6 pre-made topologies
 - [x] **Traffic animation** on connections
 - [x] **Device status badges** (online/offline)
+- [x] **MAC Address Table** - dynamic learning, VLAN filter
+- [x] **Routing Table** - protocol badges (C/S/O/L), metrics
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
