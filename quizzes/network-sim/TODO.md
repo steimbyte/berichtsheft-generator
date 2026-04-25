@@ -96,6 +96,10 @@
 - [x] **Packet History panel** - detailed packet list
 - [x] **Port tooltips** - connection info
 - [x] **Auto-naming** devices (PC0, Switch0, Router0...)
+- [x] **Interface Statistics** - In/Out bytes tracking
+- [x] **VLAN Table** - all VLANs with status
+- [x] **Network Health Dashboard** - uptime, links, delivery
+- [x] **ARP Table** - IP/MAC, auto-populated
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

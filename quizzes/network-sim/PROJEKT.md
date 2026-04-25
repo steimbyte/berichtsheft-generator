@@ -73,6 +73,7 @@ python3 -m http.server 8080
 
 ### Commit History
 ```
+da55ba6 feat: Add interface stats, VLAN table, health dashboard, ARP table
 cdafc89 feat: Add packet history, port tooltips, auto-naming
 8e438da feat: Improved port UX, device inspector panel
 c92e19d feat: Add topology tree, OSI layers, interface duplex/speed
@@ -155,6 +156,6 @@ ITSE IHK AP2 Projekt
 
 ---
 
-**Version:** 1.6  
+**Version:** 1.7  
 **Letzte Änderung:** 2026-04-26  
 **Status:** 🟢 Aktiv
