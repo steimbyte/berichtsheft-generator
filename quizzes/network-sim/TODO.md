@@ -6,9 +6,11 @@
 - [x] Drag & Drop devices from panel to canvas
 - [x] **Devices stay draggable after placement** - always works!
 - [x] **Port dragging for connections** - click port, drag to target port
+- [x] **Improved port UX** - larger ports, labels on hover
 - [x] 4 Cable types: Copper Straight, Crossover, Fiber, Serial
 - [x] Connection preview line while dragging
 - [x] Quick connect labels showing target
+- [x] **Device Inspector Panel** - detailed device info
 
 ### Devices (25+)
 - [x] End devices: PC, Laptop, Tablet, Printer, Server, IP Phone
@@ -90,6 +92,7 @@
 - [x] **Device power toggle**
 - [x] **Port LED status** indicators
 - [x] **VLAN tags** on connections
+- [x] **Device Inspector panel** - full device details
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
