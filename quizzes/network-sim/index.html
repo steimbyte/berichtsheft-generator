@@ -100,6 +100,38 @@
     /* Lasso Selection */
     .lasso { position: fixed; border: 2px dashed var(--accent); background: rgba(201, 162, 39, 0.1); pointer-events: none; z-index: 5000; display: none; }
     
+    /* Packet History Panel */
+    .packet-history { position: absolute; bottom: 120px; left: 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; width: 300px; max-height: 250px; z-index: 100; overflow: hidden; display: none; }
+    .packet-history.show { display: block; }
+    .packet-history-header { padding: 8px 12px; background: var(--bg-elevated); display: flex; justify-content: space-between; align-items: center; font-size: 0.65rem; font-weight: 600; }
+    .packet-history-list { max-height: 200px; overflow-y: auto; padding: 4px; }
+    .packet-history-item { padding: 6px 8px; border-bottom: 1px solid var(--border); font-size: 0.55rem; cursor: pointer; transition: background 0.1s; }
+    .packet-history-item:hover { background: var(--glass-light); }
+    .packet-history-item.selected { background: rgba(201, 162, 39, 0.2); }
+    .packet-history-item .src { color: var(--ok); }
+    .packet-history-item .dst { color: var(--warn); }
+    .packet-history-item .type { background: var(--accent); color: var(--bg-deep); padding: 1px 4px; border-radius: 3px; }
+    
+    /* Port Info Tooltip */
+    .port-tooltip { position: fixed; background: var(--bg-surface); border: 1px solid var(--accent); border-radius: 6px; padding: 8px 12px; font-size: 0.6rem; z-index: 10000; pointer-events: none; box-shadow: 0 4px 20px rgba(0,0,0,0.5); max-width: 200px; }
+    .port-tooltip-title { font-weight: 600; margin-bottom: 4px; color: var(--accent); }
+    .port-tooltip-row { display: flex; justify-content: space-between; padding: 2px 0; }
+    .port-tooltip-label { color: var(--text-muted); }
+    
+    /* Auto-Naming */
+    .device-counter { position: absolute; top: 4px; right: 4px; font-size: 0.4rem; color: var(--text-muted); background: var(--bg-deep); padding: 1px 4px; border-radius: 4px; }
+    
+    /* Network Health Indicator */
+    .health-bar { position: absolute; bottom: 4px; left: 4px; width: 40px; height: 4px; background: var(--bg-deep); border-radius: 2px; overflow: hidden; }
+    .health-bar-fill { height: 100%; background: var(--ok); transition: width 0.3s; }
+    .health-bar-fill.warning { background: var(--warn); }
+    .health-bar-fill.error { background: var(--error); }
+    
+    /* Smart Port Labels */
+    .smart-label { position: absolute; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: 0.5rem; pointer-events: none; z-index: 5; white-space: nowrap; }
+    .smart-label.ip { border-color: var(--layer3); color: var(--layer3); }
+    .smart-label.name { border-color: var(--accent); color: var(--accent); }
+    
     /* Link Status Indicator */
     .link-status { position: absolute; width: 6px; height: 6px; border-radius: 50%; animation: blink 1s infinite; }
     .link-status.up { background: var(--ok); }
@@ -502,6 +534,7 @@
       <button class="tool-btn" onclick="openCLI()"><i class="ph ph-terminal"></i> CLI</button>
       <button class="tool-btn" onclick="openTrafficGen()"><i class="ph ph-lightning"></i> Traffic</button>
       <button class="tool-btn" onclick="openCDP()"><i class="ph ph-broadcast"></i> CDP</button>
+      <button class="tool-btn" onclick="togglePacketHistory()" id="btnPktHist"><i class="ph ph-list-bullets"></i> History</button>
       <button class="tool-btn" onclick="openVTP()"><i class="ph ph-swap"></i> VTP</button>
       <button class="tool-btn" onclick="openHSRP()"><i class="ph ph-arrows-clockwise"></i> HSRP</button>
       <button class="tool-btn" onclick="openSyslog()"><i class="ph ph-list-bullets"></i> Syslog</button>
@@ -613,6 +646,18 @@
           <div class="mini-map-viewport" id="miniViewport"></div>
         </div>
       </div>
+      
+      <!-- Packet History Panel -->
+      <div class="packet-history" id="packetHistory">
+        <div class="packet-history-header">
+          <span><i class="ph ph-list-bullets"></i> Packet History</span>
+          <button onclick="clearPacketHistory()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.6rem;">Clear</button>
+        </div>
+        <div class="packet-history-list" id="packetHistoryList"></div>
+      </div>
+      
+      <!-- Port Tooltip -->
+      <div class="port-tooltip" id="portTooltip" style="display:none;"></div>
       
       <div class="delete-zone" id="deleteZone">
         <i class="ph ph-trash"></i> Hier ablegen zum Löschen
@@ -2063,8 +2108,9 @@
       x = pos.x; y = pos.y;
       const id = 'n' + S.nid++;
       const totalPorts = (d.ports || 0) + (d.uplink || 0);
+      const deviceName = getNextName(d.id);
       const n = {
-        id, type: d.id, name: d.name, icon: d.icon, x, y,
+        id, type: d.id, name: deviceName, icon: d.icon, x, y,
         ports: d.ports || 0, uplink: d.uplink || 0, totalPorts,
         end: d.type !== 'copper' && d.type !== 'fiber' && d.type !== 'serial' && !d.sw && !d.r,
         sw: !!d.icon?.includes('git-branch') || d.name?.includes('2960') || d.name?.includes('3560') || d.name?.includes('3750'),
@@ -2159,12 +2205,15 @@
           e.stopPropagation();
           startPortConnect(e, n, idx, el);
         });
-        port.addEventListener('mouseenter', () => {
+        port.addEventListener('mouseenter', e => {
           document.getElementById('sHint').textContent = `Port ${idx + 1} - Ziehen zum Verbinden`;
-          // Highlight all free ports
           el.querySelectorAll('.node-port:not(.connected)').forEach(fp => fp.style.boxShadow = '0 0 10px var(--ok)');
+          showPortTooltip(e, n, idx);
         });
-        port.addEventListener('mouseleave', () => document.getElementById('sHint').textContent = 'Geräte ziehen oder Ports verbinden');
+        port.addEventListener('mouseleave', () => {
+          document.getElementById('sHint').textContent = 'Geräte ziehen oder Ports verbinden';
+          hidePortTooltip();
+        });
       });
       
       log('Gerät', 'success', `${n.name} hinzugefügt`);
@@ -2196,6 +2245,43 @@
       if (n.vlan !== '1') html += `<div class="node-info-row"><span>VLAN:</span><span>${n.vlan}</span></div>`;
       if (n.services.length) html += `<div class="node-info-row"><span>Svc:</span><span>${n.services.join(',')}</span></div>`;
       return html;
+    }
+    
+    // ==================== SMART LABELS ====================
+    function updateSmartLabels() {
+      // Remove old labels
+      document.querySelectorAll('.smart-label').forEach(l => l.remove());
+      
+      S.nodes.forEach(n => {
+        const el = document.getElementById(n.id);
+        if (!el) return;
+        
+        // IP label
+        if (n.ip && document.getElementById('chkShowIP')?.checked) {
+          const label = document.createElement('div');
+          label.className = 'smart-label ip';
+          label.textContent = n.ip;
+          label.style.left = (n.x + 10) + 'px';
+          label.style.top = (n.y - 15) + 'px';
+          document.getElementById('nodesContainer').appendChild(label);
+        }
+        
+        // Device counter badge
+        if (n.usedPorts > 0 || n.totalPorts > 0) {
+          const badge = el.querySelector('.device-counter');
+          if (badge) badge.textContent = `${n.usedPorts}/${n.totalPorts}`;
+        }
+      });
+    }
+    
+    // ==================== AUTO-NAME DEVICES ====================
+    const deviceCounters = { pc: 0, laptop: 0, sw: 0, r: 0, http: 0, dns: 0, dhcp: 0, mail: 0, ipcam: 0, ap: 0 };
+    
+    function getNextName(type) {
+      const prefixes = { pc: 'PC', laptop: 'Laptop', sw2960: 'Switch', sw3560: 'Switch', sw3750: 'Switch', r1941: 'Router', r2901: 'Router', r4321: 'Router', http: 'Server', dns: 'DNS', dhcp: 'DHCP', mail: 'Mail', ipcam: 'Camera', ap: 'AP' };
+      const base = prefixes[type] || type.charAt(0).toUpperCase() + type.slice(1);
+      deviceCounters[base.toLowerCase()] = (deviceCounters[base.toLowerCase()] || 0) + 1;
+      return `${base}${deviceCounters[base.toLowerCase()]}`;
     }
 
     function genMAC() {
@@ -3233,6 +3319,24 @@ exit                - exit current mode
       const packet = {
         id: S.pduCnt,
         src: src.name,
+        srcIP: src.ip,
+        srcMAC: src.mac,
+        dst: dst.name,
+        dstIP: dst.ip,
+        dstMAC: dst.mac,
+        type,
+        layer,
+        timestamp: new Date().toLocaleTimeString(),
+        success: null
+      };
+      S.capturedPackets.push(packet);
+      updateCaptureList();
+      addToPacketHistory(packet);
+      
+      // Store packet for capture
+      const packet = {
+        id: S.pduCnt,
+        src: src.name,
         dst: dst.name,
         srcIP: src.ip,
         dstIP: dst.ip,
@@ -3269,6 +3373,75 @@ exit                - exit current mode
           <span style="color:var(--layer3)">#${p.id}</span> ${p.src} → ${p.dst} <span style="color:var(--text-muted)">[${p.type.toUpperCase()}]</span>
         </div>`
       ).join('');
+    }
+    
+    // ==================== PACKET HISTORY ====================
+    let packetHistory = [];
+    let showPacketHistory = false;
+    
+    function togglePacketHistory() {
+      showPacketHistory = !showPacketHistory;
+      document.getElementById('packetHistory').classList.toggle('show', showPacketHistory);
+      document.getElementById('btnPktHist').classList.toggle('active', showPacketHistory);
+    }
+    
+    function addToPacketHistory(packet) {
+      packetHistory.unshift(packet);
+      if (packetHistory.length > 100) packetHistory.pop();
+      renderPacketHistory();
+    }
+    
+    function renderPacketHistory() {
+      const el = document.getElementById('packetHistoryList');
+      if (packetHistory.length === 0) {
+        el.innerHTML = '<div style="color:var(--text-muted);font-size:0.55rem;padding:10px;text-align:center;">No packets yet</div>';
+        return;
+      }
+      el.innerHTML = packetHistory.slice(0, 30).map(p => `
+        <div class="packet-history-item" onclick="showPacketDetailById(${p.id})">
+          <span class="type">${p.type.toUpperCase()}</span>
+          <span class="src">${p.src}</span>
+          →
+          <span class="dst">${p.dst}</span>
+          <span style="color:var(--text-muted);float:right;">${p.timestamp}</span>
+        </div>
+      `).join('');
+    }
+    
+    function clearPacketHistory() {
+      packetHistory = [];
+      renderPacketHistory();
+    }
+    
+    function showPacketDetailById(id) {
+      const p = S.capturedPackets.find(x => x.id === id) || packetHistory.find(x => x.id === id);
+      if (p) showPacketDetail(p);
+    }
+    
+    // ==================== PORT TOOLTIP ====================
+    let portTooltip = null;
+    
+    function showPortTooltip(e, n, portIdx) {
+      const tooltip = document.getElementById('portTooltip');
+      const isU = portIdx >= n.ports;
+      const portName = isU ? `Uplink ${portIdx - n.ports + 1}` : `FastEthernet0/${portIdx}`;
+      const conn = S.conns.find(c => (c.n1 === n.id && c.p1 === portIdx) || (c.n2 === n.id && c.p2 === portIdx));
+      const neighbor = conn ? S.nodes.find(x => x.id === (conn.n1 === n.id ? conn.n2 : conn.n1)) : null;
+      
+      tooltip.innerHTML = `
+        <div class="port-tooltip-title">${portName}</div>
+        <div class="port-tooltip-row"><span class="port-tooltip-label">Status:</span><span>${conn ? 'Connected' : 'Not Connected'}</span></div>
+        ${neighbor ? `<div class="port-tooltip-row"><span class="port-tooltip-label">Connected to:</span><span>${neighbor.name}</span></div>` : ''}
+        ${conn ? `<div class="port-tooltip-row"><span class="port-tooltip-label">Cable:</span><span>${conn.type === 'copper-str' ? 'Copper ST' : conn.type === 'copper-cross' ? 'Copper X' : conn.type === 'fiber' ? 'Fiber' : 'Serial'}</span></div>` : ''}
+        ${conn ? `<div class="port-tooltip-row"><span class="port-tooltip-label">Length:</span><span>${conn.len?.toFixed(1) || '0'}m</span></div>` : ''}
+      `;
+      tooltip.style.left = (e.clientX + 15) + 'px';
+      tooltip.style.top = (e.clientY + 15) + 'px';
+      tooltip.style.display = 'block';
+    }
+    
+    function hidePortTooltip() {
+      document.getElementById('portTooltip').style.display = 'none';
     }
     
     function showPacketDetail(p) {
