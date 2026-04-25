@@ -76,15 +76,20 @@
 - [x] Event log
 - [x] Status bar
 - [x] Device info on hover
-- [x] Connection labels
+- [x] Connection labels with bandwidth
 - [x] Delete zone visual
-- [x] **Keyboard shortcuts**: Ctrl+S, Ctrl+O, Ctrl+P, Ctrl+T, Ctrl+V, Ctrl+H, Ctrl+L, Ctrl+Z (Undo), Ctrl+Y (Redo), Ctrl+D (Duplicate)
-- [x] **Interface configuration** (bandwidth, delay, description)
+- [x] **Keyboard shortcuts**: Ctrl+S/O/P/T/V/H/L/Z/Y/D
+- [x] **Interface configuration** (bandwidth, delay, duplex, speed, MTU)
 - [x] **Undo/Redo** system (50 states)
 - [x] **Snap to Grid** toggle
 - [x] **Mini-map** overview
 - [x] **Right-click context menu**
 - [x] **Lasso multi-selection** (Shift+Drag)
+- [x] **Topology tree** panel
+- [x] **OSI layer visualization** during simulation
+- [x] **Device power toggle**
+- [x] **Port LED status** indicators
+- [x] **VLAN tags** on connections
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
