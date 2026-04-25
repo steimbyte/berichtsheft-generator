@@ -249,41 +249,93 @@
     
     /* Port Styling */
     .node-port { 
-      width: 16px; 
-      height: 16px; 
+      width: 18px; 
+      height: 18px; 
       border-radius: 50%; 
       background: var(--bg-elevated); 
       border: 3px solid var(--border);
       cursor: crosshair; 
-      transition: all 0.15s;
+      transition: all 0.2s;
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .node-port::after {
+    .node-port::before {
       content: '';
       position: absolute;
-      inset: 2px;
+      inset: 3px;
       border-radius: 50%;
       background: transparent;
+      transition: all 0.2s;
     }
     .node-port:hover { 
-      transform: scale(1.5); 
+      transform: scale(1.6); 
       border-color: var(--accent);
       background: var(--accent);
-      box-shadow: 0 0 15px var(--accent);
+      box-shadow: 0 0 20px var(--accent), 0 0 40px rgba(201, 162, 39, 0.3);
+      z-index: 10;
+    }
+    .node-port:hover::before {
+      background: var(--bg-deep);
+    }
+    .node-port:hover .port-label {
+      opacity: 1;
+      transform: translateY(-20px);
     }
     .node-port.connected { 
       background: var(--ok); 
       border-color: var(--ok);
     }
-    .node-port.connected::after { background: var(--bg-deep); }
+    .node-port.connected::before { background: var(--bg-deep); }
     .node-port.uplink { background: var(--device); border-color: var(--device); }
-    .node-port.uplink::after { background: var(--bg-deep); }
+    .node-port.uplink::before { background: var(--bg-deep); }
     .node-port.serial { background: var(--serial); border-color: var(--serial); }
-    .node-port.serial::after { background: var(--bg-deep); }
+    .node-port.serial::before { background: var(--bg-deep); }
     .node-port.connecting {
-      animation: portPulse 0.6s infinite;
+      animation: portPulse 0.5s infinite;
       border-color: var(--accent);
       background: var(--accent);
+      transform: scale(1.8);
+    }
+    .port-label {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-5px);
+      background: var(--bg-surface);
+      color: var(--accent);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.5rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s;
+      border: 1px solid var(--accent);
+      z-index: 20;
+    }
+    .port-hint {
+      font-size: 0.45rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 4px;
+    }
+    .free-port-hint {
+      position: absolute;
+      background: var(--ok);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-size: 0.5rem;
+      pointer-events: none;
+      animation: fadeInOut 2s forwards;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(10px); }
+      20% { opacity: 1; transform: translateY(0); }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
     }
     
     @keyframes portPulse {
@@ -1842,7 +1894,59 @@
     function ctxConfig() { if (S.ctxNode) { sel(S.ctxNode, document.getElementById(S.ctxNode.id)); } hideContextMenu(); }
     function ctxCLI() { if (S.ctxNode) { S.sel = S.ctxNode; openCLI(); } hideContextMenu(); }
     function ctxCopy() { if (S.ctxNode) { const el = document.getElementById(S.ctxNode.id); const rect = el.getBoundingClientRect(); const dev = DEVS.end.find(d => d.name === S.ctxNode.name) || DEVS.sw.find(d => d.name === S.ctxNode.name) || DEVS.r.find(d => d.name === S.ctxNode.name); if (dev) createNode(dev, S.ctxNode.x + 50, S.ctxNode.y + 50); } hideContextMenu(); }
-    function ctxInspect() { alert(`Device: ${S.ctxNode?.name}\nType: ${S.ctxNode?.type}\nIP: ${S.ctxNode?.ip || 'None'}\nMAC: ${S.ctxNode?.mac}`); hideContextMenu(); }
+    function ctxInspect() { hideContextMenu(); openInspectPanel(S.ctxNode); }
+    
+    function openInspectPanel(n) {
+      if (!n) return;
+      const panel = document.getElementById('inspectPanel') || createInspectPanel();
+      const content = document.getElementById('inspectContent');
+      const icon = n.r ? 'ph-globe' : n.sw ? 'ph-git-branch' : n.srv ? 'ph-hard-drives' : 'ph-desktop';
+      const type = n.r ? 'Router' : n.sw ? 'Switch' : n.srv ? 'Server' : 'End Device';
+      const status = n.on ? '<span style="color:var(--ok)">● Online</span>' : '<span style="color:var(--error)">● Offline</span>';
+      content.innerHTML = `
+        <div style="text-align:center;margin-bottom:12px;">
+          <div style="font-size:28px;color:var(--accent);"><i class="ph ${icon}"></i></div>
+          <div style="font-weight:600;">${n.name}</div>
+          <div style="font-size:0.55rem;color:var(--text-muted);">${type}</div>
+          ${status}
+        </div>
+        <div style="font-size:0.55rem;">
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text-muted);">IP:</span><span>${n.ip || 'N/A'}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text-muted);">Subnet:</span><span>${n.subnet}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text-muted);">MAC:</span><span style="font-size:0.5rem;">${n.mac}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text-muted);">Gateway:</span><span>${n.gateway || 'N/A'}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text-muted);">VLAN:</span><span>${n.vlan || '1'}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text-muted);">Ports:</span><span>${n.usedPorts}/${n.totalPorts}</span></div>
+          ${n.poeBudget ? `<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text-muted);">PoE:</span><span>${n.poeUsed}/${n.poeBudget}W</span></div>` : ''}
+          ${n.services?.length ? `<div style="padding:3px 0;"><span style="color:var(--text-muted);">Services:</span><div style="margin-top:4px;">${n.services.map(s => `<span style="background:var(--accent);color:var(--bg-deep);padding:1px 5px;border-radius:3px;font-size:0.5rem;margin:1px;">${s}</span>`).join('')}</div></div>` : ''}
+        </div>
+        <div style="margin-top:8px;display:flex;gap:4px;">
+          <button class="modal-btn secondary" style="flex:1;font-size:0.5rem;" onclick="sel(S.ctxNode, document.getElementById(S.ctxNode.id)); closeInspectPanel();"><i class="ph ph-sliders"></i> Config</button>
+          <button class="modal-btn secondary" style="flex:1;font-size:0.5rem;" onclick="S.sel=S.ctxNode;openCLI();closeInspectPanel();"><i class="ph ph-terminal"></i> CLI</button>
+        </div>
+      `;
+      panel.style.display = 'block';
+    }
+    
+    function createInspectPanel() {
+      const panel = document.createElement('div');
+      panel.id = 'inspectPanel';
+      panel.style.cssText = 'position:absolute;top:60px;right:380px;width:200px;background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:10px;z-index:200;display:none;';
+      panel.innerHTML = `
+        <div style="font-size:0.65rem;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+          <span><i class="ph ph-magnifying-glass-plus"></i> Inspector</span>
+          <button onclick="closeInspectPanel()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;">×</button>
+        </div>
+        <div id="inspectContent"></div>
+      `;
+      document.querySelector('.canvas-area').appendChild(panel);
+      return panel;
+    }
+    
+    function closeInspectPanel() { 
+      const panel = document.getElementById('inspectPanel'); 
+      if (panel) panel.style.display = 'none'; 
+    }
     
     function togglePower(id, event) {
       event.stopPropagation();
@@ -2055,7 +2159,11 @@
           e.stopPropagation();
           startPortConnect(e, n, idx, el);
         });
-        port.addEventListener('mouseenter', () => document.getElementById('sHint').textContent = `Port ${idx + 1} - Ziehen zum Verbinden`);
+        port.addEventListener('mouseenter', () => {
+          document.getElementById('sHint').textContent = `Port ${idx + 1} - Ziehen zum Verbinden`;
+          // Highlight all free ports
+          el.querySelectorAll('.node-port:not(.connected)').forEach(fp => fp.style.boxShadow = '0 0 10px var(--ok)');
+        });
         port.addEventListener('mouseleave', () => document.getElementById('sHint').textContent = 'Geräte ziehen oder Ports verbinden');
       });
       
@@ -2067,14 +2175,18 @@
     }
 
     function renderPorts(n) {
-      if (n.totalPorts === 0) return '<div style="font-size:0.5rem;color:var(--text-muted);">WLAN</div>';
+      if (n.totalPorts === 0) return '<div class="port-hint">🔗 WLAN Ready</div>';
       let html = '<div class="node-ports">';
       for (let i = 0; i < n.totalPorts; i++) {
         const isU = i >= n.ports;
+        const portNum = isU ? `U${i - n.ports + 1}` : `${i + 1}`;
         const cls = isU ? 'uplink' : '';
-        html += `<div class="node-port ${cls}" data-p="${i}" title="${isU ? 'Uplink ' + (i - n.ports + 1) : 'Port ' + (i + 1)}"></div>`;
+        const used = i < n.usedPorts;
+        html += `<div class="node-port ${cls}${used ? ' connected' : ''}" data-p="${i}">
+          <span class="port-label">${isU ? 'Uplink' : 'Port'} ${portNum}</span>
+        </div>`;
       }
-      return html + '</div>';
+      return html + '</div><div class="port-hint">💡 Ziehe Port zum Verbinden</div>';
     }
 
     function renderInfo(n) {
