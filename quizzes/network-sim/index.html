@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Netzwerk-Simulator Pro | ITSE IHK AP2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+  <style>
+    :root {
+      --accent: #c9a227;
+      --glow: rgba(201, 162, 39, 0.5);
+      --bg-deep: #0a0a0f;
+      --bg-surface: #12121a;
+      --bg-elevated: #1a1a24;
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-light: rgba(255, 255, 255, 0.1);
+      --border: rgba(255, 255, 255, 0.12);
+      --border-accent: rgba(201, 162, 39, 0.5);
+      --text-bright: #ffffff;
+      --text-primary: #e8e8f0;
+      --text-muted: rgba(255, 255, 255, 0.5);
+      --copper: #e07020;
+      --fiber: #4080c0;
+      --poe: #5a8a6a;
+      --device: #8060c0;
+      --error: #c04040;
+      --warn: #e07020;
+      --ok: #5a8a6a;
+      --layer3: #c9a227;
+      --layer4: #5a8a6a;
+      --layer7: #4080c0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Space Grotesk', system-ui, sans-serif; background: var(--bg-deep); color: var(--text-primary); height: 100vh; overflow: hidden; }
+    
+    .app { display: grid; grid-template-columns: 220px 1fr 340px; grid-template-rows: 48px 1fr 32px; height: 100vh; }
+    
+    /* Toolbar */
+    .toolbar { grid-column: 1 / -1; background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 12px; gap: 8px; }
+    .toolbar-title { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
+    .toolbar-spacer { flex: 1; }
+    .tool-btn { background: var(--glass); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.7rem; font-family: inherit; transition: all 0.15s; }
+    .tool-btn:hover { background: var(--glass-light); border-color: var(--accent); }
+    .tool-btn.active { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); }
+    .tool-btn i { font-size: 15px; }
+    
+    /* Device Panel */
+    .device-panel { background: var(--bg-surface); border-right: 1px solid var(--border); padding: 8px; overflow-y: auto; }
+    .panel-section { margin-bottom: 10px; }
+    .panel-title { font-size: 0.6rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; text-transform: uppercase; }
+    .device-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .device-item { background: var(--glass); border: 1px solid var(--border); border-radius: 8px; padding: 10px 6px; cursor: grab; text-align: center; transition: all 0.2s; user-select: none; }
+    .device-item:hover { background: var(--glass-light); border-color: var(--accent); transform: scale(1.05); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .device-item:active { cursor: grabbing; transform: scale(0.98); }
+    .device-item.copper { border-left: 4px solid var(--copper); }
+    .device-item.fiber { border-left: 4px solid var(--fiber); }
+    .device-item.poe { border-left: 4px solid var(--poe); }
+    .device-item.network { border-left: 4px solid var(--device); }
+    .device-icon { font-size: 24px; margin-bottom: 4px; }
+    .device-name { font-size: 0.6rem; font-weight: 500; }
+    .device-hint { font-size: 0.5rem; color: var(--text-muted); margin-top: 2px; }
+    
+    /* Canvas */
+    .canvas-area { position: relative; background: var(--bg-deep); overflow: hidden; }
+    .canvas { position: absolute; inset: 0; }
+    .canvas-inner { position: absolute; width: 12000px; height: 8000px; background: 
+      radial-gradient(circle, rgba(201, 162, 39, 0.08) 1px, transparent 1px);
+      background-size: 20px 20px; }
+    
+    .canvas-tools { position: absolute; bottom: 12px; left: 12px; display: flex; gap: 4px; z-index: 100; }
+    .canvas-tool { width: 36px; height: 36px; background: var(--glass); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.15s; }
+    .canvas-tool:hover { background: var(--glass-light); border-color: var(--accent); }
+    
+    /* Workspace Tabs */
+    .ws-tabs { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; z-index: 100; }
+    .ws-tab { padding: 6px 14px; background: var(--glass); border: 1px solid var(--border); border-radius: 6px; font-size: 0.7rem; cursor: pointer; transition: all 0.15s; }
+    .ws-tab:hover { background: var(--glass-light); }
+    .ws-tab.active { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); }
+    
+    /* Connection Hint */
+    .conn-hint { position: absolute; top: 8px; right: 12px; background: var(--accent); color: var(--bg-deep); padding: 6px 12px; border-radius: 6px; font-size: 0.65rem; font-weight: 600; z-index: 100; opacity: 0; transition: opacity 0.3s; }
+    .conn-hint.show { opacity: 1; }
+    
+    /* Nodes */
+    .sim-node { 
+      position: absolute; 
+      background: var(--glass); 
+      backdrop-filter: blur(20px); 
+      border: 2px solid var(--border); 
+      border-radius: 12px; 
+      padding: 12px; 
+      cursor: grab; 
+      user-select: none; 
+      min-width: 100px; 
+      text-align: center; 
+      transition: box-shadow 0.2s, transform 0.1s;
+    }
+    .sim-node:hover { box-shadow: 0 0 30px var(--glow); }
+    .sim-node.selected { outline: 3px solid var(--accent); outline-offset: 3px; }
+    .sim-node.dragging { cursor: grabbing; opacity: 0.9; transform: scale(1.02); z-index: 1000; }
+    .sim-node.copper { border-color: var(--copper); --glow: rgba(224, 112, 32, 0.5); }
+    .sim-node.fiber { border-color: var(--fiber); --glow: rgba(64, 128, 192, 0.5); }
+    .sim-node.poe { border-color: var(--poe); --glow: rgba(90, 138, 106, 0.5); }
+    .sim-node.network { border-color: var(--device); --glow: rgba(128, 96, 192, 0.5); }
+    
+    .node-icon { font-size: 28px; margin-bottom: 4px; }
+    .node-name { font-family: 'Outfit', sans-serif; font-size: 0.7rem; font-weight: 600; margin-bottom: 8px; }
+    
+    .node-ports { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+    
+    /* Port Styling - Larger and more visible */
+    .node-port { 
+      width: 18px; 
+      height: 18px; 
+      border-radius: 50%; 
+      background: var(--bg-elevated); 
+      border: 3px solid var(--border);
+      cursor: crosshair; 
+      transition: all 0.15s;
+      position: relative;
+    }
+    .node-port::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      background: transparent;
+      transition: all 0.15s;
+    }
+    .node-port:hover { 
+      transform: scale(1.4); 
+      border-color: var(--accent);
+      background: var(--accent);
+      box-shadow: 0 0 15px var(--glow);
+    }
+    .node-port:hover::after {
+      background: var(--bg-deep);
+    }
+    .node-port.connected { 
+      background: var(--ok); 
+      border-color: var(--ok);
+    }
+    .node-port.connected::after {
+      background: var(--bg-deep);
+    }
+    .node-port.uplink {
+      background: var(--device);
+      border-color: var(--device);
+    }
+    .node-port.uplink::after {
+      background: var(--bg-deep);
+    }
+    .node-port.trunk {
+      background: var(--layer3);
+      border-color: var(--layer3);
+    }
+    .node-port.connecting {
+      animation: portPulse 0.5s infinite;
+    }
+    
+    @keyframes portPulse {
+      0%, 100% { transform: scale(1.3); box-shadow: 0 0 15px var(--accent); }
+      50% { transform: scale(1.5); box-shadow: 0 0 25px var(--accent); }
+    }
+    
+    .node-info { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--border); font-size: 0.55rem; color: var(--text-muted); text-align: left; }
+    .node-info-row { display: flex; justify-content: space-between; padding: 1px 0; }
+    
+    /* Connections */
+    .conn-svg { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+    .conn-line { fill: none; stroke-width: 3; stroke-linecap: round; cursor: pointer; pointer-events: stroke; transition: stroke-width 0.15s; }
+    .conn-line.copper { stroke: var(--copper); }
+    .conn-line.fiber { stroke: var(--fiber); }
+    .conn-line:hover { stroke-width: 6; filter: drop-shadow(0 0 8px currentColor); }
+    .conn-line.selected { stroke: var(--accent); stroke-width: 5; }
+    .conn-line.blocked { stroke: var(--error); opacity: 0.4; stroke-dasharray: 8,4; }
+    
+    /* Connection Preview Line */
+    .conn-preview { position: fixed; pointer-events: none; z-index: 5000; }
+    .conn-preview line { stroke: var(--accent); stroke-width: 4; stroke-linecap: round; filter: drop-shadow(0 0 10px var(--accent)); }
+    
+    /* Packets */
+    .packet { position: absolute; width: 10px; height: 10px; border-radius: 50%; pointer-events: none; z-index: 2000; }
+    .packet.L3 { background: var(--layer3); box-shadow: 0 0 15px var(--layer3); }
+    .packet.L4 { background: var(--layer4); box-shadow: 0 0 15px var(--layer4); }
+    .packet.L7 { background: var(--layer7); box-shadow: 0 0 15px var(--layer7); }
+    
+    /* Properties Panel */
+    .props-panel { background: var(--bg-surface); border-left: 1px solid var(--border); padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .props-title { font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .props-section { background: var(--bg-elevated); border-radius: 10px; padding: 10px; }
+    .props-section-title { font-size: 0.65rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
+    
+    .form-group { margin-bottom: 8px; }
+    .form-label { font-size: 0.6rem; color: var(--text-muted); margin-bottom: 3px; display: block; }
+    .form-input { width: 100%; padding: 8px 10px; background: var(--bg-deep); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-family: inherit; font-size: 0.75rem; }
+    .form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 10px rgba(201, 162, 39, 0.2); }
+    .form-select { width: 100%; padding: 8px 10px; background: var(--bg-deep); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-family: inherit; font-size: 0.75rem; cursor: pointer; }
+    
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.6rem; }
+    .data-table th { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    .data-table td { padding: 4px 6px; border-bottom: 1px solid var(--border); font-family: 'Fira Code', monospace; }
+    
+    .panel-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+    .panel-tab { flex: 1; padding: 6px; background: var(--glass); border: 1px solid var(--border); border-radius: 6px; font-size: 0.65rem; cursor: pointer; text-align: center; transition: all 0.15s; }
+    .panel-tab:hover { background: var(--glass-light); }
+    .panel-tab.active { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    /* Event Log */
+    .event-log { background: var(--bg-deep); border-radius: 6px; padding: 8px; font-family: 'Fira Code', monospace; font-size: 0.6rem; max-height: 150px; overflow-y: auto; }
+    .event-item { padding: 3px 0; display: flex; gap: 6px; border-bottom: 1px solid var(--border); }
+    .event-time { color: var(--text-muted); font-size: 0.55rem; }
+    .event-layer { width: 16px; height: 16px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 700; color: var(--bg-deep); }
+    .event-msg.success { color: var(--ok); }
+    .event-msg.fail { color: var(--error); }
+    
+    /* Status Bar */
+    .status-bar { grid-column: 1 / -1; background: var(--bg-surface); border-top: 1px solid var(--border); display: flex; align-items: center; padding: 0 12px; gap: 20px; font-size: 0.65rem; }
+    .status-item { display: flex; align-items: center; gap: 6px; }
+    .status-label { color: var(--text-muted); }
+    .status-value { font-weight: 600; }
+    .status-value.ok { color: var(--ok); }
+    
+    /* Modals */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 10000; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: var(--bg-surface); border: 1px solid var(--border-accent); border-radius: 12px; padding: 20px; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; }
+    .modal-title { font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 600; margin-bottom: 16px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+    .modal-btn { padding: 10px 16px; border-radius: 8px; font-family: inherit; font-size: 0.75rem; cursor: pointer; transition: all 0.15s; }
+    .modal-btn.primary { background: var(--accent); border: none; color: var(--bg-deep); font-weight: 600; }
+    .modal-btn.primary:hover { filter: brightness(1.1); }
+    .modal-btn.secondary { background: var(--glass); border: 1px solid var(--border); color: var(--text-primary); }
+    .modal-btn.secondary:hover { background: var(--glass-light); }
+    
+    /* Quick Connect Overlay */
+    .quick-connect { position: absolute; background: var(--accent); color: var(--bg-deep); padding: 4px 10px; border-radius: 12px; font-size: 0.6rem; font-weight: 600; pointer-events: none; z-index: 3000; white-space: nowrap; }
+    
+    @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-title"><i class="ph ph-network"></i> Netzwerk-Sim</div>
+      
+      <button class="tool-btn" onclick="setMode('realtime')" id="btnRT"><i class="ph ph-clock"></i> Echtzeit</button>
+      <button class="tool-btn" onclick="setMode('sim')" id="btnSim"><i class="ph ph-play"></i> Simulation</button>
+      
+      <div class="toolbar-spacer"></div>
+      
+      <button class="tool-btn" onclick="openPDU()"><i class="ph ph-paper-plane-tilt"></i> PDU</button>
+      <button class="tool-btn" onclick="runSTP()"><i class="ph ph-git-branch"></i> STP</button>
+      <button class="tool-btn" onclick="openNAT()"><i class="ph ph-arrows-split"></i> NAT</button>
+      <button class="tool-btn" onclick="openCLI()"><i class="ph ph-terminal"></i> CLI</button>
+      
+      <div class="toolbar-spacer"></div>
+      
+      <button class="tool-btn" onclick="clearAll()"><i class="ph ph-trash"></i> Reset</button>
+      <button class="tool-btn" onclick="saveTopo()"><i class="ph ph-download"></i></button>
+      <button class="tool-btn" onclick="loadTopo()"><i class="ph ph-upload"></i></button>
+    </div>
+    
+    <!-- Device Panel -->
+    <div class="device-panel">
+      <div class="panel-section">
+        <div class="panel-title"><i class="ph ph-desktop"></i> Endgeräte</div>
+        <div class="device-grid" id="endDev"></div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-title"><i class="ph ph-swap"></i> Switches</div>
+        <div class="device-grid" id="swDev"></div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-title"><i class="ph ph-globe"></i> Router</div>
+        <div class="device-grid" id="rDev"></div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-title"><i class="ph ph-lightning"></i> PoE Geräte</div>
+        <div class="device-grid" id="poeDev"></div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-title"><i class="ph ph-hard-drives"></i> Server</div>
+        <div class="device-grid" id="srvDev"></div>
+      </div>
+    </div>
+    
+    <!-- Canvas -->
+    <div class="canvas-area">
+      <div class="ws-tabs">
+        <div class="ws-tab active" onclick="setWS('logical')">Logical</div>
+        <div class="ws-tab" onclick="setWS('physical')">Physical</div>
+        <div class="ws-tab" onclick="setWS('config')">Config</div>
+      </div>
+      
+      <div class="conn-hint" id="connHint">
+        <i class="ph ph-arrows-merge"></i> Port ziehen zum Verbinden
+      </div>
+      
+      <div class="canvas" id="canvas">
+        <div class="canvas-inner" id="canvasInner">
+          <svg class="conn-svg" id="connSvg"></svg>
+          <div id="nodesContainer"></div>
+        </div>
+      </div>
+      
+      <div class="canvas-tools">
+        <button class="canvas-tool" onclick="zoomIn()"><i class="ph ph-plus"></i></button>
+        <button class="canvas-tool" onclick="zoomOut()"><i class="ph ph-minus"></i></button>
+        <button class="canvas-tool" onclick="resetView()"><i class="ph ph-arrows-out"></i></button>
+        <button class="canvas-tool" onclick="deleteSelected()"><i class="ph ph-trash"></i></button>
+      </div>
+    </div>
+    
+    <!-- Properties Panel -->
+    <div class="props-panel">
+      <div class="props-title"><i class="ph ph-sliders"></i> Eigenschaften</div>
+      
+      <div class="panel-tabs">
+        <div class="panel-tab active" onclick="setPTab('cfg')">Config</div>
+        <div class="panel-tab" onclick="setPTab('arp')">ARP</div>
+        <div class="panel-tab" onclick="setPTab('mac')">MAC</div>
+        <div class="panel-tab" onclick="setPTab('rt')">Route</div>
+        <div class="panel-tab" onclick="setPTab('stp')">STP</div>
+      </div>
+      
+      <!-- Config Tab -->
+      <div id="tabCfg" class="tab-content active">
+        <div id="noSel" class="props-section">
+          <div style="color: var(--text-muted); font-size: 0.75rem; text-align: center; padding: 20px;">
+            <i class="ph ph-cursor-click" style="font-size: 28px; display: block; margin-bottom: 8px;"></i>
+            Gerät auswählen oder ziehen
+          </div>
+        </div>
+        <div id="nodeCfg" style="display: none;">
+          <div class="props-section">
+            <div class="props-section-title">Gerät</div>
+            <div class="form-group">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-input" id="pName" onchange="updName(this.value)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">MAC</label>
+              <input type="text" class="form-input" id="pMAC" disabled>
+            </div>
+          </div>
+          <div class="props-section">
+            <div class="props-section-title">IP Konfiguration</div>
+            <div class="form-group">
+              <label class="form-label">IP Adresse</label>
+              <input type="text" class="form-input" id="pIP" placeholder="192.168.1.1" onchange="updIP(this.value)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subnetz</label>
+              <select class="form-select" id="pSubnet" onchange="updSubnet(this.value)">
+                <option value="255.255.255.0">255.255.255.0 (/24)</option>
+                <option value="255.255.255.128">255.255.255.128 (/25)</option>
+                <option value="255.255.255.192">255.255.255.192 (/26)</option>
+                <option value="255.255.0.0">255.255.0.0 (/16)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gateway</label>
+              <input type="text" class="form-input" id="pGW" onchange="updGW(this.value)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">DNS</label>
+              <input type="text" class="form-input" id="pDNS" onchange="updDNS(this.value)">
+            </div>
+          </div>
+          <div class="props-section" id="vlanSection">
+            <div class="props-section-title">VLAN</div>
+            <div class="form-group">
+              <label class="form-label">VLAN ID</label>
+              <select class="form-select" id="pVLAN" onchange="updVLAN(this.value)">
+                <option value="1">1 - Default</option>
+                <option value="10">10 - Verwaltung</option>
+                <option value="20">20 - Produktion</option>
+                <option value="30">30 - Gast</option>
+                <option value="99">99 - Management</option>
+              </select>
+            </div>
+          </div>
+          <div class="props-section">
+            <div class="props-section-title">Ports</div>
+            <div id="portList"></div>
+          </div>
+          <button class="modal-btn secondary" style="width: 100%; margin-top: 8px;" onclick="deleteSelected()">
+            <i class="ph ph-trash"></i> Gerät löschen
+          </button>
+        </div>
+      </div>
+      
+      <!-- ARP Tab -->
+      <div id="tabARP" class="tab-content">
+        <div class="props-section">
+          <div class="props-section-title">ARP Tabelle</div>
+          <table class="data-table"><thead><tr><th>IP</th><th>MAC</th></tr></thead><tbody id="arpBody"></tbody></table>
+        </div>
+      </div>
+      
+      <!-- MAC Tab -->
+      <div id="tabMAC" class="tab-content">
+        <div class="props-section">
+          <div class="props-section-title">MAC Adressen</div>
+          <table class="data-table"><thead><tr><th>MAC</th><th>VLAN</th><th>Port</th></tr></thead><tbody id="macBody"></tbody></table>
+        </div>
+      </div>
+      
+      <!-- Route Tab -->
+      <div id="tabRT" class="tab-content">
+        <div class="props-section">
+          <div class="props-section-title">Routing Tabelle</div>
+          <table class="data-table"><thead><tr><th>Netz</th><th>Maske</th><th>Gateway</th><th>Interface</th></tr></thead><tbody id="rtBody"></tbody></table>
+        </div>
+        <button class="modal-btn secondary" style="width: 100%; margin-top: 8px;" onclick="addRoute()">
+          <i class="ph ph-plus"></i> Route hinzufügen
+        </button>
+      </div>
+      
+      <!-- STP Tab -->
+      <div id="tabSTP" class="tab-content">
+        <div class="props-section">
+          <div class="props-section-title">STP Status</div>
+          <div id="stpStatus"></div>
+        </div>
+      </div>
+      
+      <!-- Event Log -->
+      <div class="props-section">
+        <div class="props-section-title">Ereignisse <button onclick="clearLog()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.6rem;float:right;">×</button></div>
+        <div class="event-log" id="eventLog"></div>
+      </div>
+      
+      <!-- Stats -->
+      <div class="props-section">
+        <div class="node-info-row"><span>Knoten:</span><span id="sN">0</span></div>
+        <div class="node-info-row"><span>Verbindungen:</span><span id="sC">0</span></div>
+        <div class="node-info-row"><span>STP Root:</span><span id="sSTP">-</span></div>
+      </div>
+    </div>
+    
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="status-item"><span class="status-label">Modus:</span><span class="status-value" id="sMode">Echtzeit</span></div>
+      <div class="status-item"><span class="status-label">Workspace:</span><span class="status-value" id="sWS">Logical</span></div>
+      <div class="status-item"><span class="status-label">Zoom:</span><span class="status-value" id="sZoom">100%</span></div>
+      <div class="status-item"><span class="status-label">Hint:</span><span class="status-value ok" id="sHint">Geräte ziehen oder Ports verbinden</span></div>
+    </div>
+  </div>
+  
+  <!-- PDU Modal -->
+  <div class="modal-overlay" id="pduModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ph ph-paper-plane-tilt"></i> PDU senden</div>
+      <div class="form-group"><label class="form-label">Quelle</label><select class="form-select" id="pduSrc"></select></div>
+      <div class="form-group"><label class="form-label">Ziel</label><select class="form-select" id="pduDst"></select></div>
+      <div class="form-group">
+        <label class="form-label">Typ</label>
+        <select class="form-select" id="pduType">
+          <option value="icmp">ICMP (Ping)</option>
+          <option value="arp">ARP</option>
+          <option value="dhcp">DHCP Discover</option>
+          <option value="dns">DNS Query</option>
+          <option value="http">HTTP GET</option>
+          <option value="tcp">TCP SYN</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">OSI Layer</label>
+        <select class="form-select" id="pduLayer">
+          <option value="L3">L3 - Network</option>
+          <option value="L4">L4 - Transport</option>
+          <option value="L7">L7 - Application</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeM('pduModal')">Abbrechen</button>
+        <button class="modal-btn primary" onclick="sendPDU()"><i class="ph ph-paper-plane-tilt"></i> Senden</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- NAT Modal -->
+  <div class="modal-overlay" id="natModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ph ph-arrows-split"></i> NAT Konfiguration</div>
+      <div class="props-section">
+        <div class="props-section-title">NAT Tabelle</div>
+        <table class="data-table"><thead><tr><th>Inside</th><th>Outside</th><th>Typ</th></tr></thead><tbody id="natBody"></tbody></table>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeM('natModal')">Schließen</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- CLI Modal -->
+  <div class="modal-overlay" id="cliModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-title"><i class="ph ph-terminal"></i> CLI Terminal</div>
+      <div id="cliTerm" style="background:#000;border-radius:8px;padding:12px;font-family:'Fira Code',monospace;font-size:0.7rem;height:200px;overflow-y:auto;margin-bottom:12px;"></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="color:var(--ok);font-family:'Fira Code',monospace;">></span>
+        <input type="text" id="cliInput" style="flex:1;background:#000;border:1px solid var(--border);border-radius:4px;padding:8px;color:var(--text-bright);font-family:inherit;font-size:0.75rem;" placeholder="Befehl eingeben..." onkeydown="if(event.key==='Enter')execCLI()">
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeM('cliModal')">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== DEVICE LIBRARY ====================
+    const DEVS = {
+      end: [
+        { id: 'pc', name: 'PC', icon: 'ph-desktop', ports: 1, end: true },
+        { id: 'laptop', name: 'Laptop', icon: 'ph-laptop', ports: 1, end: true },
+        { id: 'tablet', name: 'Tablet', icon: 'ph-device-mobile', ports: 0, end: true, wireless: true },
+        { id: 'printer', name: 'Drucker', icon: 'ph-printer', ports: 1 },
+        { id: 'phone', name: 'IP-Phone', icon: 'ph-phone', ports: 1, poe: true }
+      ],
+      sw: [
+        { id: 'sw2960', name: '2960-24', icon: 'ph-git-branch', ports: 24, uplink: 2, sw: true },
+        { id: 'sw3560', name: '3560-24PS', icon: 'ph-git-branch', ports: 24, uplink: 2, sw: true, poe: true, poeBudget: 370 },
+        { id: 'sw3750', name: '3750-48P', icon: 'ph-stack', ports: 48, uplink: 4, sw: true, poe: true, poeBudget: 740 }
+      ],
+      r: [
+        { id: 'r1941', name: '1941 Router', icon: 'ph-globe', ports: 2, uplink: 2, r: true },
+        { id: 'r2901', name: '2901 Router', icon: 'ph-globe', ports: 2, uplink: 2, r: true },
+        { id: 'r4321', name: '4321 Router', icon: 'ph-globe', ports: 4, uplink: 2, r: true }
+      ],
+      poe: [
+        { id: 'ipcam', name: 'IP-Kamera', icon: 'ph-video-camera', ports: 1, power: 13, poe: true },
+        { id: 'ptz', name: 'PTZ-Kamera', icon: 'ph-video-camera-slash', ports: 1, power: 60, poe: true },
+        { id: 'ap', name: 'WLAN-AP', icon: 'ph-wifi-high', ports: 1, power: 25, poe: true, wireless: true }
+      ],
+      srv: [
+        { id: 'http', name: 'Webserver', icon: 'ph-globe', ports: 1, srv: true, svc: ['HTTP', 'HTTPS'] },
+        { id: 'dns', name: 'DNS Server', icon: 'ph-broadcast', ports: 1, srv: true, svc: ['DNS'] },
+        { id: 'dhcp', name: 'DHCP Server', icon: 'ph-database', ports: 1, srv: true, svc: ['DHCP'] },
+        { id: 'mail', name: 'Mailserver', icon: 'ph-envelope', ports: 1, srv: true, svc: ['SMTP', 'POP3'] }
+      ]
+    };
+
+    // ==================== STATE ====================
+    const S = {
+      nodes: [], conns: [], sel: null, nid: 0, cid: 0,
+      pz: null, mode: 'realtime', ws: 'logical',
+      pduCnt: 0, events: [], natTable: [], stpRoot: null, stpState: {}
+    };
+
+    // ==================== INIT ====================
+    function init() {
+      renderDevs();
+      initPZ();
+      initCanvas();
+      setMode('realtime');
+      log('System', 'info', 'Netzwerk-Simulator geladen');
+      document.getElementById('cliTerm').innerHTML = '<div style="color:var(--ok)">Cisco IOS Simulation</div><div style="color:var(--text-muted)">Befehle: help, show ip, show mac, show arp, show route, exit</div>';
+    }
+
+    function renderDevs() {
+      const m = { end: 'endDev', sw: 'swDev', r: 'rDev', poe: 'poeDev', srv: 'srvDev' };
+      const c = { end: 'network', sw: 'network', r: 'network', poe: 'poe', srv: 'network' };
+      Object.entries(DEVS).forEach(([t, ds]) => {
+        const el = document.getElementById(m[t]);
+        if (!el) return;
+        el.innerHTML = ds.map(d => `<div class="device-item ${c[t]}" draggable="true" data-d='${JSON.stringify(d).replace(/'/g,'&#39;')}'>
+          <div class="device-icon"><i class="ph ${d.icon}"></i></div>
+          <div class="device-name">${d.name}</div>
+          <div class="device-hint">Ziehen zum Canvas</div>
+        </div>`).join('');
+        el.querySelectorAll('.device-item').forEach(el => {
+          el.addEventListener('dragstart', e => e.dataTransfer.setData('app/json', el.dataset.d));
+        });
+      });
+    }
+
+    function initPZ() {
+      S.pz = Panzoom(document.getElementById('canvasInner'), { maxScale: 2, minScale: 0.2 });
+      document.getElementById('canvas').addEventListener('wheel', S.pz.zoomWithWheel);
+    }
+    function zoomIn() { S.pz.zoomIn(); updZoom(); }
+    function zoomOut() { S.pz.zoomOut(); updZoom(); }
+    function resetView() { S.pz.reset(); updZoom(); }
+    function updZoom() { document.getElementById('sZoom').textContent = Math.round(S.pz.getScale() * 100) + '%'; }
+
+    function initCanvas() {
+      const cv = document.getElementById('canvas');
+      let pan = false, sx = 0, sy = 0;
+      
+      // Pan with middle mouse or with empty space
+      cv.addEventListener('mousedown', e => {
+        if (e.target === cv || e.target.id === 'canvasInner' || e.target.id === 'connSvg') {
+          if (e.button === 1 || e.target.id === 'canvasInner') { // Middle click or canvas
+            pan = true; sx = e.clientX; sy = e.clientY;
+            cv.style.cursor = 'grabbing';
+          }
+        }
+      });
+      
+      document.addEventListener('mousemove', e => {
+        if (pan) {
+          S.pz.pan(e.clientX - sx, e.clientY - sy);
+          sx = e.clientX; sy = e.clientY;
+        }
+      });
+      
+      document.addEventListener('mouseup', () => {
+        pan = false;
+        cv.style.cursor = 'grab';
+      });
+      
+      // Drop devices
+      document.getElementById('canvas').addEventListener('dragover', e => e.preventDefault());
+      document.getElementById('canvas').addEventListener('drop', e => {
+        e.preventDefault();
+        const d = JSON.parse(e.dataTransfer.getData('app/json'));
+        const rect = document.getElementById('canvasInner').getBoundingClientRect();
+        const sc = S.pz.getScale();
+        createNode(d, (e.clientX - rect.left) / sc - 50, (e.clientY - rect.top) / sc - 40);
+      });
+      
+      // Click on canvas to deselect
+      document.getElementById('canvas').addEventListener('click', e => {
+        if (e.target.id === 'canvasInner' || e.target.tagName === 'line') {
+          desel();
+        }
+      });
+    }
+
+    // ==================== NODES ====================
+    function createNode(d, x, y) {
+      const id = 'n' + S.nid++;
+      const n = {
+        id, type: d.id, name: d.name, icon: d.icon, x, y,
+        ports: d.ports || 1, uplink: d.uplink || 0,
+        end: d.end, sw: d.sw, r: d.r, srv: d.srv, poe: d.poe, wireless: d.wireless,
+        power: d.power || 0, poeBudget: d.poeBudget || 0, poeUsed: 0,
+        svc: d.svc || [],
+        ip: '', subnet: '255.255.255.0', gateway: '', dns: '',
+        vlan: '1', mac: genMAC(), usedPorts: 0,
+        arp: {}, macTable: {}, routes: [], stpPort: {}, on: true
+      };
+      if (n.r) n.routes = [{ net: '0.0.0.0', mask: '0.0.0.0', gw: '*', iface: 'Gi0/0' }];
+      S.nodes.push(n);
+      
+      const el = document.createElement('div');
+      el.id = id;
+      el.className = `sim-node ${getCls(d)}`;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      
+      el.innerHTML = `
+        <div class="node-icon"><i class="ph ${d.icon}"></i></div>
+        <div class="node-name">${d.name}</div>
+        ${renderPorts(n)}
+        <div class="node-info">${renderInfo(n)}</div>
+      `;
+      
+      document.getElementById('nodesContainer').appendChild(el);
+      
+      // Make entire node draggable
+      el.addEventListener('mousedown', e => {
+        if (e.target.closest('.node-port')) return;
+        e.preventDefault();
+        e.stopPropagation();
+        startNodeDrag(e, n, el);
+      });
+      
+      // Select on click
+      el.addEventListener('click', e => {
+        if (e.target.closest('.node-port')) return;
+        e.stopPropagation();
+        sel(n, el);
+      });
+      
+      // Port connection handling
+      el.querySelectorAll('.node-port').forEach((port, idx) => {
+        port.addEventListener('mousedown', e => {
+          e.preventDefault();
+          e.stopPropagation();
+          startPortConnect(e, n, idx, el);
+        });
+        port.addEventListener('mouseenter', () => {
+          document.getElementById('sHint').textContent = `Port ${idx + 1} - Ziehen zum Verbinden`;
+          document.getElementById('sHint').className = 'status-value ok';
+        });
+        port.addEventListener('mouseleave', () => {
+          document.getElementById('sHint').textContent = 'Geräte ziehen oder Ports verbinden';
+        });
+      });
+      
+      log('Gerät', 'info', `${n.name} hinzugefügt`);
+      updStats();
+      return n;
+    }
+
+    function getCls(d) {
+      if (d.poe) return 'poe';
+      if (d.r || d.sw || d.srv) return 'network';
+      return 'copper';
+    }
+
+    function renderPorts(n) {
+      const total = n.ports + (n.uplink || 0);
+      if (total === 0) return '';
+      let html = '<div class="node-ports">';
+      for (let i = 0; i < total; i++) {
+        const isU = i >= n.ports;
+        const cls = isU ? 'uplink' : (n.poe && !isU ? 'connected' : '');
+        html += `<div class="node-port ${cls}" data-p="${i}" title="${isU ? 'Uplink ' + (i - n.ports + 1) : 'Port ' + (i + 1)}"></div>`;
+      }
+      return html + '</div>';
+    }
+
+    function renderInfo(n) {
+      let html = '';
+      if (n.ip) html += `<div class="node-info-row"><span>IP:</span><span>${n.ip}</span></div>`;
+      if (n.poeBudget) html += `<div class="node-info-row"><span>PoE:</span><span>${n.poeBudget - n.poeUsed}W</span></div>`;
+      if (n.vlan !== '1') html += `<div class="node-info-row"><span>VLAN:</span><span>${n.vlan}</span></div>`;
+      return html;
+    }
+
+    function genMAC() {
+      return Array(6).fill().map(() => Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join(':').toUpperCase();
+    }
+
+    // ==================== NODE DRAG (Always works!) ====================
+    let dragState = null;
+    
+    function startNodeDrag(e, n, el) {
+      // Prevent starting drag if we're clicking on a port
+      if (e.target.closest('.node-port')) return;
+      
+      dragState = {
+        node: n,
+        element: el,
+        startX: e.clientX,
+        startY: e.clientY,
+        origX: n.x,
+        origY: n.y,
+        moved: false
+      };
+      
+      el.classList.add('dragging');
+      document.addEventListener('mousemove', onNodeDrag);
+      document.addEventListener('mouseup', endNodeDrag);
+      
+      log('Drag', 'info', `Starte Drag: ${n.name}`);
+    }
+
+    function onNodeDrag(e) {
+      if (!dragState) return;
+      
+      const dx = e.clientX - dragState.startX;
+      const dy = e.clientY - dragState.startY;
+      
+      // Mark as moved if moved more than 5px
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+        dragState.moved = true;
+      }
+      
+      const scale = S.pz.getScale();
+      dragState.node.x = dragState.origX + dx / scale;
+      dragState.node.y = dragState.origY + dy / scale;
+      
+      dragState.element.style.left = dragState.node.x + 'px';
+      dragState.element.style.top = dragState.node.y + 'px';
+      
+      drawConns();
+    }
+
+    function endNodeDrag() {
+      if (!dragState) return;
+      
+      dragState.element.classList.remove('dragging');
+      
+      if (dragState.moved) {
+        log('Drag', 'info', `${dragState.node.name} verschoben`);
+        updConnParams();
+      } else {
+        // It was a click, select the node
+        sel(dragState.node, dragState.element);
+      }
+      
+      dragState = null;
+      document.removeEventListener('mousemove', onNodeDrag);
+      document.removeEventListener('mouseup', endNodeDrag);
+    }
+
+    // ==================== PORT CONNECTION (Drag from port to port!) ====================
+    let connState = null;
+    let previewLine = null;
+    let quickConnectLabel = null;
+
+    function startPortConnect(e, n, portIdx, el) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      connState = {
+        sourceNode: n,
+        sourcePort: portIdx,
+        sourceElement: el
+      };
+      
+      // Mark port as connecting
+      const port = el.querySelectorAll('.node-port')[portIdx];
+      port.classList.add('connecting');
+      
+      // Create preview line
+      previewLine = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      previewLine.classList.add('conn-preview');
+      previewLine.innerHTML = '<line x1="0" y1="0" x2="0" y2="0"/>';
+      document.body.appendChild(previewLine);
+      
+      // Create quick connect label
+      quickConnectLabel = document.createElement('div');
+      quickConnectLabel.className = 'quick-connect';
+      quickConnectLabel.textContent = `${n.name} Port ${portIdx + 1}`;
+      document.body.appendChild(quickConnectLabel);
+      
+      // Show hint
+      document.getElementById('connHint').classList.add('show');
+      document.getElementById('sHint').textContent = 'Ziehe zu anderem Port...';
+      
+      document.addEventListener('mousemove', onPortMove);
+      document.addEventListener('mouseup', endPortConnect);
+    }
+
+    function onPortMove(e) {
+      if (!connState || !previewLine) return;
+      
+      const port = connState.sourceElement.querySelectorAll('.node-port')[connState.sourcePort];
+      const rect = port.getBoundingClientRect();
+      
+      const line = previewLine.querySelector('line');
+      line.setAttribute('x1', rect.left + rect.width / 2);
+      line.setAttribute('y1', rect.top + rect.height / 2);
+      line.setAttribute('x2', e.clientX);
+      line.setAttribute('y2', e.clientY);
+      
+      // Move quick connect label
+      quickConnectLabel.style.left = (e.clientX + 15) + 'px';
+      quickConnectLabel.style.top = (e.clientY - 25) + 'px';
+      
+      // Check if hovering over a port
+      const target = document.elementFromPoint(e.clientX, e.clientY);
+      const targetPort = target?.closest('.node-port');
+      
+      if (targetPort && targetPort !== port) {
+        const targetNode = targetPort.closest('.sim-node');
+        if (targetNode && targetNode.id !== connState.sourceNode.id) {
+          const targetNodeData = S.nodes.find(n => n.id === targetNode.id);
+          const targetPortIdx = parseInt(targetPort.dataset.p);
+          quickConnectLabel.textContent = `→ ${targetNodeData?.name || '?'} Port ${targetPortIdx + 1}`;
+          quickConnectLabel.style.background = 'var(--ok)';
+        }
+      } else {
+        quickConnectLabel.textContent = `${connState.sourceNode.name} Port ${connState.sourcePort + 1}`;
+        quickConnectLabel.style.background = 'var(--accent)';
+      }
+    }
+
+    function endPortConnect(e) {
+      if (!connState) return;
+      
+      // Clean up preview
+      if (previewLine) { previewLine.remove(); previewLine = null; }
+      if (quickConnectLabel) { quickConnectLabel.remove(); quickConnectLabel = null; }
+      
+      // Remove connecting class
+      const port = connState.sourceElement.querySelectorAll('.node-port')[connState.sourcePort];
+      port.classList.remove('connecting');
+      
+      // Hide hint
+      document.getElementById('connHint').classList.remove('show');
+      
+      // Check if dropped on another port
+      const target = document.elementFromPoint(e.clientX, e.clientY);
+      const targetPort = target?.closest('.node-port');
+      
+      if (targetPort && targetPort !== port) {
+        const targetNodeEl = targetPort.closest('.sim-node');
+        const targetNode = S.nodes.find(n => n.id === targetNodeEl.id);
+        const targetPortIdx = parseInt(targetPort.dataset.p);
+        
+        if (targetNode && targetNode.id !== connState.sourceNode.id) {
+          makeConn(connState.sourceNode, connState.sourcePort, targetNode, targetPortIdx);
+        }
+      }
+      
+      connState = null;
+      document.removeEventListener('mousemove', onPortMove);
+      document.removeEventListener('mouseup', endPortConnect);
+      document.getElementById('sHint').textContent = 'Geräte ziehen oder Ports verbinden';
+    }
+
+    // ==================== CONNECTION ====================
+    function makeConn(n1, p1, n2, p2) {
+      // Check if ports are available
+      if (n1.usedPorts >= n1.ports + n1.uplink) {
+        log('Verbindung', 'fail', `${n1.name}: Kein freier Port`);
+        return;
+      }
+      if (n2.usedPorts >= n2.ports + n2.uplink) {
+        log('Verbindung', 'fail', `${n2.name}: Kein freier Port`);
+        return;
+      }
+      
+      const c = {
+        id: 'c' + S.cid++,
+        n1: n1.id, p1,
+        n2: n2.id, p2,
+        len: 0, atten: 0, blocked: false
+      };
+      
+      S.conns.push(c);
+      n1.usedPorts++;
+      n2.usedPorts++;
+      
+      updConnParams();
+      drawConns();
+      updPortVisuals();
+      updStats();
+      log('Verbindung', 'success', `${n1.name} ↔ ${n2.name}`);
+    }
+
+    function updConnParams() {
+      S.conns.forEach(c => {
+        const n1 = S.nodes.find(n => n.id === c.n1);
+        const n2 = S.nodes.find(n => n.id === c.n2);
+        if (!n1 || !n2) return;
+        const dx = n2.x - n1.x, dy = n2.y - n1.y;
+        c.len = Math.sqrt(dx*dx + dy*dy) * 0.5;
+        c.atten = (22 / 100) * c.len;
+      });
+    }
+
+    function drawConns() {
+      const svg = document.getElementById('connSvg');
+      svg.innerHTML = '';
+      
+      S.conns.forEach(c => {
+        const n1 = S.nodes.find(n => n.id === c.n1);
+        const n2 = S.nodes.find(n => n.id === c.n2);
+        if (!n1 || !n2) return;
+        
+        // Calculate port positions
+        const p1x = n1.x + 50 + (c.p1 - (n1.ports + n1.uplink) / 2) * 18;
+        const p1y = n1.y + getNodeHeight(n1);
+        const p2x = n2.x + 50 + (c.p2 - (n2.ports + n2.uplink) / 2) * 18;
+        const p2y = n2.y + getNodeHeight(n2);
+        
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', p1x);
+        line.setAttribute('y1', p1y);
+        line.setAttribute('x2', p2x);
+        line.setAttribute('y2', p2y);
+        line.setAttribute('class', 'conn-line copper');
+        
+        if (c.blocked) {
+          line.classList.add('blocked');
+        }
+        
+        svg.appendChild(line);
+      });
+    }
+
+    function getNodeHeight(n) {
+      const totalPorts = n.ports + (n.uplink || 0);
+      return 50 + Math.ceil(totalPorts / 6) * 24;
+    }
+
+    function updPortVisuals() {
+      S.nodes.forEach(n => {
+        const el = document.getElementById(n.id);
+        if (!el) return;
+        el.querySelectorAll('.node-port').forEach((port, idx) => {
+          port.classList.toggle('connected', idx < n.usedPorts);
+        });
+      });
+    }
+
+    // ==================== SELECTION ====================
+    function sel(n, el) {
+      S.sel = n;
+      document.querySelectorAll('.sim-node').forEach(e => e.classList.remove('selected'));
+      el.classList.add('selected');
+      
+      document.getElementById('noSel').style.display = 'none';
+      document.getElementById('nodeCfg').style.display = 'block';
+      
+      document.getElementById('pName').value = n.name;
+      document.getElementById('pMAC').value = n.mac;
+      document.getElementById('pIP').value = n.ip || '';
+      document.getElementById('pSubnet').value = n.subnet;
+      document.getElementById('pGW').value = n.gateway || '';
+      document.getElementById('pDNS').value = n.dns || '';
+      document.getElementById('pVLAN').value = n.vlan || '1';
+      
+      document.getElementById('vlanSection').style.display = (n.sw || n.r) ? 'block' : 'none';
+      
+      // Port list
+      const portList = document.getElementById('portList');
+      const total = n.ports + (n.uplink || 0);
+      portList.innerHTML = Array(total).fill(0).map((_, i) => {
+        const isU = i >= n.ports;
+        const used = i < n.usedPorts;
+        return `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.6rem;">
+          <span>${isU ? 'Uplink' : 'Port'} ${i + 1 - (isU ? n.ports : 0)}</span>
+          <span style="color:${used ? 'var(--ok)' : 'var(--text-muted)'}">${used ? 'Verbunden' : 'Frei'}</span>
+        </div>`;
+      }).join('');
+      
+      updARPTab(n);
+      updMACTab(n);
+      updRTTab(n);
+      updSTPTab(n);
+    }
+
+    function desel() {
+      S.sel = null;
+      document.querySelectorAll('.sim-node').forEach(e => e.classList.remove('selected'));
+      document.getElementById('noSel').style.display = 'block';
+      document.getElementById('nodeCfg').style.display = 'none';
+    }
+
+    function deleteSelected() {
+      if (!S.sel) return;
+      const n = S.sel;
+      
+      // Remove connections
+      S.conns = S.conns.filter(c => {
+        if (c.n1 === n.id || c.n2 === n.id) {
+          const other = c.n1 === n.id ? c.n2 : c.n1;
+          const otherNode = S.nodes.find(x => x.id === other);
+          if (otherNode) otherNode.usedPorts--;
+          return false;
+        }
+        return true;
+      });
+      
+      document.getElementById(n.id).remove();
+      S.nodes = S.nodes.filter(x => x.id !== n.id);
+      
+      log('System', 'info', `${n.name} gelöscht`);
+      desel();
+      drawConns();
+      updPortVisuals();
+      updStats();
+    }
+
+    function updARPTab(n) {
+      document.getElementById('arpBody').innerHTML = Object.entries(n.arp).map(([ip, m]) => 
+        `<tr><td>${ip}</td><td>${m}</td></tr>`
+      ).join('') || '<tr><td colspan="2" style="color:var(--text-muted)">Keine Einträge</td></tr>';
+    }
+
+    function updMACTab(n) {
+      document.getElementById('macBody').innerHTML = Object.entries(n.macTable).map(([m, v]) => 
+        `<tr><td>${m}</td><td>${v.vlan}</td><td>${v.port}</td></tr>`
+      ).join('') || '<tr><td colspan="3" style="color:var(--text-muted)">Keine Einträge</td></tr>';
+    }
+
+    function updRTTab(n) {
+      document.getElementById('rtBody').innerHTML = n.routes.map(r => 
+        `<tr><td>${r.net}</td><td>${r.mask}</td><td>${r.gw}</td><td>${r.iface}</td></tr>`
+      ).join('') || '<tr><td colspan="4" style="color:var(--text-muted)">Nur Router</td></tr>';
+    }
+
+    function updSTPTab(n) {
+      if (!n.sw) {
+        document.getElementById('stpStatus').innerHTML = '<div style="color:var(--text-muted)">Nur Switches</div>';
+        return;
+      }
+      const ports = Array(n.ports).fill(0).map((_, i) => {
+        const state = S.stpState[n.id]?.[i] || 'designated';
+        const color = state === 'blocking' ? 'var(--error)' : state === 'root' ? 'var(--ok)' : 'var(--accent)';
+        return `<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:0.6rem;">
+          <span>Port ${i + 1}</span><span style="color:${color}">${state}</span>
+        </div>`;
+      }).join('');
+      document.getElementById('stpStatus').innerHTML = `
+        ${S.stpRoot === n.id ? '<div style="color:var(--ok);font-weight:bold;margin-bottom:8px;">★ ROOT SWITCH</div>' : ''}
+        ${ports}
+      `;
+    }
+
+    // ==================== UPDATE ====================
+    function updName(v) { if (!S.sel) return; S.sel.name = v; document.getElementById(S.sel.id).querySelector('.node-name').textContent = v; }
+    function updIP(v) { if (!S.sel) return; S.sel.ip = v; updStats(); log('Config', 'info', `IP: ${v}`); }
+    function updSubnet(v) { if (S.sel) S.sel.subnet = v; }
+    function updGW(v) { if (S.sel) S.sel.gateway = v; }
+    function updDNS(v) { if (S.sel) S.sel.dns = v; }
+    function updVLAN(v) { if (S.sel) { S.sel.vlan = v; log('VLAN', 'info', `VLAN ${v}`); } }
+
+    function addRoute() {
+      if (!S.sel?.r) return;
+      const net = prompt('Netzwerk:');
+      const mask = prompt('Maske:');
+      const gw = prompt('Gateway:');
+      if (net && mask && gw) {
+        S.sel.routes.push({ net, mask, gw, iface: 'Gi0/1' });
+        updRTTab(S.sel);
+        log('Route', 'success', `${net}/${mask} → ${gw}`);
+      }
+    }
+
+    // ==================== MODES ====================
+    function setMode(m) {
+      S.mode = m;
+      document.getElementById('btnRT').classList.toggle('active', m === 'realtime');
+      document.getElementById('btnSim').classList.toggle('active', m === 'sim');
+      document.getElementById('sMode').textContent = m === 'realtime' ? 'Echtzeit' : 'Simulation';
+    }
+
+    function setWS(ws) {
+      S.ws = ws;
+      document.querySelectorAll('.ws-tab').forEach(t => t.classList.toggle('active', t.textContent.toLowerCase() === ws));
+      document.getElementById('sWS').textContent = ws.charAt(0).toUpperCase() + ws.slice(1);
+    }
+
+    function setPTab(tab) {
+      document.querySelectorAll('.panel-tab').forEach(t => t.classList.toggle('active', t.textContent.toLowerCase() === tab));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.toggle('active', t.id === 'tab' + tab.charAt(0).toUpperCase() + tab.slice(1)));
+    }
+
+    // ==================== STP ====================
+    function runSTP() {
+      const switches = S.nodes.filter(n => n.sw);
+      if (switches.length < 1) { log('STP', 'info', 'Mindestens 1 Switch benötigt'); return; }
+      
+      const sorted = switches.sort((a, b) => a.mac.localeCompare(b.mac));
+      S.stpRoot = sorted[0].id;
+      document.getElementById('sSTP').textContent = sorted[0].name;
+      document.getElementById('sSTP').className = 'status-value ok';
+      
+      switches.forEach(sw => {
+        S.stpState[sw.id] = {};
+        for (let i = 0; i < sw.ports; i++) {
+          S.stpState[sw.id][i] = sw.id === S.stpRoot ? 'designated' : (i === 0 ? 'root' : 'blocking');
+        }
+      });
+      
+      S.conns.forEach(c => {
+        const n1 = S.nodes.find(n => n.id === c.n1), n2 = S.nodes.find(n => n.id === c.n2);
+        if (n1?.sw && n2?.sw) {
+          c.blocked = S.stpState[n1.id]?.[c.p1] === 'blocking' || S.stpState[n2.id]?.[c.p2] === 'blocking';
+        }
+      });
+      
+      drawConns();
+      switches.forEach(sw => updSTPTab(sw));
+      log('STP', 'success', `Root: ${sorted[0].name}`);
+    }
+
+    // ==================== NAT ====================
+    function openNAT() {
+      document.getElementById('natBody').innerHTML = S.natTable.map(n => 
+        `<tr><td>${n.inside}</td><td>${n.outside}</td><td>${n.type}</td></tr>`
+      ).join('') || '<tr><td colspan="3" style="color:var(--text-muted)">Keine Einträge</td></tr>';
+      document.getElementById('natModal').classList.add('show');
+    }
+
+    // ==================== CLI ====================
+    function openCLI() {
+      if (!S.sel) { alert('Gerät auswählen'); return; }
+      document.getElementById('cliInput').value = '';
+      document.getElementById('cliTerm').innerHTML = `
+        <div style="color:var(--ok)">Cisco IOS - ${S.sel.name}</div>
+        <div style="color:var(--text-muted)">Commands: show ip, show mac, show arp, show route, exit</div>
+      `;
+      document.getElementById('cliModal').classList.add('show');
+      setTimeout(() => document.getElementById('cliInput').focus(), 100);
+    }
+
+    function execCLI() {
+      const cmd = document.getElementById('cliInput').value.trim();
+      if (!cmd) return;
+      
+      const term = document.getElementById('cliTerm');
+      term.innerHTML += `<div><span style="color:var(--ok)">></span> ${cmd}</div>`;
+      
+      const out = processCLI(cmd);
+      if (out) term.innerHTML += `<div style="color:var(--text-muted)">${out}</div>`;
+      
+      document.getElementById('cliInput').value = '';
+      term.scrollTop = term.scrollHeight;
+    }
+
+    function processCLI(cmd) {
+      if (!S.sel) return '';
+      const n = S.sel;
+      const c = cmd.toLowerCase();
+      
+      if (c === 'help') return 'show ip | show mac | show arp | show route | exit';
+      if (c === 'exit') { closeM('cliModal'); return ''; }
+      if (c === 'show ip') return `IP: ${n.ip || 'N/A'}\nSubnet: ${n.subnet}\nGateway: ${n.gateway || 'N/A'}`;
+      if (c === 'show mac') return Object.entries(n.macTable).map(([m, v]) => `${m} VLAN${v.vlan} Port${v.port}`).join('\n') || 'Leer';
+      if (c === 'show arp') return Object.entries(n.arp).map(([ip, m]) => `${ip} ${m}`).join('\n') || 'Leer';
+      if (c === 'show route' && n.r) return n.routes.map(r => `${r.net} ${r.mask} ${r.gw}`).join('\n') || 'Leer';
+      if (c === 'show vlan') return `VLAN ${n.vlan}`;
+      
+      return `Unknown: ${cmd}`;
+    }
+
+    // ==================== PDU ====================
+    function openPDU() {
+      const opts = S.nodes.filter(n => n.end || n.srv || n.r).map(n => 
+        `<option value="${n.id}">${n.name}${n.ip ? ` (${n.ip})` : ''}</option>`
+      ).join('');
+      document.getElementById('pduSrc').innerHTML = opts;
+      document.getElementById('pduDst').innerHTML = '<option value="">-- --</option>' + opts;
+      document.getElementById('pduModal').classList.add('show');
+    }
+
+    function sendPDU() {
+      const src = S.nodes.find(n => n.id === document.getElementById('pduSrc').value);
+      const dst = S.nodes.find(n => n.id === document.getElementById('pduDst').value);
+      const type = document.getElementById('pduType').value;
+      const layer = document.getElementById('pduLayer').value;
+      
+      if (!src || !dst) return;
+      closeM('pduModal');
+      simPDU(src, dst, type, layer);
+    }
+
+    function simPDU(src, dst, type, layer) {
+      S.pduCnt++;
+      log(layer, 'info', `${src.name} → ${dst.name}: ${type.toUpperCase()}`);
+      
+      const path = findPath(src, dst);
+      if (!path) { log(layer, 'fail', 'Kein Pfad'); updStats(); return; }
+      
+      animatePath(path, layer, () => {
+        log(layer, 'success', `${dst.name} erreicht`);
+        updStats();
+      });
+    }
+
+    function findPath(src, dst) {
+      const vis = new Set(), q = [{ n: src, p: [src] }];
+      while (q.length) {
+        const { n, p } = q.shift();
+        if (vis.has(n.id)) continue;
+        vis.add(n.id);
+        if (n.id === dst.id) return p;
+        S.conns.forEach(c => {
+          if (c.blocked) return;
+          const nid = c.n1 === n.id ? c.n2 : c.n1;
+          const nn = S.nodes.find(x => x.id === nid);
+          if (nn && !vis.has(nn.id)) q.push({ n: nn, p: [...p, nn] });
+        });
+      }
+      return null;
+    }
+
+    function animatePath(path, layer, cb) {
+      const ci = document.getElementById('canvasInner');
+      let i = 0;
+      
+      function next() {
+        if (i >= path.length - 1) { cb(); return; }
+        const from = path[i], to = path[i + 1];
+        const pkt = document.createElement('div');
+        pkt.className = `packet ${layer}`;
+        pkt.style.left = (from.x + 50) + 'px';
+        pkt.style.top = (from.y + 40) + 'px';
+        ci.appendChild(pkt);
+        
+        pkt.animate([
+          { left: (from.x + 50) + 'px', top: (from.y + 40) + 'px' },
+          { left: (to.x + 50) + 'px', top: (to.y + 40) + 'px' }
+        ], { duration: 400, easing: 'ease-in-out' }).onfinish = () => {
+          pkt.remove();
+          log(layer, 'info', `${from.name} → ${to.name}`);
+          i++;
+          setTimeout(next, 50);
+        };
+      }
+      next();
+    }
+
+    // ==================== MODALS ====================
+    function closeM(id) { document.getElementById(id).classList.remove('show'); }
+
+    // ==================== SAVE/LOAD ====================
+    function saveTopo() {
+      const d = { nodes: S.nodes.map(n => ({ ...n, x: n.x, y: n.y })), conns: S.conns };
+      const b = new Blob([JSON.stringify(d)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(b);
+      a.download = 'topo-' + Date.now() + '.json'; a.click();
+      log('System', 'success', 'Topologie gespeichert');
+    }
+
+    function loadTopo() {
+      const i = document.createElement('input'); i.type = 'file'; i.accept = '.json';
+      i.onchange = e => {
+        const f = e.target.files[0]; if (!f) return;
+        const r = new FileReader();
+        r.onload = ev => {
+          try {
+            const d = JSON.parse(ev.target.result);
+            clearAll();
+            d.nodes.forEach(n => createNode(
+              { id: n.type, name: n.name, icon: n.icon, ports: n.ports, uplink: n.uplink, sw: n.sw, r: n.r, srv: n.srv, poe: n.poe, power: n.power, poeBudget: n.poeBudget },
+              n.x, n.y
+            ));
+            log('System', 'success', 'Topologie geladen');
+          } catch (err) { alert('Fehler'); }
+        };
+        r.readAsText(f);
+      };
+      i.click();
+    }
+
+    // ==================== STATS & LOG ====================
+    function updStats() {
+      document.getElementById('sN').textContent = S.nodes.length;
+      document.getElementById('sC').textContent = S.conns.length;
+      document.getElementById('sPDUs').textContent = S.pduCnt;
+    }
+
+    function log(layer, type, msg) {
+      const t = new Date().toLocaleTimeString('de', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const bg = { L3: 'var(--layer3)', L4: 'var(--layer4)', L7: 'var(--layer7)', Config: 'var(--accent)', STP: 'var(--ok)', VLAN: 'var(--device)', Route: 'var(--device)', System: 'var(--text-muted)', Gerät: 'var(--ok)', Verbindung: 'var(--ok)', Drag: 'var(--accent)', fail: 'var(--error)', info: 'var(--accent)' };
+      S.events.unshift({ t, layer, type, msg });
+      if (S.events.length > 50) S.events.pop();
+      document.getElementById('eventLog').innerHTML = S.events.slice(0, 15).map(e => 
+        `<div class="event-item">
+          <span class="event-time">${e.t}</span>
+          <span class="event-layer" style="background:${bg[e.layer] || bg[e.type] || 'var(--accent)'}">${e.layer.charAt(0)}</span>
+          <span class="event-msg ${e.type === 'fail' ? 'fail' : e.type === 'success' ? 'success' : ''}">${e.msg}</span>
+        </div>`
+      ).join('');
+    }
+
+    function clearLog() { S.events = []; document.getElementById('eventLog').innerHTML = ''; }
+
+    function clearAll() {
+      S.nodes = []; S.conns = []; S.sel = null; S.pduCnt = 0; S.natTable = []; S.stpRoot = null; S.stpState = {};
+      document.getElementById('nodesContainer').innerHTML = '';
+      document.getElementById('connSvg').innerHTML = '';
+      document.querySelectorAll('.packet').forEach(p => p.remove());
+      document.getElementById('sSTP').textContent = '-';
+      document.getElementById('sSTP').className = 'status-value';
+      desel(); updStats();
+      log('System', 'info', 'Canvas geleert');
+    }
+
+    init();
+  </script>
+</body>
+</html>
