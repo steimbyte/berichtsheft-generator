@@ -1,0 +1,11 @@
+- generic [ref=e4]:
+  - img [ref=e6]
+  - heading "Site Grid" [level=1] [ref=e11]
+  - textbox "Enter password" [ref=e13]
+  - button "Enter" [ref=e14] [cursor=pointer]:
+    - generic [ref=e15]: Enter
+    - img [ref=e16]
+  - generic [ref=e18]:
+    - generic [ref=e19]: Press
+    - generic [ref=e20]: Enter
+    - generic [ref=e21]: or click to continue

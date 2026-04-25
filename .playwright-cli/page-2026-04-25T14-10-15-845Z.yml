@@ -1,0 +1,54 @@
+- generic [ref=e21]:
+  - banner [ref=e22]:
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - img [ref=e25]
+        - heading "Site Grid" [level=1] [ref=e30]
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - generic [ref=e33]: admin
+          - generic [ref=e34]: admin
+        - button "Leaderboard" [ref=e35] [cursor=pointer]:
+          - img [ref=e36]
+        - button "User Management" [ref=e41] [cursor=pointer]:
+          - img [ref=e42]
+        - button "Settings" [ref=e47] [cursor=pointer]:
+          - img [ref=e48]
+        - button "Logout" [ref=e51] [cursor=pointer]:
+          - img [ref=e52]
+  - generic [ref=e56]:
+    - generic [ref=e57]:
+      - generic [ref=e58]:
+        - generic [ref=e59]:
+          - img
+          - textbox "Sites durchsuchen..." [ref=e60]
+        - generic [ref=e61] [cursor=pointer]:
+          - img [ref=e63]
+          - heading "HTML-Datei hochladen" [level=2] [ref=e67]
+          - paragraph [ref=e68]: Ziehe eine Datei hierher oder klicke zum Auswählen
+          - generic [ref=e69]:
+            - img [ref=e70]
+            - text: Datei auswählen
+      - generic [ref=e76] [cursor=pointer]:
+        - generic [ref=e78]:
+          - img [ref=e79]
+          - generic [ref=e84]: sql-trainer
+        - generic [ref=e85]:
+          - heading "sql-trainer" [level=3] [ref=e86]
+          - paragraph [ref=e87]: 25. Apr. 2026
+        - generic [ref=e88]:
+          - button "Ansehen" [ref=e89]:
+            - img [ref=e90]
+          - button "Löschen" [ref=e93]:
+            - img [ref=e94]
+    - complementary [ref=e97]:
+      - heading "🏆 Top Users" [level=3] [ref=e98]
+      - generic [ref=e99]:
+        - generic [ref=e100]:
+          - generic [ref=e101]: "1"
+          - generic [ref=e102]: admin
+          - generic [ref=e103]: "7"
+        - generic [ref=e104]:
+          - generic [ref=e105]: "2"
+          - generic [ref=e106]: Steimer
+          - generic [ref=e107]: "2"

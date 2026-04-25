@@ -1,0 +1,67 @@
+- generic [ref=e21]:
+  - banner [ref=e22]:
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - img [ref=e25]
+        - heading "Site Grid" [level=1] [ref=e30]
+      - generic [ref=e31]:
+        - generic [ref=e33]: admin
+        - button "Toggle Grid Size (N)" [ref=e34] [cursor=pointer]:
+          - img [ref=e35]
+        - button "Leaderboard" [ref=e40] [cursor=pointer]:
+          - img [ref=e41]
+        - button "Export ZIP" [ref=e46] [cursor=pointer]:
+          - img [ref=e47]
+        - button "User Management" [ref=e51] [cursor=pointer]:
+          - img [ref=e52]
+        - button "Manage Tags" [ref=e55] [cursor=pointer]:
+          - img [ref=e56]
+        - button "Settings" [ref=e59] [cursor=pointer]:
+          - img [ref=e60]
+        - button "Logout" [ref=e63] [cursor=pointer]:
+          - img [ref=e64]
+  - generic [ref=e67]:
+    - generic [ref=e68]:
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - img
+          - textbox "Sites durchsuchen..." [ref=e71]
+        - generic [ref=e72] [cursor=pointer]:
+          - img [ref=e74]
+          - heading "HTML-Datei hochladen" [level=2] [ref=e78]
+          - paragraph [ref=e79]: Ziehe eine Datei hierher oder klicke zum Auswählen
+          - generic [ref=e80]:
+            - img [ref=e81]
+            - text: Datei auswählen
+      - generic [ref=e86]:
+        - img [ref=e87]
+        - heading "Noch keine Sites" [level=3] [ref=e91]
+        - paragraph [ref=e92]: Lade deine erste HTML-Datei hoch
+    - complementary [ref=e93]:
+      - generic [ref=e94]:
+        - heading "Statistics" [level=4] [ref=e95]:
+          - img [ref=e96]
+          - text: Statistics
+        - generic [ref=e98]:
+          - generic [ref=e99]:
+            - generic [ref=e100]: "8"
+            - generic [ref=e101]: Logins
+          - generic [ref=e102]:
+            - generic [ref=e103]: "2"
+            - generic [ref=e104]: Users
+          - generic [ref=e105]:
+            - generic [ref=e106]: "0"
+            - generic [ref=e107]: Sites
+      - generic [ref=e108]:
+        - heading "Top Users" [level=4] [ref=e109]:
+          - img [ref=e110]
+          - text: Top Users
+        - generic [ref=e115]:
+          - generic [ref=e116]:
+            - generic [ref=e117]: "1"
+            - generic [ref=e118]: admin
+            - generic [ref=e119]: "16"
+          - generic [ref=e120]:
+            - generic [ref=e121]: "2"
+            - generic [ref=e122]: Steimer
+            - generic [ref=e123]: "2"

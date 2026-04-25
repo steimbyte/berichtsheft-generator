@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LWL-Steckertypen Trainer - ITSE IHK AP2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --accent: #c9a227;
+      --glow: rgba(201, 162, 39, 0.4);
+      --bg-deep: #0a0a0f;
+      --bg-surface: #12121a;
+      --glass: rgba(255, 255, 255, 0.05);
+      --glass-light: rgba(255, 255, 255, 0.08);
+      --glass-tint: rgba(201, 162, 39, 0.12);
+      --border: rgba(255, 255, 255, 0.1);
+      --border-accent: rgba(201, 162, 39, 0.4);
+      --text-bright: #ffffff;
+      --text-primary: #e8e8f0;
+      --text-muted: rgba(255, 255, 255, 0.5);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition-fast: 150ms;
+      --transition-normal: 300ms;
+      --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Space Grotesk', system-ui, sans-serif; background: var(--bg-deep); color: var(--text-primary); min-height: 100vh; }
+    .cursor-glow { position: fixed; width: 400px; height: 400px; border-radius: 50%; background: radial-gradient(circle, var(--glow), transparent 70%); transform: translate3d(-50%, -50%, 0); pointer-events: none; z-index: 9999; opacity: 0.5; mix-blend-mode: screen; }
+    .noise-bg { position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); opacity: 0.03; pointer-events: none; z-index: 1; }
+    .orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; }
+    .orb-1 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(201, 162, 39, 0.15), transparent 70%); top: -100px; right: -100px; }
+    .orb-2 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(90, 138, 106, 0.1), transparent 70%); bottom: -50px; left: -50px; }
+    .container { position: relative; z-index: 10; max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    header { text-align: center; margin-bottom: 3rem; padding-top: 2rem; }
+    h1 { font-family: 'Outfit', system-ui, sans-serif; font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 700; color: var(--text-bright); margin-bottom: 0.5rem; }
+    .subtitle { color: var(--text-muted); font-size: 1rem; }
+    .difficulty-tabs { display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .tab-btn { font-family: 'Outfit', system-ui, sans-serif; font-weight: 600; font-size: 0.875rem; padding: 0.75rem 1.5rem; border: 1px solid var(--border); border-radius: 9999px; background: var(--glass); color: var(--text-muted); cursor: pointer; transition: all var(--transition-normal) var(--ease-out); }
+    .tab-btn:hover { background: var(--glass-light); color: var(--text-primary); }
+    .tab-btn.active { background: var(--glass-tint); border-color: var(--border-accent); color: var(--accent); box-shadow: 0 0 20px var(--glow); }
+    .quiz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
+    .quiz-card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; transition: all var(--transition-normal) var(--ease-out); position: relative; overflow: hidden; }
+    .quiz-card::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(135deg, var(--accent), transparent 50%); opacity: 0; transition: opacity var(--transition-normal); pointer-events: none; }
+    .quiz-card:hover { background: var(--glass-light); border-color: var(--border-accent); transform: translateY(-2px); box-shadow: 0 8px 32px var(--glow); }
+    .quiz-card:hover::before { opacity: 0.05; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .badge { font-family: 'Outfit', system-ui, sans-serif; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.25rem 0.75rem; border-radius: 9999px; background: var(--glass-tint); color: var(--accent); border: 1px solid var(--border-accent); }
+    .badge.true-false { background: rgba(90, 138, 106, 0.15); color: #5a8a6a; border-color: rgba(90, 138, 106, 0.4); }
+    .badge.multiple-choice { background: rgba(128, 96, 192, 0.15); color: #8060c0; border-color: rgba(128, 96, 192, 0.4); }
+    .question-text { font-family: 'Outfit', system-ui, sans-serif; font-size: 1rem; font-weight: 500; color: var(--text-bright); margin-bottom: 1.25rem; line-height: 1.5; }
+    .options { display: flex; flex-direction: column; gap: 0.5rem; }
+    .option-btn { font-family: 'Space Grotesk', system-ui, sans-serif; font-size: 0.875rem; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--glass); color: var(--text-primary); cursor: pointer; text-align: left; transition: all var(--transition-fast) var(--ease-out); }
+    .option-btn:hover:not(:disabled) { background: var(--glass-light); border-color: var(--border-accent); }
+    .option-btn.selected { background: var(--glass-tint); border-color: var(--accent); color: var(--accent); }
+    .option-btn.correct { background: rgba(90, 138, 106, 0.2); border-color: #5a8a6a; color: #5a8a6a; }
+    .option-btn.incorrect { background: rgba(192, 64, 64, 0.2); border-color: #c04040; color: #c04040; }
+    .option-btn:disabled { cursor: default; }
+    .option-label { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--glass-light); margin-right: 0.75rem; font-weight: 600; font-size: 0.75rem; }
+    .true-false-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .tf-btn { font-family: 'Outfit', system-ui, sans-serif; font-weight: 600; font-size: 1rem; padding: 1.25rem; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--glass); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+    .tf-btn:hover:not(:disabled) { background: var(--glass-light); border-color: var(--border-accent); }
+    .tf-btn.selected-true { background: rgba(90, 138, 106, 0.2); border-color: #5a8a6a; color: #5a8a6a; }
+    .tf-btn.selected-false { background: rgba(192, 64, 64, 0.2); border-color: #c04040; color: #c04040; }
+    .tf-btn.correct { background: rgba(90, 138, 106, 0.2); border-color: #5a8a6a; color: #5a8a6a; }
+    .tf-btn.incorrect { background: rgba(192, 64, 64, 0.2); border-color: #c04040; color: #c04040; }
+    .tf-btn:disabled { cursor: default; }
+    .tf-btn [data-lucide] { width: 24px; height: 24px; }
+    .check-answer-btn { font-family: 'Outfit', system-ui, sans-serif; font-weight: 600; font-size: 0.875rem; width: 100%; margin-top: 1rem; padding: 0.75rem; border: 1px solid var(--border-accent); border-radius: var(--radius-md); background: var(--glass-tint); color: var(--accent); cursor: pointer; transition: all var(--transition-fast) var(--ease-out); }
+    .check-answer-btn:hover:not(:disabled) { background: var(--accent); color: var(--bg-deep); }
+    .check-answer-btn:disabled { opacity: 0.5; cursor: default; }
+    .feedback { margin-top: 0.75rem; padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.8rem; display: none; }
+    .feedback.show { display: block; }
+    .feedback.correct { background: rgba(90, 138, 106, 0.1); border: 1px solid rgba(90, 138, 106, 0.3); color: #5a8a6a; }
+    .feedback.incorrect { background: rgba(192, 64, 64, 0.1); border: 1px solid rgba(192, 64, 64, 0.3); color: #c04040; }
+    .progress-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--bg-surface); z-index: 1000; }
+    .progress-fill { height: 100%; background: var(--accent); transition: width var(--transition-normal) var(--ease-out); box-shadow: 0 0 10px var(--glow); }
+    .score-display { position: fixed; top: 1rem; right: 1rem; font-family: 'Outfit', system-ui, sans-serif; font-weight: 600; font-size: 1rem; padding: 0.5rem 1rem; background: var(--glass); border: 1px solid var(--border-accent); border-radius: 9999px; color: var(--accent); backdrop-filter: blur(10px); z-index: 1000; }
+    .separator { height: 1px; background: linear-gradient(90deg, transparent, var(--border-accent), transparent); margin: 2rem 0; }
+    .stats-row { display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .stat-item { text-align: center; }
+    .stat-value { font-family: 'Outfit', system-ui, sans-serif; font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    @media (max-width: 768px) { .quiz-grid { grid-template-columns: 1fr; } .score-display { position: static; margin: 0 auto 1rem; text-align: center; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+    [data-lucide] { width: 1em; height: 1em; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  </style>
+</head>
+<body>
+  <div class="cursor-glow" id="cursorGlow"></div>
+  <div class="noise-bg"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+  <div class="score-display"><span id="scoreDisplay">0 / 0</span></div>
+
+  <div class="container">
+    <header>
+      <h1>🔌 LWL-Steckertypen</h1>
+      <p class="subtitle">ITSE IHK AP2 - Netzwerktechnik</p>
+    </header>
+
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-value" id="correctCount">0</div><div class="stat-label">Richtig</div></div>
+      <div class="stat-item"><div class="stat-value" id="incorrectCount">0</div><div class="stat-label">Falsch</div></div>
+      <div class="stat-item"><div class="stat-value" id="totalAnswered">0</div><div class="stat-label">Beantwortet</div></div>
+    </div>
+
+    <div class="difficulty-tabs">
+      <button class="tab-btn active" data-difficulty="easy">🌱 Basiswissen</button>
+      <button class="tab-btn" data-difficulty="medium">⚡ Vertiefung</button>
+      <button class="tab-btn" data-difficulty="hard">🔥 AP2-Niveau</button>
+    </div>
+
+    <div class="separator"></div>
+    <div class="quiz-grid" id="quizGrid"></div>
+  </div>
+
+  <script>
+    const cursorGlow = document.getElementById('cursorGlow');
+    document.addEventListener('mousemove', (e) => { cursorGlow.style.left = e.clientX + 'px'; cursorGlow.style.top = e.clientY + 'px'; });
+
+    // ITSE IHK AP2 Quiz-Daten - LWL-Steckertypen
+    const quizData = {
+      easy: [
+        { id: 'e1', type: 'true-false', question: 'LC-Stecker werden hauptsächlich in modernen Rechenzentren eingesetzt.', answer: true, explanation: 'LC ist der Marktführer in Rechenzentren wegen der kompakten 1,25mm Ferrule.' },
+        { id: 'e2', type: 'multiple-choice', question: 'Welche Ferrule-Größe hat ein LC-Stecker?', options: ['1,25 mm', '2,5 mm', 'MT-Type', '4,0 mm'], correct: 0, explanation: 'LC verwendet 1,25mm Ferrule, SC/FC/ST verwenden 2,5mm.' },
+        { id: 'e3', type: 'true-false', question: 'Singlemode-Fasern werden für lange Übertragungsstrecken verwendet.', answer: true, explanation: 'Singlemode (OS2) für Strecken über 1km, Multimode nur für kurze Distanzen.' },
+        { id: 'e4', type: 'multiple-choice', question: 'Was bedeutet die Abkürzung LC?', options: ['Lucent Connector', 'Long Connector', 'Large Core', 'Local Connector'], correct: 0, explanation: 'LC = Lucent Connector, benannt nach Lucent Technologies.' },
+        { id: 'e5', type: 'true-false', question: 'MPO-Stecker können mehrere Fasern gleichzeitig aufnehmen.', answer: true, explanation: 'MPO hat 12 oder 24 Faserpositionen für Paralleloptik.' },
+        { id: 'e6', type: 'multiple-choice', question: 'Welcher Stecker nutzt ein Bajonett-Verschluss-System?', options: ['FC', 'SC', 'ST', 'LC'], correct: 2, explanation: 'ST (Straight Tip) nutzt Bajonett-Verschluss mit 1/4 Drehung.' },
+        { id: 'e7', type: 'true-false', question: 'APC-Politur hat einen 8° Schrägschliff.', answer: true, explanation: 'APC = Angled Physical Contact mit 8° Schrägschliff für minimale Reflexionen.' },
+        { id: 'e8', type: 'multiple-choice', question: 'Welche Faserart hat eine Kerndurchmesser von 50µm?', options: ['OM1', 'OM3', 'Singlemode OS2', 'OM1 (62,5µm)'], correct: 1, explanation: 'OM3/OM4/OM5 haben 50µm Kern. OM1 hat 62,5µm. Singlemode 9µm.' }
+      ],
+      medium: [
+        { id: 'm1', type: 'multiple-choice', question: 'Ein Kunde benötigt für ein Rechenzentrum 40G-SR4-Verkabelung. Welchen Steckertyp empfehlen Sie?', options: ['LC-Duplex', 'MPO-12', 'ST', 'FC'], correct: 1, explanation: '40G-SR4 nutzt MPO-12 für 12-Faser-Paralleloptik.' },
+        { id: 'm2', type: 'true-false', question: 'E2000-Stecker haben einen integrierten Shutter zum Laserschutz.', answer: true, explanation: 'E2000 ist der einzige Stecker mit automatischem Shutter.' },
+        { id: 'm3', type: 'multiple-choice', question: 'Welche Wellenlängen werden bei Singlemode-Übertragung genutzt?', options: ['650nm und 850nm', '1310nm und 1550nm', '850nm Multimode', '630nm Rotlicht'], correct: 1, explanation: 'Singlemode: 1310nm/1550nm. Multimode: 850nm.' },
+        { id: 'm4', type: 'true-false', question: 'Grüne Stecker kennzeichnen APC-Politur bei Singlemode.', answer: true, explanation: 'Grün = APC (Singlemode), Blau = UPC, Beige = Multimode Legacy.' },
+        { id: 'm5', type: 'multiple-choice', question: 'Was ist die typische Insertion Loss eines LC/UPC-Steckers?', options: ['< 0,1 dB', '< 0,3 dB', '< 0,5 dB', '< 1,0 dB'], correct: 1, explanation: 'LC/UPC typisch <0,15dB, Maximum 0,3dB nach IEC.' },
+        { id: 'm6', type: 'true-false', question: 'OM5-Fasern sind abwärtskompatibel mit OM3 und OM4.', answer: true, explanation: 'OM5 nutzt SWDM und ist vollständig abwärtskompatibel.' },
+        { id: 'm7', type: 'multiple-choice', question: 'Sie planen eine FTTH-Verkabelung. Welcher Stecker wird dort hauptsächlich verwendet?', options: ['ST', 'FC', 'SC-APC', 'LC'], correct: 2, explanation: 'FTTH nutzt SC-APC wegen minimaler Rückflussdämpfung.' },
+        { id: 'm8', type: 'true-false', question: 'UPC-Politur erreicht über -50dB Return Loss.', answer: true, explanation: 'UPC erreicht ~-50dB, APC >-60dB.' }
+      ],
+      hard: [
+        { id: 'h1', type: 'multiple-choice', question: 'In einem Projekt soll MPO-Type A verwendet werden. Was bedeutet das für die Pin-Belegung?', options: ['Key-Up/Key-Down (gekreuzt)', 'Key-Up/Key-Up (parallel)', 'Alle Pins vertauscht', 'Kein Key vorhanden'], correct: 0, explanation: 'Type A: Faser 1→1, 12→12 (Straight-through). Type B: komplett reversed.' },
+        { id: 'h2', type: 'true-false', question: 'APC- und UPC-Stecker können bedenkenlos miteinander kombiniert werden.', answer: false, explanation: 'APC (8°) + UPC (0°) verursacht ~20dB Zusatzdämpfung. Niemals mischen!' },
+        { id: 'h3', type: 'multiple-choice', question: 'Ein Kunde beschwert sich über hohe Dämpfungswerte. Was prüfen Sie zuerst?', options: ['Kabellänge', 'Stecker-Schmutz und Verschmutzung', 'Hersteller', 'Farbe der Kabel'], correct: 1, explanation: 'Verschmutzte Stecker sind die häufigste Ursache für hohe Dämpfung.' },
+        { id: 'h4', type: 'true-false', question: 'MPO-Führungsstifte haben einen Durchmesser von 0,7mm.', answer: true, explanation: 'MPO nutzt 2 Führungsstifte à 0,7mm für präzise Ausrichtung.' },
+        { id: 'h5', type: 'multiple-choice', question: 'OM4 erreicht bei 850nm eine Bandbreite von?', options: ['500 MHz·km', '2000 MHz·km', '3500 MHz·km', '4700 MHz·km'], correct: 3, explanation: 'OM4: 4700 MHz·km (vs OM3: 2000 MHz·km).' },
+        { id: 'h6', type: 'true-false', question: 'Polarisation-Maintaining-Fasern nutzen spezielle Stecker mit exakter Ausrichtung.', answer: true, explanation: 'PM-Fasern (Bow-Tie/Panda) benötigen genau ausgerichtete Stecker.' },
+        { id: 'h7', type: 'multiple-choice', question: 'Sie dimensionieren ein 100G-SWDM4-Netzwerk. Welche Faser und Distanz?', options: ['OM3 bis 100m', 'OM4 bis 150m', 'Singlemode bis 2km', 'OM1 bis 50m'], correct: 1, explanation: '100G-SWDM4 nutzt OM4 mit bis zu 150m.' },
+        { id: 'h8', type: 'true-false', question: 'ST-Stecker verwenden die gleiche Ferrule-Größe wie LC.', answer: false, explanation: 'ST hat 2,5mm Ferrule, LC nur 1,25mm.' }
+      ]
+    };
+
+    let currentDifficulty = 'easy';
+    let score = { correct: 0, incorrect: 0, total: 0 };
+    let answeredQuestions = new Set();
+
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    function createQuizCard(question, index) {
+      const card = document.createElement('div');
+      card.className = 'quiz-card';
+      card.id = `card-${question.id}`;
+
+      if (question.type === 'true-false') {
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="badge">🔌 LWL</span>
+            <span class="badge true-false">Wahr/Falsch</span>
+          </div>
+          <p class="question-text">${index + 1}. ${question.question}</p>
+          <div class="true-false-grid">
+            <button class="tf-btn" data-answer="true" data-id="${question.id}"><i data-lucide="check"></i><span>Wahr</span></button>
+            <button class="tf-btn" data-answer="false" data-id="${question.id}"><i data-lucide="x"></i><span>Falsch</span></button>
+          </div>
+          <button class="check-answer-btn" data-id="${question.id}" disabled>Antwort prüfen</button>
+          <div class="feedback" id="feedback-${question.id}"></div>
+        `;
+      } else {
+        const optionLabels = ['A', 'B', 'C', 'D'];
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="badge">🔌 LWL</span>
+            <span class="badge multiple-choice">Multiple Choice</span>
+          </div>
+          <p class="question-text">${index + 1}. ${question.question}</p>
+          <div class="options">
+            ${question.options.map((opt, i) => `<button class="option-btn" data-index="${i}" data-id="${question.id}"><span class="option-label">${optionLabels[i]}</span>${opt}</button>`).join('')}
+          </div>
+          <button class="check-answer-btn" data-id="${question.id}" disabled>Antwort prüfen</button>
+          <div class="feedback" id="feedback-${question.id}"></div>
+        `;
+      }
+      return card;
+    }
+
+    function updateProgress() {
+      const totalQuestions = quizData[currentDifficulty].length;
+      const progress = (answeredQuestions.size / totalQuestions) * 100;
+      document.getElementById('progressFill').style.width = `${progress}%`;
+      document.getElementById('scoreDisplay').textContent = `${score.correct} / ${score.total}`;
+      document.getElementById('correctCount').textContent = score.correct;
+      document.getElementById('incorrectCount').textContent = score.incorrect;
+      document.getElementById('totalAnswered').textContent = score.total;
+    }
+
+    function checkAnswer(questionId, selectedAnswer, questionData) {
+      const isCorrect = selectedAnswer === questionData.answer;
+      const feedbackEl = document.getElementById(`feedback-${questionId}`);
+      const checkBtn = document.querySelector(`.check-answer-btn[data-id="${questionId}"]`);
+
+      if (isCorrect) {
+        score.correct++;
+        feedbackEl.className = 'feedback show correct';
+        feedbackEl.innerHTML = `<strong>✓ Richtig!</strong> ${questionData.explanation}`;
+      } else {
+        score.incorrect++;
+        feedbackEl.className = 'feedback show incorrect';
+        const correctText = questionData.type === 'true-false' ? (questionData.answer ? 'Wahr' : 'Falsch') : `${['A', 'B', 'C', 'D'][questionData.answer]}: ${questionData.options[questionData.answer]}`;
+        feedbackEl.innerHTML = `<strong>✗ Leider falsch.</strong> Richtige Antwort: ${correctText}. ${questionData.explanation}`;
+      }
+      score.total++;
+      answeredQuestions.add(questionId);
+      checkBtn.disabled = true;
+      updateProgress();
+    }
+
+    function renderQuiz() {
+      const grid = document.getElementById('quizGrid');
+      const questions = shuffleArray(quizData[currentDifficulty]);
+      grid.innerHTML = '';
+      answeredQuestions.clear();
+      
+      questions.forEach((q, index) => grid.appendChild(createQuizCard(q, index)));
+      lucide.createIcons();
+      updateProgress();
+
+      document.querySelectorAll('.tf-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          if (answeredQuestions.has(id)) return;
+          document.querySelectorAll(`.tf-btn[data-id="${id}"]`).forEach(b => b.classList.remove('selected-true', 'selected-false'));
+          btn.classList.add(btn.dataset.answer === 'true' ? 'selected-true' : 'selected-false');
+          document.querySelector(`.check-answer-btn[data-id="${id}"]`).disabled = false;
+          btn.dataset.selected = btn.dataset.answer;
+        });
+      });
+
+      document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          if (answeredQuestions.has(id)) return;
+          document.querySelectorAll(`.option-btn[data-id="${id}"]`).forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          document.querySelector(`.check-answer-btn[data-id="${id}"]`).disabled = false;
+          btn.parentElement.dataset.selected = btn.dataset.index;
+        });
+      });
+
+      document.querySelectorAll('.check-answer-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          const question = questions.find(q => q.id === id);
+          
+          if (question.type === 'true-false') {
+            const selectedBtn = document.querySelector(`.tf-btn[data-id="${id}"][data-selected]`);
+            const isCorrect = selectedBtn.dataset.answer === String(question.answer);
+            document.querySelectorAll(`.tf-btn[data-id="${id}"]`).forEach(b => {
+              b.disabled = true;
+              if (b.dataset.answer === String(question.answer)) b.classList.add('correct');
+              else if (b === selectedBtn && !isCorrect) b.classList.add('incorrect');
+            });
+            checkAnswer(id, selectedBtn.dataset.answer === 'true', question);
+          } else {
+            const selectedBtn = document.querySelector(`.option-btn[data-id="${id}"].selected`);
+            const selectedIndex = parseInt(selectedBtn.dataset.index);
+            document.querySelectorAll(`.option-btn[data-id="${id}"]`).forEach(b => {
+              b.disabled = true;
+              if (parseInt(b.dataset.index) === question.answer) b.classList.add('correct');
+              else if (b === selectedBtn && selectedIndex !== question.answer) b.classList.add('incorrect');
+            });
+            checkAnswer(id, selectedIndex, question);
+          }
+        });
+      });
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentDifficulty = tab.dataset.difficulty;
+        score = { correct: 0, incorrect: 0, total: 0 };
+        renderQuiz();
+      });
+    });
+
+    renderQuiz();
+  </script>
+</body>
+</html>
