@@ -368,6 +368,7 @@
       <button class="tool-btn" onclick="openTemplates()" title="Geräte Vorlagen"><i class="ph ph-stack"></i> Vorlagen</button>
       <button class="tool-btn" onclick="autoConnect()" title="Auto-Connect ausgewählter Geräte"><i class="ph ph-magic-wand"></i> Auto</button>
       <button class="tool-btn" onclick="openDHCPPool()" title="DHCP Pool"><i class="ph ph-database"></i> DHCP</button>
+      <button class="tool-btn" onclick="openDHCPHelper()" title="DHCP Relay"><i class="ph ph-arrows-left-right"></i> Helper</button>
       
       <div class="toolbar-spacer"></div>
       
@@ -598,6 +599,9 @@
         <button class="modal-btn secondary" style="width: 100%; margin-top: 4px;" onclick="enableOSPF()">
           <i class="ph ph-tree-structure"></i> OSPF aktivieren
         </button>
+        <button class="modal-btn secondary" style="width: 100%; margin-top: 4px;" onclick="openPortSecurity()">
+          <i class="ph ph-shield-check"></i> Port Security
+        </button>
       </div>
       
       <!-- STP Tab -->
@@ -787,6 +791,94 @@
     </div>
   </div>
   
+  <!-- Port Security Modal -->
+  <div class="modal-overlay" id="portSecurityModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ph ph-shield-check"></i> Port Security</div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Port</label>
+          <select class="form-select" id="psPort">
+            <option value="fa0/1">FastEthernet0/1</option>
+            <option value="fa0/2">FastEthernet0/2</option>
+            <option value="fa0/3">FastEthernet0/3</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Maximum MAC Addresses</label>
+          <input type="number" class="form-input" id="psMax" value="1" min="1" max="132">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Violation Action</label>
+          <select class="form-select" id="psAction">
+            <option value="protect">Protect (nur drop)</option>
+            <option value="restrict">Restrict (drop + counter)</option>
+            <option value="shutdown">Shutdown (err-disable)</option>
+          </select>
+        </div>
+        <div class="props-section" style="margin-top:10px;">
+          <div class="props-section-title">Konfiguration</div>
+          <div style="background:#000;padding:8px;border-radius:4px;font-family:'Fira Code',monospace;font-size:0.55rem;color:var(--ok);">
+            switchport mode access<br>
+            switchport port-security<br>
+            switchport port-security maximum 1<br>
+            switchport port-security violation shutdown
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeM('portSecurityModal')">Abbrechen</button>
+        <button class="modal-btn primary" onclick="applyPortSecurity()"><i class="ph ph-check"></i> Anwenden</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Switchport Modal -->
+  <div class="modal-overlay" id="switchportModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ph ph-swap"></i> Switchport Konfiguration</div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Port</label>
+          <select class="form-select" id="swPort">
+            <option value="fa0/1">FastEthernet0/1</option>
+            <option value="fa0/2">FastEthernet0/2</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mode</label>
+          <select class="form-select" id="swMode" onchange="document.getElementById('swVlanGroup').style.display=this.value==='access'?'block':'none'">
+            <option value="access">Access</option>
+            <option value="trunk">Trunk</option>
+            <option value="dynamic auto">Dynamic Auto</option>
+            <option value="dynamic desirable">Dynamic Desirable</option>
+          </select>
+        </div>
+        <div class="form-group" id="swVlanGroup" style="display:none;">
+          <label class="form-label">VLAN</label>
+          <select class="form-select" id="swVlan">
+            <option value="1">1 - Default</option>
+            <option value="10">10 - Verwaltung</option>
+            <option value="20">20 - Produktion</option>
+            <option value="30">30 - Gast</option>
+            <option value="99">99 - Management</option>
+          </select>
+        </div>
+        <div class="props-section" style="margin-top:10px;">
+          <div class="props-section-title">Native VLAN (Trunk)</div>
+          <div class="form-group">
+            <label class="form-label">Native VLAN</label>
+            <input type="number" class="form-input" id="swNative" value="1">
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeM('switchportModal')">Abbrechen</button>
+        <button class="modal-btn primary" onclick="applySwitchport()"><i class="ph ph-check"></i> Anwenden</button>
+      </div>
+    </div>
+  </div>
+  
   <!-- CLI Modal -->
   <div class="modal-overlay" id="cliModal">
     <div class="modal" style="max-width: 640px;">
@@ -835,6 +927,9 @@
           <button class="modal-btn primary" style="width:100%;margin-top:8px;" onclick="applyRouting()">
             <i class="ph ph-check"></i> Anwenden
           </button>
+          <div style="margin-top:12px;font-size:0.55rem;color:var(--text-muted);">
+            <strong>Tipp:</strong> Für Router-zu-Router Verbindungen empfehlen wir Serielle Kabel (PPP/HDLC).
+          </div>
         </div>
       </div>
       <div class="modal-actions">
@@ -891,6 +986,111 @@
       <div class="modal-actions">
         <button class="modal-btn secondary" onclick="closeM('dhcpModal')">Abbrechen</button>
         <button class="modal-btn primary" onclick="applyDHCPPool()"><i class="ph ph-check"></i> Speichern</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- DHCP Relay Modal -->
+  <div class="modal-overlay" id="dhcpHelperModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ph ph-arrows-left-right"></i> DHCP Relay Agent</div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Interface</label>
+          <select class="form-select" id="helperInterface">
+            <option value="gi0/0">GigabitEthernet0/0</option>
+            <option value="gi0/1">GigabitEthernet0/1</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">DHCP Server IP</label>
+          <input type="text" class="form-input" id="helperServer" placeholder="192.168.1.100">
+        </div>
+        <div class="props-section" style="margin-top:10px;">
+          <div class="props-section-title">ip helper-address Befehl</div>
+          <div style="background:#000;padding:8px;border-radius:4px;font-family:'Fira Code',monospace;font-size:0.6rem;color:var(--ok);">
+            interface ${document.getElementById('helperInterface')?.value || 'Gi0/0'}
+            ip helper-address ${document.getElementById('helperServer')?.value || '<server-ip>'}
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeM('dhcpHelperModal')">Abbrechen</button>
+        <button class="modal-btn primary" onclick="applyDHCPHelper()"><i class="ph ph-check"></i> Anwenden</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- EtherChannel Modal -->
+  <div class="modal-overlay" id="etherChannelModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ph ph-stack"></i> EtherChannel Konfiguration</div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Channel Group</label>
+          <select class="form-select" id="ecGroup">
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Modus</label>
+          <select class="form-select" id="ecMode">
+            <option value="on">On (Static)</option>
+            <option value="active">LACP Active</option>
+            <option value="passive">LACP Passive</option>
+            <option value="desirable">PAgP Desirable</option>
+            <option value="auto">PAgP Auto</option>
+          </select>
+        </div>
+        <div class="props-section" style="margin-top:10px;">
+          <div class="props-section-title">Konfiguration</div>
+          <div style="background:#000;padding:8px;border-radius:4px;font-family:'Fira Code',monospace;font-size:0.55rem;color:var(--ok);">
+            interface range Fa0/1 - 2<br>
+            channel-group 1 mode ${document.getElementById('ecMode')?.value || 'on'}<br>
+            interface Port-channel1<br>
+            switchport mode trunk
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeM('etherChannelModal')">Abbrechen</button>
+        <button class="modal-btn primary" onclick="applyEtherChannel()"><i class="ph ph-check"></i> Anwenden</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- QoS Modal -->
+  <div class="modal-overlay" id="qosModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ph ph-chart-pie-slice"></i> QoS Konfiguration</div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">QoS Mode</label>
+          <select class="form-select" id="qosMode">
+            <option value="trust">Trust (keine Änderung)</option>
+            <option value="dscp">DSCP Trust</option>
+            <option value="cos">CoS Trust</option>
+            <option value="untrusted">Untrusted</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority Queue</label>
+          <select class="form-select" id="qosPriority">
+            <option value="high">High Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="normal">Normal Priority</option>
+            <option value="low">Low Priority</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Policing Rate (Mbps)</label>
+          <input type="number" class="form-input" id="qosRate" placeholder="100">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeM('qosModal')">Abbrechen</button>
+        <button class="modal-btn primary" onclick="applyQoS()"><i class="ph ph-check"></i> Anwenden</button>
       </div>
     </div>
   </div>
@@ -996,6 +1196,11 @@
         <div style="color:var(--ok)">Cisco IOS Simulation v15.x</div>
         <div style="color:var(--text-muted)">Commands: help, show ?, configure terminal, interface, exit</div>
       `;
+      
+      // Show keyboard shortcuts hint
+      setTimeout(() => {
+        log('System', 'info', 'Tastenkürzel: Entf=Löschen, Esc=Schließen, Strg+A=Alle wählen');
+      }, 1000);
     }
 
     function renderDevs() {
@@ -1731,6 +1936,27 @@
     // ==================== NAT & ACL ====================
     function openNAT() { document.getElementById('natModal').classList.add('show'); }
     function openACL() { document.getElementById('aclModal').classList.add('show'); updateACLList(); }
+    
+    function openPortSecurity() {
+      if (!S.sel?.sw) { alert('Nur für Switches!'); return; }
+      document.getElementById('portSecurityModal').classList.add('show');
+    }
+    
+    function applyPortSecurity() {
+      const max = document.getElementById('psMax').value;
+      const action = document.getElementById('psAction').value;
+      log('PortSec', 'success', `switchport port-security maximum ${max}`);
+      log('PortSec', 'info', `switchport port-security violation ${action}`);
+      closeM('portSecurityModal');
+    }
+    
+    function applySwitchport() {
+      const mode = document.getElementById('swMode').value;
+      const vlan = document.getElementById('swVlan').value;
+      log('Switchport', 'success', `switchport mode ${mode}`);
+      if (mode === 'access') log('Switchport', 'info', `switchport access vlan ${vlan}`);
+      closeM('switchportModal');
+    }
 
     function updateACLList() {
       const el = document.getElementById('aclList');
@@ -1952,6 +2178,40 @@ exit                - exit current mode
       S.dhcpPools.push(pool);
       log('DHCP', 'success', `Pool ${pool.name} erstellt: ${pool.network}/${pool.mask}`);
       closeM('dhcpModal');
+    }
+    
+    function openDHCPHelper() {
+      document.getElementById('dhcpHelperModal').classList.add('show');
+    }
+    
+    function applyDHCPHelper() {
+      const iface = document.getElementById('helperInterface').value;
+      const server = document.getElementById('helperServer').value;
+      if (!server) { alert('Server IP eingeben'); return; }
+      log('DHCP', 'success', `ip helper-address ${server} auf ${iface}`);
+      closeM('dhcpHelperModal');
+    }
+    
+    function openEtherChannel() {
+      document.getElementById('etherChannelModal').classList.add('show');
+    }
+    
+    function applyEtherChannel() {
+      const group = document.getElementById('ecGroup').value;
+      const mode = document.getElementById('ecMode').value;
+      log('EtherChannel', 'success', `Channel-Group ${group} Mode ${mode}`);
+      closeM('etherChannelModal');
+    }
+    
+    function openQoS() {
+      document.getElementById('qosModal').classList.add('show');
+    }
+    
+    function applyQoS() {
+      const mode = document.getElementById('qosMode').value;
+      const rate = document.getElementById('qosRate').value;
+      log('QoS', 'success', `QoS ${mode} ${rate ? '@ ' + rate + 'Mbps' : ''}`);
+      closeM('qosModal');
     }
     
     function openTemplates() {
