@@ -83,6 +83,49 @@
     
     /* Workspace Tabs */
     .ws-tabs { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 3px; z-index: 100; background: var(--bg-surface); border-radius: 8px; padding: 3px; }
+    
+    /* Physical Workspace */
+    .physical-view { display: none; }
+    .physical-view.active { display: block; }
+    .rack-container { background: var(--bg-elevated); border: 2px solid var(--border); border-radius: 8px; padding: 10px; margin: 10px; }
+    .rack-title { font-size: 0.7rem; font-weight: 600; margin-bottom: 8px; text-align: center; }
+    .rack-device { background: var(--bg-deep); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; margin: 3px 0; display: flex; justify-content: space-between; align-items: center; font-size: 0.6rem; }
+    .rack-device.online { border-left: 3px solid var(--ok); }
+    .rack-device.offline { border-left: 3px solid var(--error); opacity: 0.6; }
+    .rack-status { width: 8px; height: 8px; border-radius: 50%; background: var(--error); }
+    .rack-device.online .rack-status { background: var(--ok); }
+    
+    /* Routing Protocol Modal */
+    .routing-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.5rem; font-weight: 600; margin-left: 4px; }
+    .routing-badge.rip { background: #FF6347; color: white; }
+    .routing-badge.ospf { background: #32CD32; color: white; }
+    .routing-badge.eigrp { background: #9370DB; color: white; }
+    .routing-badge.static { background: var(--accent); color: var(--bg-deep); }
+    .routing-badge.connected { background: var(--device); color: white; }
+    
+    /* Packet Simulation Detail */
+    .packet-sim-info { background: var(--bg-deep); border-radius: 6px; padding: 8px; margin-top: 8px; font-family: 'Fira Code', monospace; font-size: 0.5rem; }
+    .packet-sim-info .layer { display: flex; gap: 8px; margin: 4px 0; padding: 4px; background: var(--bg-elevated); border-radius: 4px; }
+    .packet-sim-info .layer-label { color: var(--text-muted); width: 50px; }
+    .packet-sim-info .layer-data { color: var(--text-primary); flex: 1; word-break: break-all; }
+    .packet-sim-header { font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+    .packet-sim-row { display: flex; gap: 8px; margin: 2px 0; }
+    .packet-sim-key { color: var(--text-muted); width: 70px; }
+    .packet-sim-val { color: var(--text-primary); }
+    .hexdump { background: #000; padding: 4px; border-radius: 4px; font-size: 0.45rem; color: var(--ok); word-break: break-all; line-height: 1.3; }
+    
+    /* DHCP Pool */
+    .dhcp-pool { margin-top: 8px; }
+    .dhcp-pool-item { background: var(--bg-deep); padding: 6px; border-radius: 4px; margin: 4px 0; font-size: 0.55rem; }
+    
+    /* Route Metrics */
+    .route-metric { color: var(--accent); font-size: 0.5rem; }
+    
+    /* Device Templates */
+    .template-section { padding: 8px; }
+    .template-btn { background: var(--glass); border: 1px solid var(--border); border-radius: 6px; padding: 8px; margin: 4px 0; cursor: pointer; transition: all 0.15s; width: 100%; text-align: left; font-size: 0.6rem; }
+    .template-btn:hover { background: var(--glass-light); border-color: var(--accent); }
+    .template-btn i { margin-right: 6px; }
     .ws-tab { padding: 5px 12px; background: transparent; border: none; border-radius: 5px; font-size: 0.65rem; cursor: pointer; transition: all 0.15s; }
     .ws-tab:hover { background: var(--glass); }
     .ws-tab.active { background: var(--accent); color: var(--bg-deep); font-weight: 600; }
@@ -315,13 +358,16 @@
       <button class="tool-btn" onclick="openCapture()" id="btnCapture"><i class="ph ph-eye"></i> Capture</button>
       <button class="tool-btn" onclick="runSTP()"><i class="ph ph-git-branch"></i> STP</button>
       <button class="tool-btn" onclick="openNAT()"><i class="ph ph-arrows-split"></i> NAT</button>
+      <button class="tool-btn" onclick="openRouting()"><i class="ph ph-path"></i> Routing</button>
       <button class="tool-btn" onclick="openACL()"><i class="ph ph-shield"></i> ACL</button>
       
       <div class="toolbar-spacer"></div>
       
       <button class="tool-btn" onclick="openCLI()"><i class="ph ph-terminal"></i> CLI</button>
       <button class="tool-btn" onclick="selectConnType()" id="btnConnType"><i class="ph ph-plugs-connected"></i> Kabel</button>
+      <button class="tool-btn" onclick="openTemplates()" title="Geräte Vorlagen"><i class="ph ph-stack"></i> Vorlagen</button>
       <button class="tool-btn" onclick="autoConnect()" title="Auto-Connect ausgewählter Geräte"><i class="ph ph-magic-wand"></i> Auto</button>
+      <button class="tool-btn" onclick="openDHCPPool()" title="DHCP Pool"><i class="ph ph-database"></i> DHCP</button>
       
       <div class="toolbar-spacer"></div>
       
@@ -366,6 +412,16 @@
         <div class="ws-tab active" onclick="setWS('logical')">Logical</div>
         <div class="ws-tab" onclick="setWS('physical')">Physical</div>
         <div class="ws-tab" onclick="setWS('config')">Config</div>
+      </div>
+      
+      <!-- Physical Workspace (hidden by default) -->
+      <div class="physical-view" id="physicalView">
+        <div style="padding: 12px;">
+          <div class="rack-container">
+            <div class="rack-title">🗄️ Network Rack</div>
+            <div id="rackDevices"></div>
+          </div>
+        </div>
       </div>
       
       <div class="conn-hint" id="connHint">
@@ -528,13 +584,19 @@
       <div id="tabRT" class="tab-content">
         <div class="props-section">
           <div class="props-section-title">Routing Tabelle</div>
-          <table class="data-table"><thead><tr><th>Netzwerk</th><th>Maske</th><th>Gateway</th><th>Interface</th></tr></thead><tbody id="rtBody"></tbody></table>
+          <table class="data-table"><thead><tr><th>Netz</th><th>Maske</th><th>Gateway</th><th>Interface</th><th>Typ</th></tr></thead><tbody id="rtBody"></tbody></table>
         </div>
         <button class="modal-btn secondary" style="width: 100%; margin-top: 6px;" onclick="addRoute()">
           <i class="ph ph-plus"></i> Route hinzufügen
         </button>
         <button class="modal-btn secondary" style="width: 100%; margin-top: 4px;" onclick="addStaticRoute()">
           <i class="ph ph-plus"></i> Statische Route
+        </button>
+        <button class="modal-btn secondary" style="width: 100%; margin-top: 4px;" onclick="enableRIP()">
+          <i class="ph ph-path"></i> RIP aktivieren
+        </button>
+        <button class="modal-btn secondary" style="width: 100%; margin-top: 4px;" onclick="enableOSPF()">
+          <i class="ph ph-tree-structure"></i> OSPF aktivieren
         </button>
       </div>
       
@@ -742,6 +804,123 @@
       </div>
     </div>
   </div>
+  
+  <!-- Routing Protocol Modal -->
+  <div class="modal-overlay" id="routingModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ph ph-path"></i> Routing Protokolle</div>
+      <div class="modal-body">
+        <div class="props-section">
+          <div class="props-section-title">Aktive Router</div>
+          <div id="routingRouterList"></div>
+        </div>
+        <div class="props-section" style="margin-top:10px;">
+          <div class="props-section-title">Routing Protokoll Konfiguration</div>
+          <div class="form-group">
+            <label class="form-label">Protokoll</label>
+            <select class="form-select" id="routingProto">
+              <option value="rip">RIP (Routing Information Protocol)</option>
+              <option value="ospf">OSPF (Open Shortest Path First)</option>
+              <option value="eigrp">EIGRP (Enhanced IGRP)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Netzwerk</label>
+            <input type="text" class="form-input" id="routingNet" placeholder="192.168.1.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Wildcard</label>
+            <input type="text" class="form-input" id="routingWild" placeholder="0.0.0.255">
+          </div>
+          <button class="modal-btn primary" style="width:100%;margin-top:8px;" onclick="applyRouting()">
+            <i class="ph ph-check"></i> Anwenden
+          </button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeM('routingModal')">Schließen</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Packet Detail Modal -->
+  <div class="modal-overlay" id="packetDetailModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-title"><i class="ph ph-file-text"></i> Paket Details</div>
+      <div id="packetDetailContent" class="packet-sim-info"></div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeM('packetDetailModal')">Schließen</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- DHCP Pool Modal -->
+  <div class="modal-overlay" id="dhcpModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ph ph-database"></i> DHCP Pool Konfiguration</div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Pool Name</label>
+          <input type="text" class="form-input" id="dhcpPool" placeholder="LAN_POOL">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Netzwerk</label>
+          <input type="text" class="form-input" id="dhcpNet" placeholder="192.168.1.0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Subnetzmaske</label>
+          <input type="text" class="form-input" id="dhcpMask" placeholder="255.255.255.0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Default Gateway</label>
+          <input type="text" class="form-input" id="dhcpGW" placeholder="192.168.1.1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">DNS Server</label>
+          <input type="text" class="form-input" id="dhcpDNS" placeholder="8.8.8.8">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Start IP</label>
+          <input type="text" class="form-input" id="dhcpStart" placeholder="192.168.1.100">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Clients</label>
+          <input type="number" class="form-input" id="dhcpMax" value="50">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeM('dhcpModal')">Abbrechen</button>
+        <button class="modal-btn primary" onclick="applyDHCPPool()"><i class="ph ph-check"></i> Speichern</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Device Templates -->
+  <div class="modal-overlay" id="templateModal">
+    <div class="modal">
+      <div class="modal-title"><i class="ph ph-stack"></i> Geräte Vorlagen</div>
+      <div class="template-section">
+        <div class="template-btn" onclick="loadTemplate('basicLAN')">
+          <i class="ph ph-desktop"></i> Einfaches LAN (2 PCs, 1 Switch)
+        </div>
+        <div class="template-btn" onclick="loadTemplate('routerLAN')">
+          <i class="ph ph-globe"></i> Router LAN (2 PCs, 1 Switch, 1 Router)
+        </div>
+        <div class="template-btn" onclick="loadTemplate('corpNet')">
+          <i class="ph ph-buildings"></i> Firmennetzwerk (4 PCs, 2 Switches, 1 Router, 1 Server)
+        </div>
+        <div class="template-btn" onclick="loadTemplate('wanLink')">
+          <i class="ph ph-cloud"></i> WAN Verbindung (2 Router, Cloud)
+        </div>
+        <div class="template-btn" onclick="loadTemplate('poeNet')">
+          <i class="ph ph-video-camera"></i> PoE Netzwerk (PC, Switch PoE, IP Kamera, AP)
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="closeM('templateModal')">Schließen</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // ==================== DEVICE LIBRARY ====================
@@ -799,7 +978,11 @@
       captureIndex: 0,
       cliHistory: [],
       cliHistoryIdx: -1,
-      acls: []
+      acls: [],
+      ripEnabled: {},
+      ospfEnabled: {},
+      routingProtocol: 'static',
+      dhcpPools: []
     };
 
     // ==================== INIT ====================
@@ -915,7 +1098,7 @@
         ip: '', subnet: '255.255.255.0', gateway: '', dns: '',
         vlan: '1', portMode: 'access', mac: genMAC(), usedPorts: 0,
         arp: {}, macTable: {}, routes: [], stpPort: {}, on: true,
-        nat: false, acl: []
+        nat: false, acl: [], routing: { rip: false, ospf: false, eigrp: false }
       };
       if (n.r) n.routes = [{ net: '0.0.0.0', mask: '0.0.0.0', gw: '*', iface: 'Gi0/0' }];
       S.nodes.push(n);
@@ -1371,9 +1554,17 @@
     }
 
     function updRTTab(n) {
+      const routeType = (r) => {
+        if (r.type === 'rip') return '<span class="routing-badge rip">RIP</span>';
+        if (r.type === 'ospf') return '<span class="routing-badge ospf">OSPF</span>';
+        if (r.type === 'eigrp') return '<span class="routing-badge eigrp">EIGRP</span>';
+        if (r.type === 'connected') return '<span class="routing-badge connected">C</span>';
+        return '<span class="routing-badge static">S</span>';
+      };
+      
       document.getElementById('rtBody').innerHTML = n.routes.map(r => 
-        `<tr><td>${r.net}</td><td>${r.mask}</td><td>${r.gw}</td><td>${r.iface}</td></tr>`
-      ).join('') || '<tr><td colspan="4" style="color:var(--text-muted)">Nur Router</td></tr>';
+        `<tr><td>${r.net}</td><td>${r.mask}</td><td>${r.gw}</td><td>${r.iface}</td><td>${routeType(r)}</td></tr>`
+      ).join('') || '<tr><td colspan="5" style="color:var(--text-muted)">Nur Router</td></tr>';
     }
 
     function updSTPTab(n) {
@@ -1422,10 +1613,39 @@
       const mask = prompt('Maske (z.B. 255.0.0.0):');
       const gw = prompt('Next Hop (z.B. 192.168.1.1):');
       if (net && mask && gw) {
-        S.sel.routes.push({ net, mask, gw, iface: 'Gi0/1' });
+        S.sel.routes.push({ net, mask, gw, iface: 'Gi0/1', type: 'static' });
         updRTTab(S.sel);
-        log('Route', 'success', `${net}/${mask} → ${gw}`);
+        log('Route', 'success', `S ${net}/${mask} → ${gw}`);
       }
+    }
+    
+    function enableRIP() {
+      if (!S.sel?.r) return;
+      S.sel.routing.rip = true;
+      S.ripEnabled[S.sel.id] = true;
+      // Add connected networks to RIP
+      if (S.sel.ip) {
+        S.sel.routes.push({ net: getNetAddr(S.sel.ip, S.sel.subnet), mask: S.sel.subnet, gw: '0.0.0.0', iface: 'connected', type: 'rip' });
+      }
+      updRTTab(S.sel);
+      log('RIP', 'success', `RIP auf ${S.sel.name} aktiviert`);
+    }
+    
+    function enableOSPF() {
+      if (!S.sel?.r) return;
+      S.sel.routing.ospf = true;
+      S.ospfEnabled[S.sel.id] = true;
+      if (S.sel.ip) {
+        S.sel.routes.push({ net: getNetAddr(S.sel.ip, S.sel.subnet), mask: S.sel.subnet, gw: '0.0.0.0', iface: 'OSPF', type: 'ospf' });
+      }
+      updRTTab(S.sel);
+      log('OSPF', 'success', `OSPF auf ${S.sel.name} aktiviert`);
+    }
+    
+    function getNetAddr(ip, mask) {
+      const ipParts = ip.split('.').map(Number);
+      const maskParts = mask.split('.').map(Number);
+      return ipParts.map((p, i) => p & maskParts[i]).join('.');
     }
 
     // ==================== MODES ====================
@@ -1442,6 +1662,37 @@
       S.ws = ws;
       document.querySelectorAll('.ws-tab').forEach(t => t.classList.toggle('active', t.textContent.toLowerCase() === ws));
       document.getElementById('sWS').textContent = ws.charAt(0).toUpperCase() + ws.slice(1);
+      
+      // Physical workspace
+      document.getElementById('physicalView').classList.toggle('active', ws === 'physical');
+      if (ws === 'physical') updatePhysicalView();
+    }
+    
+    function updatePhysicalView() {
+      const el = document.getElementById('rackDevices');
+      const racks = {};
+      
+      // Group devices by approximate location
+      S.nodes.forEach(n => {
+        const rackId = Math.floor(n.x / 300);
+        if (!racks[rackId]) racks[rackId] = [];
+        racks[rackId].push(n);
+      });
+      
+      let html = '';
+      Object.entries(racks).forEach(([rid, devices]) => {
+        html += `<div style="margin-bottom: 16px;">
+          <div style="font-size:0.65rem;color:var(--text-muted);margin-bottom:6px;">Rack ${parseInt(rid) + 1}</div>`;
+        devices.sort((a, b) => a.y - b.y).forEach(n => {
+          html += `<div class="rack-device ${n.on ? 'online' : 'offline'}">
+            <span><i class="ph ${n.icon}" style="margin-right:6px;"></i>${n.name}</span>
+            <div class="rack-status"></div>
+          </div>`;
+        });
+        html += '</div>';
+      });
+      
+      el.innerHTML = html || '<div style="color:var(--text-muted);text-align:center;">Keine Geräte platziert</div>';
     }
 
     function setPTab(tab) {
@@ -1548,10 +1799,30 @@
       const n = S.sel;
       const c = cmd.toLowerCase();
       
+      // RIP commands
+      if (c.includes('router rip')) { n.routing.rip = true; return 'RIP routing protocol enabled'; }
+      if (c.includes('network ') && n.routing.rip) {
+        const net = c.match(/network\s+([\d.]+)/i);
+        if (net) { n.routes.push({ net: net[1], mask: '255.255.255.0', gw: '0.0.0.0', iface: 'RIP', type: 'rip' }); updRTTab(n); }
+        return `Network ${net ? net[1] : 'added'} added to RIP`;
+      }
+      
+      // OSPF commands
+      if (c.includes('router ospf ')) { n.routing.ospf = true; return 'OSPF routing protocol enabled'; }
+      
+      // EIGRP commands
+      if (c.includes('router eigrp ')) { n.routing.eigrp = true; return 'EIGRP enabled'; }
+      
       if (c === '?' || c === 'help') return `
 show ?              - show commands
+show ip             - IP configuration
+show ip route      - routing table
+show ip protocols  - routing protocols
 configure terminal  - config mode
-interface <if>      - interface mode
+router rip          - enable RIP
+router ospf        - enable OSPF
+router eigrp       - enable EIGRP
+network <net>      - add network
 ip address <ip> <m> - set IP
 no shutdown         - enable interface
 exit                - exit current mode
@@ -1559,9 +1830,10 @@ exit                - exit current mode
       
       if (c === 'show ?') return `
   ip              - IP information
-  mac             - MAC address table  
+  ip route       - Routing table
+  ip protocols   - Routing protocols
+  mac            - MAC address table  
   arp             - ARP table
-  route           - Routing table
   vlan            - VLAN information
   interfaces      - Interface status
   running-config  - Current config
@@ -1569,11 +1841,24 @@ exit                - exit current mode
       
       if (c === 'exit') { closeM('cliModal'); return ''; }
       if (c === 'show ip') return `Interface: ${n.ip || 'N/A'}\nSubnet: ${n.subnet}\nGateway: ${n.gateway || 'N/A'}\nDNS: ${n.dns || 'N/A'}`;
+      if (c === 'show ip route') {
+        if (!n.r) return 'Not a router';
+        return n.routes.map(r => {
+          const code = r.type === 'rip' ? 'R' : r.type === 'ospf' ? 'O' : r.type === 'eigrp' ? 'D' : r.type === 'connected' ? 'C' : 'S';
+          return `${code} ${r.net}/${maskToCIDR(r.mask)} [120/1] via ${r.gw}, 00:00:00, ${r.iface}`;
+        }).join('\n') || 'No routes';
+      }
+      if (c === 'show ip protocols') {
+        const protos = [];
+        if (n.routing.rip) protos.push('RIP 120');
+        if (n.routing.ospf) protos.push('OSPF 110');
+        if (n.routing.eigrp) protos.push('EIGRP 90');
+        return protos.length ? protos.join('\n') : 'No routing protocols enabled';
+      }
       if (c === 'show mac') return Object.entries(n.macTable).map(([m, v]) => `${m} VLAN${v.vlan} Port${v.port}`).join('\n') || 'Leer';
       if (c === 'show arp') return Object.entries(n.arp).map(([ip, m]) => `${ip} ${m}`).join('\n') || 'Leer';
-      if (c === 'show route' && n.r) return n.routes.map(r => `${r.net} ${r.mask} ${r.gw} ${r.iface}`).join('\n') || 'Leer';
       if (c === 'show vlan') return `VLAN ${n.vlan} configured`;
-      if (c === 'show interfaces') return `Port Status: Up\nIP: ${n.ip || 'unassigned'}`;
+      if (c === 'show interfaces') return `GigabitEthernet0/0 is up\n  IP: ${n.ip || 'unassigned'}\n  MTU: 1500 bytes`;
       
       if (c.startsWith('ip address ')) {
         const parts = cmd.split(' ').filter(Boolean);
@@ -1587,6 +1872,12 @@ exit                - exit current mode
       
       return `Unknown command: ${cmd}`;
     }
+    
+    function maskToCIDR(mask) {
+      const parts = mask.split('.').map(Number);
+      const binary = parts.map(p => p.toString(2).padStart(8, '0')).join('');
+      return binary.split('1').length - 1;
+    }
 
     // ==================== PDU / SIMULATION ====================
     function openPDU() {
@@ -1596,6 +1887,136 @@ exit                - exit current mode
       document.getElementById('pduSrc').innerHTML = opts;
       document.getElementById('pduDst').innerHTML = '<option value="">-- --</option>' + opts;
       document.getElementById('pduModal').classList.add('show');
+    }
+    
+    function openRouting() {
+      updateRoutingRouterList();
+      document.getElementById('routingModal').classList.add('show');
+    }
+    
+    function updateRoutingRouterList() {
+      const routers = S.nodes.filter(n => n.r);
+      const el = document.getElementById('routingRouterList');
+      if (routers.length === 0) {
+        el.innerHTML = '<div style="color:var(--text-muted);font-size:0.6rem;">Keine Router vorhanden</div>';
+        return;
+      }
+      el.innerHTML = routers.map(r => {
+        const rip = r.routing.rip ? '<span class="routing-badge rip">RIP</span>' : '';
+        const ospf = r.routing.ospf ? '<span class="routing-badge ospf">OSPF</span>' : '';
+        return `<div style="display:flex;justify-content:space-between;padding:6px;background:var(--bg-deep);border-radius:4px;margin:4px 0;font-size:0.6rem;">
+          <span><i class="ph ph-globe" style="margin-right:4px;"></i>${r.name}</span>
+          <span>${rip}${ospf}</span>
+        </div>`;
+      }).join('');
+    }
+    
+    function applyRouting() {
+      const proto = document.getElementById('routingProto').value;
+      const net = document.getElementById('routingNet').value;
+      const wild = document.getElementById('routingWild').value;
+      
+      S.nodes.filter(n => n.r).forEach(r => {
+        if (proto === 'rip') {
+          r.routing.rip = true;
+          r.routes.push({ net: net || '0.0.0.0', mask: wildcardToMask(wild || '0.0.0.255'), gw: '0.0.0.0', iface: 'RIP', type: 'rip' });
+        } else if (proto === 'ospf') {
+          r.routing.ospf = true;
+          r.routes.push({ net: net || '0.0.0.0', mask: wildcardToMask(wild || '0.0.0.255'), gw: '0.0.0.0', iface: 'OSPF', type: 'ospf' });
+        }
+        updRTTab(r);
+      });
+      
+      log('Routing', 'success', `${proto.toUpperCase()} Netzwerk ${net || 'default'} konfiguriert`);
+      closeM('routingModal');
+    }
+    
+    function wildcardToMask(wild) {
+      return wild.split('.').map(v => 255 - parseInt(v)).join('.');
+    }
+    
+    function openDHCPPool() {
+      document.getElementById('dhcpModal').classList.add('show');
+    }
+    
+    function applyDHCPPool() {
+      const pool = {
+        name: document.getElementById('dhcpPool').value,
+        network: document.getElementById('dhcpNet').value,
+        mask: document.getElementById('dhcpMask').value,
+        gateway: document.getElementById('dhcpGW').value,
+        dns: document.getElementById('dhcpDNS').value,
+        start: document.getElementById('dhcpStart').value,
+        max: parseInt(document.getElementById('dhcpMax').value) || 50
+      };
+      S.dhcpPools.push(pool);
+      log('DHCP', 'success', `Pool ${pool.name} erstellt: ${pool.network}/${pool.mask}`);
+      closeM('dhcpModal');
+    }
+    
+    function openTemplates() {
+      document.getElementById('templateModal').classList.add('show');
+    }
+    
+    function loadTemplate(name) {
+      clearAll();
+      const templates = {
+        basicLAN: [
+          { type: 'pc', name: 'PC0', x: 200, y: 200 },
+          { type: 'pc', name: 'PC1', x: 200, y: 350 },
+          { type: 'sw2960', name: 'Switch0', x: 450, y: 275 }
+        ],
+        routerLAN: [
+          { type: 'pc', name: 'PC0', x: 200, y: 200 },
+          { type: 'pc', name: 'PC1', x: 200, y: 350 },
+          { type: 'sw2960', name: 'Switch0', x: 450, y: 275 },
+          { type: 'r1941', name: 'Router0', x: 700, y: 275 }
+        ],
+        corpNet: [
+          { type: 'pc', name: 'PC1', x: 150, y: 150 },
+          { type: 'pc', name: 'PC2', x: 150, y: 300 },
+          { type: 'pc', name: 'PC3', x: 150, y: 450 },
+          { type: 'pc', name: 'PC4', x: 150, y: 600 },
+          { type: 'sw2960', name: 'Switch0', x: 350, y: 150 },
+          { type: 'sw2960', name: 'Switch1', x: 350, y: 450 },
+          { type: 'r1941', name: 'Router0', x: 600, y: 300 },
+          { type: 'http', name: 'Server0', x: 800, y: 300 }
+        ],
+        wanLink: [
+          { type: 'r1941', name: 'Router0', x: 200, y: 300 },
+          { type: 'r1941', name: 'Router1', x: 600, y: 300 },
+          { type: 'cloud', name: 'Internet', x: 400, y: 200 }
+        ],
+        poeNet: [
+          { type: 'pc', name: 'PC0', x: 200, y: 300 },
+          { type: 'sw3560', name: 'Switch0', x: 450, y: 275 },
+          { type: 'ipcam', name: 'Camera0', x: 650, y: 200 },
+          { type: 'ap', name: 'AP0', x: 650, y: 350 }
+        ]
+      };
+      
+      const template = templates[name];
+      if (!template) return;
+      
+      template.forEach(d => {
+        const devDef = findDeviceDef(d.type);
+        if (devDef) {
+          const n = createNode(devDef, d.x, d.y);
+          n.name = d.name;
+          document.getElementById(n.id).querySelector('.node-name').textContent = d.name;
+        }
+      });
+      
+      log('Template', 'success', `${name} geladen`);
+      closeM('templateModal');
+    }
+    
+    function findDeviceDef(type) {
+      for (const cat of Object.values(DEVS)) {
+        const found = cat.find(d => d.id === type);
+        if (found) return found;
+      }
+      return null;
     }
 
     function openCapture() {
@@ -1621,13 +2042,69 @@ exit                - exit current mode
       S.pduCnt++;
       log(layer, 'info', `${src.name} → ${dst.name}: ${type.toUpperCase()}`);
       
+      // Store packet for capture
+      const packet = {
+        id: S.pduCnt,
+        src: src.name,
+        dst: dst.name,
+        srcIP: src.ip,
+        dstIP: dst.ip,
+        srcMAC: src.mac,
+        dstMAC: dst.mac,
+        type,
+        layer,
+        timestamp: new Date().toLocaleTimeString()
+      };
+      S.capturedPackets.push(packet);
+      updateCaptureList();
+      
       const path = findPath(src, dst);
       if (!path) { log(layer, 'fail', 'Kein Pfad verfügbar!'); updStats(); return; }
       
       animatePath(path, type, layer, () => {
         log(layer, 'success', `${dst.name} erreicht!`);
+        
+        // Show packet detail on click
+        showPacketDetail(packet);
         updStats();
       });
+    }
+    
+    function updateCaptureList() {
+      const el = document.getElementById('captureList');
+      if (S.capturedPackets.length === 0) {
+        el.innerHTML = '<div style="color:var(--text-muted);font-size:0.55rem;text-align:center;">Keine Pakete</div>';
+        return;
+      }
+      el.innerHTML = S.capturedPackets.slice().reverse().slice(0, 20).map((p, i) => 
+        `<div class="capture-item" onclick="showPacketDetail(S.capturedPackets[${S.capturedPackets.length - 1 - i}])">
+          <span style="color:var(--layer3)">#${p.id}</span> ${p.src} → ${p.dst} <span style="color:var(--text-muted)">[${p.type.toUpperCase()}]</span>
+        </div>`
+      ).join('');
+    }
+    
+    function showPacketDetail(p) {
+      const content = document.getElementById('packetDetailContent');
+      content.innerHTML = `
+        <div class="packet-sim-header">Paket #${p.id} - ${p.type.toUpperCase()} (${p.layer})</div>
+        <div class="packet-sim-row"><span class="packet-sim-key">Zeit:</span><span class="packet-sim-val">${p.timestamp}</span></div>
+        <div class="packet-sim-row"><span class="packet-sim-key">Quelle:</span><span class="packet-sim-val">${p.src} (${p.srcIP || 'N/A'})</span></div>
+        <div class="packet-sim-row"><span class="packet-sim-key">Ziel:</span><span class="packet-sim-val">${p.dst} (${p.dstIP || 'N/A'})</span></div>
+        <div class="layer"><span class="layer-label">L2:</span><span class="layer-data">SMAC: ${p.srcMAC} | DMAC: ${p.dstMAC || 'FFFF.FFFF.FFFF'}</span></div>
+        <div class="layer"><span class="layer-label">L3:</span><span class="layer-data">SIP: ${p.srcIP || '0.0.0.0'} | DIP: ${p.dstIP || '0.0.0.0'}</span></div>
+        <div class="layer"><span class="layer-label">L4:</span><span class="layer-data">${p.type === 'tcp' ? 'TCP SYN' : p.type === 'udp' ? 'UDP' : p.type === 'icmp' ? 'ICMP Echo' : 'Data'}</span></div>
+        <div style="margin-top:8px;">
+          <div style="color:var(--text-muted);font-size:0.5rem;margin-bottom:4px;">Hex Dump:</div>
+          <div class="hexdump">00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F<br>${generateHexDump()}</div>
+        </div>
+      `;
+      document.getElementById('packetDetailModal').classList.add('show');
+    }
+    
+    function generateHexDump() {
+      const bytes = Array(16).fill().map(() => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join(' ');
+      const ascii = bytes.split(' ').map(b => String.fromCharCode(parseInt(b, 16))).map(c => c >= ' ' && c <= '~' ? c : '.').join('');
+      return bytes + '<br>' + ascii.padEnd(16, ' ').split('').join(' ');
     }
 
     function findPath(src, dst) {
