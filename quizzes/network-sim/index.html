@@ -720,6 +720,14 @@
     .status-item { display: flex; align-items: center; gap: 4px; }
     .status-label { color: var(--text-muted); }
     .status-value { font-weight: 600; }
+    .status-sep { width: 1px; height: 16px; background: var(--border); }
+    
+    /* Zoom Controls */
+    .zoom-controls { display: flex; align-items: center; gap: 4px; background: var(--bg-elevated); padding: 4px 8px; border-radius: 16px; }
+    .zoom-btn { background: var(--bg-deep); border: 1px solid var(--border); border-radius: 4px; width: 22px; height: 22px; color: var(--accent); cursor: pointer; font-size: 0.8rem; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+    .zoom-btn:hover { background: var(--accent); color: var(--bg-deep); }
+    #zoomSlider { width: 80px; height: 4px; -webkit-appearance: none; background: var(--border); border-radius: 2px; cursor: pointer; }
+    #zoomSlider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: var(--accent); border-radius: 50%; }
     .status-value.ok { color: var(--ok); }
     .status-value.error { color: var(--error); }
 
@@ -833,6 +841,14 @@
       <button class="tool-btn" onclick="exportImage()" title="Als Bild"><i class="ph ph-image"></i></button>
       <button class="tool-btn" onclick="openM('helpModal')" title="Help"><i class="ph ph-question"></i></button>
       <button class="tool-btn" onclick="openNetSummary()" title="Summary"><i class="ph ph-chart-pie"></i></button>
+
+      <!-- Zoom Controls -->
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">−</button>
+        <input type="range" id="zoomSlider" min="30" max="300" value="100" onchange="setZoom(this.value)">
+        <button class="zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
+        <span id="zoomLabel" style="font-size:0.5rem;min-width:35px;text-align:center;">100%</span>
+      </div>
 
       <div class="toolbar-spacer"></div>
 
@@ -1479,6 +1495,10 @@
       <div class="status-item"><span class="status-label">WS:</span><span class="status-value" id="sWS">Logical</span></div>
       <div class="status-item"><span class="status-label">Zoom:</span><span class="status-value" id="sZoom">100%</span></div>
       <div class="status-item"><span class="status-label">Sel:</span><span class="status-value" id="sSel">-</span></div>
+      <div class="status-sep"></div>
+      <div class="status-item"><span class="status-label">📦</span><span class="status-value" id="sDevs">0</span></div>
+      <div class="status-item"><span class="status-label">🔗</span><span class="status-value" id="sConns">0</span></div>
+      <div class="status-item"><span class="status-label">📶</span><span class="status-value" id="sOnline">0/0</span></div>
       <div class="status-item"><span class="status-label">Kabel:</span><span class="status-value" id="sCable">Kupfer</span></div>
       <div class="status-item"><span class="status-label">Geräte:</span><span class="status-value" id="sNodes">0</span></div>
       <div class="status-item"><span class="status-label">Links:</span><span class="status-value" id="sLinks">0</span></div>
@@ -6143,6 +6163,11 @@ ${target.name}# `;
       document.getElementById('sNodes').textContent = S.nodes.length;
       document.getElementById('sLinks').textContent = S.conns.length;
       document.getElementById('sPkts').textContent = S.pduCnt;
+      // Update quick status bar
+      document.getElementById('sDevs').textContent = S.nodes.length;
+      document.getElementById('sConns').textContent = S.conns.length;
+      const online = S.nodes.filter(n => n.on !== false).length;
+      document.getElementById('sOnline').textContent = `${online}/${S.nodes.length}`;
     }
 
     function log(layer, type, msg) {
@@ -6349,6 +6374,28 @@ ${target.name}# `;
       if (dev) createNode(dev, S.sel.x + 80, S.sel.y + 80);
     }
 
+    // ==================== ZOOM CONTROLS ====================
+    function zoomIn() {
+      const slider = document.getElementById('zoomSlider');
+      const val = Math.min(300, parseInt(slider.value) + 10);
+      slider.value = val;
+      setZoom(val);
+    }
+    function zoomOut() {
+      const slider = document.getElementById('zoomSlider');
+      const val = Math.max(30, parseInt(slider.value) - 10);
+      slider.value = val;
+      setZoom(val);
+    }
+    function setZoom(val) {
+      const canvas = document.getElementById('canvasInner');
+      const scale = val / 100;
+      canvas.style.transform = `translate(${canvas.dataset.tx || 0}px, ${canvas.dataset.ty || 0}px) scale(${scale})`;
+      canvas.dataset.scale = scale;
+      document.getElementById('zoomLabel').textContent = val + '%';
+      document.getElementById('sZoom').textContent = val + '%';
+    }
+    
     // Keyboard shortcuts
     document.addEventListener('keydown', e => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
@@ -6408,20 +6455,12 @@ ${target.name}# `;
       // + or = = Zoom in
       if (e.key === '+' || e.key === '=') {
         e.preventDefault();
-        const canvas = document.getElementById('canvasInner');
-        const currentZoom = parseFloat(canvas.style.transform.match(/scale\(([^)]+)\)/)?.[1] || 1);
-        const newZoom = Math.min(3, currentZoom + 0.1);
-        canvas.style.transform = `translate(${canvas.dataset.tx || 0}px, ${canvas.dataset.ty || 0}px) scale(${newZoom})`;
-        canvas.dataset.scale = newZoom;
+        zoomIn();
       }
       // - = Zoom out
       if (e.key === '-') {
         e.preventDefault();
-        const canvas = document.getElementById('canvasInner');
-        const currentZoom = parseFloat(canvas.style.transform.match(/scale\(([^)]+)\)/)?.[1] || 1);
-        const newZoom = Math.max(0.3, currentZoom - 0.1);
-        canvas.style.transform = `translate(${canvas.dataset.tx || 0}px, ${canvas.dataset.ty || 0}px) scale(${newZoom})`;
-        canvas.dataset.scale = newZoom;
+        zoomOut();
       }
       // Home = Center all
       if (e.key === 'Home') { e.preventDefault(); fitAll(); }
