@@ -2126,6 +2126,14 @@
       </div>
     </div>
 
+    <!-- Quick Config Wizard Modal -->
+    <div class="modal-overlay" id="quickConfigModal">
+      <div class="modal" style="max-width:450px;">
+        <div class="modal-title"><i class="ph ph-magic-wand"></i> Quick Configuration</div>
+        <div id="configWizardContent"></div>
+      </div>
+    </div>
+
     <!-- Network Summary Modal -->
     <div class="modal-overlay" id="netSummaryModal">
       <div class="modal" style="max-width:480px;">
@@ -3217,6 +3225,146 @@
       // Check for network issues periodically
       setInterval(checkNetworkHealth, 10000);
       log('System', 'success', 'NetSim Pro v4.6 geladen');
+    }
+    
+    // ==================== QUICK CONFIG WIZARD ====================
+    function openQuickConfigWizard() {
+      if (S.nodes.length === 0) {
+        log('System', 'warn', 'Keine Geräte vorhanden');
+        return;
+      }
+      
+      const routers = S.nodes.filter(n => n.r);
+      const switches = S.nodes.filter(n => n.sw);
+      const endDevices = S.nodes.filter(n => n.end || n.srv);
+      
+      document.getElementById('configWizardContent').innerHTML = `
+        <div class="config-step active" id="step1">
+          <div style="font-size:0.7rem;font-weight:600;color:var(--accent);margin-bottom:12px;">
+            <i class="ph ph-wrench"></i> Schritt 1: IP-Netzwerk auswählen
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="form-group">
+              <label class="form-label">Subnetz</label>
+              <select class="form-select" id="cfgSubnet">
+                <option value="192.168">192.168.x.x (Privat)</option>
+                <option value="10">10.x.x.x (Privat)</option>
+                <option value="172">172.16.x.x (Privat)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subnetzmaske</label>
+              <select class="form-select" id="cfgMask">
+                <option value="24">255.255.255.0 (/24)</option>
+                <option value="16">255.255.0.0 (/16)</option>
+                <option value="20">255.255.240.0 (/20)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div class="config-step" id="step2">
+          <div style="font-size:0.7rem;font-weight:600;color:var(--accent);margin-bottom:12px;">
+            <i class="ph ph-globe"></i> Schritt 2: Router-Konfiguration
+          </div>
+          <div style="background:var(--bg-deep);padding:8px;border-radius:6px;margin-bottom:8px;">
+            <div style="font-size:0.6rem;color:var(--text-muted);margin-bottom:4px;">Routers gefunden: ${routers.length}</div>
+            <div style="font-size:0.6rem;">
+              ${routers.map(r => `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+                <span>${r.name}</span>
+                <input type="text" id="cfg_router_${r.id}" value="${r.ip || ''}" placeholder="IP-Adresse" style="background:var(--bg-surface);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--text-primary);font-size:0.55rem;width:100px;">
+              </div>`).join('')}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gateway (erster Router)</label>
+            <input type="text" class="form-input" id="cfgGateway" placeholder="z.B. 192.168.1.1">
+          </div>
+        </div>
+        
+        <div class="config-step" id="step3">
+          <div style="font-size:0.7rem;font-weight:600;color:var(--accent);margin-bottom:12px;">
+            <i class="ph ph-desktop"></i> Schritt 3: Endgeräte-Konfiguration
+          </div>
+          <div class="form-group">
+            <label class="form-label">Konfigurationsmethode</label>
+            <select class="form-select" id="cfgMethod">
+              <option value="auto">Automatisch (DHCP)</option>
+              <option value="static">Statisch (Auto-IP)</option>
+            </select>
+          </div>
+          <div style="font-size:0.55rem;color:var(--text-muted);margin-top:8px;">
+            ${endDevices.length} Endgeräte werden konfiguriert
+          </div>
+        </div>
+        
+        <div class="config-summary" id="configSummary">
+          <div style="font-size:0.7rem;font-weight:600;color:var(--ok);margin-bottom:8px;">Zusammenfassung</div>
+          <div style="font-size:0.6rem;color:var(--text-muted);">
+            <div>📍 Subnetz: <span id="sumSubnet">192.168.x.x</span></div>
+            <div>🌐 Router: <span id="sumRouters">${routers.length}</span></div>
+            <div>💻 Endgeräte: <span id="sumDevices">${endDevices.length}</span></div>
+          </div>
+        </div>
+        
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="modal-btn secondary" style="flex:1;" onclick="closeM('quickConfigModal')">Abbrechen</button>
+          <button class="modal-btn primary" style="flex:1;" onclick="runQuickConfig()">
+            <i class="ph ph-check"></i> Konfigurieren
+          </button>
+        </div>
+      `;
+      
+      openM('quickConfigModal');
+    }
+    
+    function runQuickConfig() {
+      saveState();
+      
+      const subnet = document.getElementById('cfgSubnet').value;
+      const mask = document.getElementById('cfgMask').value;
+      const method = document.getElementById('cfgMethod').value;
+      const gateway = document.getElementById('cfgGateway').value;
+      
+      let ipSuffix = 2;
+      let configured = 0;
+      
+      // Configure routers first
+      S.nodes.filter(n => n.r).forEach(r => {
+        const inputVal = document.getElementById(`cfg_router_${r.id}`)?.value;
+        if (inputVal) {
+          r.ip = inputVal;
+        } else {
+          r.ip = `${subnet}.0.1`;
+        }
+        r.gateway = r.ip;
+        r.subnet = mask === '24' ? '255.255.255.0' : mask === '16' ? '255.255.0.0' : '255.255.240.0';
+        configured++;
+      });
+      
+      // Configure end devices
+      S.nodes.filter(n => n.end || n.srv).forEach(n => {
+        if (method === 'static') {
+          n.ip = `${subnet}.0.${ipSuffix}`;
+          ipSuffix++;
+        }
+        n.subnet = mask === '24' ? '255.255.255.0' : mask === '16' ? '255.255.0.0' : '255.255.240.0';
+        n.gateway = gateway || `${subnet}.0.1`;
+        configured++;
+      });
+      
+      // Update visuals
+      S.nodes.forEach(n => {
+        const el = document.getElementById(n.id);
+        if (el) {
+          const info = el.querySelector('.node-info');
+          if (info) info.innerHTML = renderInfo(n);
+        }
+      });
+      
+      updateSmartLabels();
+      closeM('quickConfigModal');
+      log('Config', 'success', `${configured} Geräte mit IP ${subnet}.0.x konfiguriert`);
     }
     
     // ==================== AUTO-CONFIGURE NETWORK ====================
