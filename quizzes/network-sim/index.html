@@ -2348,33 +2348,56 @@
     <div class="modal">
       <div class="modal-title"><i class="ph ph-shield-check"></i> Port Security</div>
       <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">Port</label>
-          <select class="form-select" id="psPort">
-            <option value="fa0/1">FastEthernet0/1</option>
-            <option value="fa0/2">FastEthernet0/2</option>
-            <option value="fa0/3">FastEthernet0/3</option>
-          </select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-group">
+            <label class="form-label">Port</label>
+            <select class="form-select" id="psPort">
+              <option value="fa0/1">FastEthernet0/1</option>
+              <option value="fa0/2">FastEthernet0/2</option>
+              <option value="fa0/3">FastEthernet0/3</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="psEnabled">
+              <option value="enabled">Enabled</option>
+              <option value="disabled">Disabled</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Maximum MAC</label>
+            <input type="number" class="form-input" id="psMax" value="1" min="1" max="132">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Violation Action</label>
+            <select class="form-select" id="psAction">
+              <option value="protect">Protect</option>
+              <option value="restrict">Restrict</option>
+              <option value="shutdown">Shutdown</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;">
+          <div class="form-group">
+            <label class="form-label"><input type="checkbox" id="psSticky" checked> Sticky MAC</label>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Aging Time (min)</label>
+            <input type="number" class="form-input" id="psAging" value="0" min="0" max="1440">
+          </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Maximum MAC Addresses</label>
-          <input type="number" class="form-input" id="psMax" value="1" min="1" max="132">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Violation Action</label>
-          <select class="form-select" id="psAction">
-            <option value="protect">Protect (nur drop)</option>
-            <option value="restrict">Restrict (drop + counter)</option>
-            <option value="shutdown">Shutdown (err-disable)</option>
-          </select>
+          <label class="form-label">Static MAC (optional)</label>
+          <input type="text" class="form-input" id="psStaticMac" placeholder="0000.0000.0000">
         </div>
         <div class="props-section" style="margin-top:10px;">
-          <div class="props-section-title">Konfiguration</div>
-          <div style="background:#000;padding:8px;border-radius:4px;font-family:'Fira Code',monospace;font-size:0.55rem;color:var(--ok);">
+          <div class="props-section-title">Live Config</div>
+          <div id="psLiveConfig" style="background:#000;padding:8px;border-radius:4px;font-family:'Fira Code',monospace;font-size:0.55rem;color:var(--ok);line-height:1.4;">
             switchport mode access<br>
             switchport port-security<br>
             switchport port-security maximum 1<br>
-            switchport port-security violation shutdown
+            switchport port-security violation shutdown<br>
+            switchport port-security mac-address sticky
           </div>
         </div>
       </div>
@@ -2454,34 +2477,68 @@
     <div class="modal">
       <div class="modal-title"><i class="ph ph-lightning"></i> Traffic Generator</div>
       <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">Quelle</label>
-          <select class="form-select" id="trafficSrc"></select>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-group">
+            <label class="form-label">Quelle</label>
+            <select class="form-select" id="trafficSrc"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ziel</label>
+            <select class="form-select" id="trafficDst"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Protokoll</label>
+            <select class="form-select" id="trafficProto">
+              <option value="icmp">ICMP (Ping)</option>
+              <option value="udp">UDP</option>
+              <option value="tcp">TCP</option>
+              <option value="dhcp">DHCP Discover</option>
+              <option value="dns">DNS Query</option>
+              <option value="http">HTTP</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Paketgröße</label>
+            <select class="form-select" id="trafficSize">
+              <option value="64">64 Bytes</option>
+              <option value="128">128 Bytes</option>
+              <option value="256">256 Bytes</option>
+              <option value="512">512 Bytes</option>
+              <option value="1024">1 KB</option>
+              <option value="1500">1500 Bytes</option>
+            </select>
+          </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Ziel</label>
-          <select class="form-select" id="trafficDst"></select>
+          <label class="form-label">Intervall: <span id="trafficIntervalVal">1000</span> ms</label>
+          <input type="range" class="form-input" id="trafficInterval" value="1000" min="100" max="5000" step="100" oninput="document.getElementById('trafficIntervalVal').textContent=this.value">
         </div>
-        <div class="form-group">
-          <label class="form-label">Protokoll</label>
-          <select class="form-select" id="trafficProto">
-            <option value="icmp">ICMP (Ping)</option>
-            <option value="udp">UDP Flood</option>
-            <option value="tcp">TCP Flood</option>
-          </select>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Paketanzahl</label>
+            <input type="number" class="form-input" id="trafficCount" value="10" min="1" max="1000">
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Bandwidth</label>
+            <select class="form-select" id="trafficBw">
+              <option value="1">1 Mbps</option>
+              <option value="10">10 Mbps</option>
+              <option value="100" selected>100 Mbps</option>
+              <option value="1000">1 Gbps</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Paketgröße (Bytes)</label>
-          <input type="number" class="form-input" id="trafficSize" value="64" min="64" max="1500">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Intervall (ms)</label>
-          <input type="number" class="form-input" id="trafficInterval" value="1000" min="100" max="5000">
+        <div class="props-section" style="margin-top:10px;">
+          <div class="props-section-title">Erwartete Resultate</div>
+          <div id="trafficPreview" style="background:#000;padding:8px;border-radius:4px;font-family:'Fira Code',monospace;font-size:0.55rem;color:var(--ok);line-height:1.5;">
+            ICMP Ping 64 Bytes → 100 Mbps<br>
+            ~10 Pakete erwartet
+          </div>
         </div>
       </div>
       <div class="modal-actions">
         <button class="modal-btn secondary" onclick="closeM('trafficModal')">Abbrechen</button>
-        <button class="modal-btn primary" onclick="startTraffic()"><i class="ph ph-play"></i> Start</button>
+        <button class="modal-btn primary" onclick="startTraffic()"><i class="ph ph-play"></i> Start Traffic</button>
       </div>
     </div>
   </div>
@@ -4978,11 +5035,56 @@
     }
 
     function applyPortSecurity() {
+      const port = document.getElementById('psPort').value;
+      const enabled = document.getElementById('psEnabled').value === 'enabled';
       const max = document.getElementById('psMax').value;
       const action = document.getElementById('psAction').value;
-      log('PortSec', 'success', `switchport port-security maximum ${max}`);
-      log('PortSec', 'info', `switchport port-security violation ${action}`);
+      const sticky = document.getElementById('psSticky').checked;
+      const aging = document.getElementById('psAging').value;
+      const staticMac = document.getElementById('psStaticMac').value;
+      
+      if (enabled) {
+        log('PortSec', 'success', `switchport mode access`);
+        log('PortSec', 'success', `switchport port-security`);
+        log('PortSec', 'success', `switchport port-security maximum ${max}`);
+        log('PortSec', 'info', `switchport port-security violation ${action}`);
+        if (sticky) log('PortSec', 'info', `switchport port-security mac-address sticky`);
+        if (aging > 0) log('PortSec', 'info', `switchport port-security aging time ${aging}`);
+        if (staticMac) log('PortSec', 'info', `switchport port-security mac-address ${staticMac}`);
+      } else {
+        log('PortSec', 'warn', `no switchport port-security`);
+      }
       closeM('portSecurityModal');
+    }
+    
+    // Update Port Security live config preview
+    document.getElementById('psMax')?.addEventListener('input', updatePsLiveConfig);
+    document.getElementById('psAction')?.addEventListener('change', updatePsLiveConfig);
+    document.getElementById('psSticky')?.addEventListener('change', updatePsLiveConfig);
+    document.getElementById('psEnabled')?.addEventListener('change', updatePsLiveConfig);
+    
+    function updatePsLiveConfig() {
+      const enabled = document.getElementById('psEnabled')?.value === 'enabled';
+      const max = document.getElementById('psMax')?.value || 1;
+      const action = document.getElementById('psAction')?.value || 'shutdown';
+      const sticky = document.getElementById('psSticky')?.checked;
+      const aging = document.getElementById('psAging')?.value || 0;
+      
+      const configEl = document.getElementById('psLiveConfig');
+      if (!configEl) return;
+      
+      let config = '';
+      if (enabled) {
+        config += 'switchport mode access<br>';
+        config += 'switchport port-security<br>';
+        config += `switchport port-security maximum ${max}<br>`;
+        config += `switchport port-security violation ${action}<br>`;
+        if (sticky) config += 'switchport port-security mac-address sticky<br>';
+        if (aging > 0) config += `switchport port-security aging time ${aging}`;
+      } else {
+        config = '<span style="color:var(--text-muted);">no switchport port-security</span>';
+      }
+      configEl.innerHTML = config;
     }
 
     function applySwitchport() {
