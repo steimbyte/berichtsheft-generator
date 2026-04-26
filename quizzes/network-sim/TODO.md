@@ -165,6 +165,8 @@
 - [x] **Improved connection hover** - thicker line, glow effect
 - [x] **Keyboard shortcuts modal** - shows all shortcuts
 - [x] **Space = Play/Pause** - toggle auto-forward
+- [x] **Auto-Configure** - automatic IP assignment
+- [x] **Network health check** - periodic diagnostics
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

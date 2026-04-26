@@ -73,6 +73,7 @@ python3 -m http.server 8080
 
 ### Commit History
 ```
+906c3ae feat: Add auto-configure network, health check
 be8145c feat: Add keyboard shortcuts modal, fit to selection, more shortcuts
 7384c84 feat: Add cable type selector, improved connection styling
 cc78094 feat: Add connection distance/quality indicators, alignment shortcuts
@@ -185,6 +186,6 @@ ITSE IHK AP2 Projekt
 
 ---
 
-**Version:** 4.6  
+**Version:** 4.7  
 **Letzte Änderung:** 2026-04-26  
 **Status:** 🟢 Aktiv
