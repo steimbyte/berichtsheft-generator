@@ -448,6 +448,14 @@
       transition: box-shadow 0.2s, transform 0.1s;
     }
     .sim-node:hover { box-shadow: 0 0 25px var(--glow); }
+    .sim-node:hover .node-tooltip { display: block; }
+    
+    /* Device Hover Tooltip */
+    .node-tooltip { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--bg-surface); border: 1px solid var(--accent); border-radius: 8px; padding: 10px; min-width: 150px; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); margin-bottom: 8px; }
+    .node-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--accent); }
+    .tooltip-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 0.55rem; }
+    .tooltip-label { color: var(--text-muted); }
+    .tooltip-value { color: var(--accent); font-weight: 600; }
     .sim-node.selected { outline: 3px solid var(--accent); outline-offset: 2px; }
     .sim-node.dragging { cursor: grabbing; opacity: 0.9; transform: scale(1.03); z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
     .sim-node.copper { border-color: var(--copper); --glow: rgba(224, 112, 32, 0.5); }
@@ -2654,6 +2662,14 @@
       el.style.top = y + 'px';
 
       el.innerHTML = `
+        <div class="node-tooltip">
+          <div class="tooltip-row"><span class="tooltip-label">Name:</span><span class="tooltip-value">${n.name}</span></div>
+          <div class="tooltip-row"><span class="tooltip-label">Type:</span><span class="tooltip-value">${n.r ? 'Router' : n.sw ? 'Switch' : n.srv ? 'Server' : 'PC'}</span></div>
+          ${n.ip ? `<div class="tooltip-row"><span class="tooltip-label">IP:</span><span class="tooltip-value">${n.ip}</span></div>` : ''}
+          <div class="tooltip-row"><span class="tooltip-label">Ports:</span><span class="tooltip-value">${n.usedPorts}/${n.totalPorts}</span></div>
+          <div class="tooltip-row"><span class="tooltip-label">VLAN:</span><span class="tooltip-value">${n.vlan || '1'}</span></div>
+          ${n.services?.length ? `<div class="tooltip-row"><span class="tooltip-label">Services:</span><span class="tooltip-value">${n.services.length}</span></div>` : ''}
+        </div>
         <div class="port-led ${n.on ? 'up' : 'down'}"></div>
         <div class="node-front-panel">
           <div class="panel-top">
