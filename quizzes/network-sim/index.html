@@ -1329,6 +1329,7 @@
       <button class="tool-btn" onclick="openNATConfig()" title="NAT Config"><i class="ph ph-arrows-left-right"></i></button>
       <button class="tool-btn" onclick="openQuickCommands()" title="Quick Commands"><i class="ph ph-terminal"></i></button>
       <button class="tool-btn" onclick="openNetworkTest()" title="Network Test"><i class="ph ph-flask"></i></button>
+      <button class="tool-btn" onclick="openDeviceStatus()" title="Network Overview"><i class="ph ph-chart-bar"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -8082,6 +8083,68 @@ ${generateVlandDoc()}
       
       document.getElementById('testResults').innerHTML = html;
       log('Test', 'info', 'VLAN test completed');
+    }
+
+    // ==================== DEVICE STATUS OVERVIEW ====================
+    function openDeviceStatus() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'statusModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      const stats = {
+        total: S.nodes.length,
+        online: S.nodes.filter(n => n.on).length,
+        offline: S.nodes.filter(n => !n.on).length,
+        routers: S.nodes.filter(n => n.r).length,
+        switches: S.nodes.filter(n => n.sw).length,
+        servers: S.nodes.filter(n => n.srv).length,
+        pcs: S.nodes.filter(n => n.type === 'pc' || n.type === 'laptop').length,
+        connected: S.conns.length,
+        withIP: S.nodes.filter(n => n.ip).length
+      };
+      
+      modal.innerHTML = `<div class="modal" style="max-width:500px;">
+        <div class="modal-title"><i class="ph ph-chart-bar"></i> Network Overview</div>
+        <div class="modal-body">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+            <div style="background:var(--bg-deep);padding:16px;border-radius:8px;text-align:center;">
+              <div style="font-size:1.5rem;color:var(--accent);">${stats.total}</div>
+              <div style="font-size:0.55rem;color:var(--text-muted);">Total Devices</div>
+            </div>
+            <div style="background:var(--bg-deep);padding:16px;border-radius:8px;text-align:center;">
+              <div style="font-size:1.5rem;color:var(--ok);">${stats.online}</div>
+              <div style="font-size:0.55rem;color:var(--text-muted);">Online</div>
+            </div>
+            <div style="background:var(--bg-deep);padding:16px;border-radius:8px;text-align:center;">
+              <div style="font-size:1.5rem;color:var(--error);">${stats.offline}</div>
+              <div style="font-size:0.55rem;color:var(--text-muted);">Offline</div>
+            </div>
+          </div>
+          <div style="background:var(--bg-deep);border-radius:8px;padding:16px;margin-bottom:12px;">
+            <div style="font-weight:600;font-size:0.7rem;margin-bottom:8px;">Device Types</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.6rem;">
+              <div style="display:flex;justify-content:space-between;"><span>🌐 Routers</span><span style="color:var(--layer3);">${stats.routers}</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>🔌 Switches</span><span style="color:var(--device);">${stats.switches}</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>🖥️ Servers</span><span style="color:var(--ok);">${stats.servers}</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>💻 PCs</span><span style="color:var(--accent);">${stats.pcs}</span></div>
+            </div>
+          </div>
+          <div style="background:var(--bg-deep);border-radius:8px;padding:16px;">
+            <div style="font-weight:600;font-size:0.7rem;margin-bottom:8px;">Network Status</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.6rem;">
+              <div style="display:flex;justify-content:space-between;"><span>Connections</span><span style="color:var(--ok);">${stats.connected}</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>With IP</span><span>${stats.withIP}</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>Utilization</span><span>${Math.round(stats.connected / (stats.total * 4) * 100)}%</span></div>
+              <div style="display:flex;justify-content:space-between;"><span>Health</span><span style="color:var(--ok);">${Math.round(stats.online / stats.total * 100)}%</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn secondary" onclick="document.getElementById('statusModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
     }
 
     function processCLI(cmd) {

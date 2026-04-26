@@ -236,6 +236,7 @@
 - [x] **NAT Configuration** - Static/dynamic NAT, translations, enable/disable
 - [x] **Quick Commands** - One-click CLI commands for router/switch/server
 - [x] **Network Testing** - Connectivity, DHCP, DNS, VLAN tests
+- [x] **Device Status Overview** - Network statistics, device types, online/offline status
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
