@@ -4063,12 +4063,16 @@
 
       el.innerHTML = `
         <div class="node-tooltip">
-          <div class="tooltip-row"><span class="tooltip-label">Name:</span><span class="tooltip-value">${n.name}</span></div>
-          <div class="tooltip-row"><span class="tooltip-label">Type:</span><span class="tooltip-value">${n.r ? 'Router' : n.sw ? 'Switch' : n.srv ? 'Server' : 'PC'}</span></div>
-          ${n.ip ? `<div class="tooltip-row"><span class="tooltip-label">IP:</span><span class="tooltip-value">${n.ip}</span></div>` : ''}
-          <div class="tooltip-row"><span class="tooltip-label">Ports:</span><span class="tooltip-value">${n.usedPorts}/${n.totalPorts}</span></div>
-          <div class="tooltip-row"><span class="tooltip-label">VLAN:</span><span class="tooltip-value">${n.vlan || '1'}</span></div>
-          ${n.services?.length ? `<div class="tooltip-row"><span class="tooltip-label">Services:</span><span class="tooltip-value">${n.services.length}</span></div>` : ''}
+          <div class="tooltip-row"><span class="tooltip-label">📍 Name:</span><span class="tooltip-value">${n.name}</span></div>
+          <div class="tooltip-row"><span class="tooltip-label">🔧 Type:</span><span class="tooltip-value">${n.r ? '🌐 Router' : n.sw ? '🔀 Switch' : n.srv ? '🖥️ Server' : n.end ? '💻 PC' : '📱 Device'}</span></div>
+          ${n.ip ? `<div class="tooltip-row"><span class="tooltip-label">🌐 IP:</span><span class="tooltip-value">${n.ip}</span></div>` : '<div class="tooltip-row"><span class="tooltip-label">🌐 IP:</span><span class="tooltip-value" style="color:var(--warn);">Nicht konfiguriert</span></div>'}
+          ${n.subnet ? `<div class="tooltip-row"><span class="tooltip-label">📶 Mask:</span><span class="tooltip-value">${n.subnet}</span></div>` : ''}
+          ${n.gateway ? `<div class="tooltip-row"><span class="tooltip-label">🚪 Gateway:</span><span class="tooltip-value">${n.gateway}</span></div>` : ''}
+          <div class="tooltip-row"><span class="tooltip-label">🔌 Ports:</span><span class="tooltip-value">${n.usedPorts}/${n.totalPorts}</span></div>
+          <div class="tooltip-row"><span class="tooltip-label">📊 VLAN:</span><span class="tooltip-value">${n.vlan || '1'}</span></div>
+          ${n.mac ? `<div class="tooltip-row"><span class="tooltip-label">🆔 MAC:</span><span class="tooltip-value" style="font-family:'Fira Code',monospace;font-size:0.5rem;">${n.mac}</span></div>` : ''}
+          ${n.services?.length ? `<div class="tooltip-row"><span class="tooltip-label">⚙️ Services:</span><span class="tooltip-value">${n.services.join(', ')}</span></div>` : ''}
+          <div class="tooltip-row"><span class="tooltip-label">🔋 Status:</span><span class="tooltip-value" style="color:${n.on !== false ? 'var(--ok)' : 'var(--error)'};">${n.on !== false ? '🟢 Online' : '🔴 Offline'}</span></div>
         </div>
         <div class="port-led ${n.on ? 'up' : 'down'}"></div>
         <div class="node-front-panel">
