@@ -1279,6 +1279,10 @@
         <button class="tool-btn" onclick="groupSelected()" title="Group"><i class="ph ph-selection"></i></button>
         <button class="tool-btn" onclick="ungroupSelected()" title="Ungroup"><i class="ph ph-arrows-out"></i></button>
       </div>
+      <div style="display:flex;gap:2px;">
+        <button class="tool-btn" onclick="autoLayout()" title="Auto Layout"><i class="ph ph-layout-grid"></i></button>
+        <button class="tool-btn" onclick="autoLayoutTree()" title="Tree Layout"><i class="ph ph-tree-structure"></i></button>
+      </div>
       <button class="tool-btn" onclick="toggleMacTable()" id="btnMac"><i class="ph ph-ethernet"></i> MAC</button>
       <button class="tool-btn" onclick="toggleRouteTable()" id="btnRoute"><i class="ph ph-path"></i> Routes</button>
       <button class="tool-btn" onclick="togglePathTrace()" id="btnPathTrace"><i class="ph ph-git-branch"></i> Path</button>
@@ -7698,6 +7702,154 @@ ${S.conns.map(c => {
         group.bounds = { x: minX - 20, y: minY - 20, width: maxX - minX + 40, height: maxY - minY + 40 };
       });
       renderGroups();
+    }
+    
+    // ==================== AUTO-LAYOUT ====================
+    function autoLayout() {
+      if (S.nodes.length === 0) {
+        log('System', 'warn', 'Keine Geräte zum Anordnen');
+        return;
+      }
+      
+      saveState('Auto-Layout');
+      
+      // Separate nodes by type
+      const routers = S.nodes.filter(n => n.r);
+      const switches = S.nodes.filter(n => n.sw);
+      const servers = S.nodes.filter(n => n.srv);
+      const others = S.nodes.filter(n => !n.r && !n.sw && !n.srv);
+      
+      const spacingX = 150;
+      const spacingY = 120;
+      const startX = 200;
+      const startY = 200;
+      
+      // Layout routers at top (core layer)
+      routers.forEach((n, i) => {
+        n.x = startX + i * spacingX * 2;
+        n.y = startY;
+        document.getElementById(n.id).style.left = n.x + 'px';
+        document.getElementById(n.id).style.top = n.y + 'px';
+      });
+      
+      // Layout switches below routers (distribution layer)
+      const swStartY = startY + spacingY * 2;
+      switches.forEach((n, i) => {
+        n.x = startX + i * spacingX;
+        n.y = swStartY;
+        document.getElementById(n.id).style.left = n.x + 'px';
+        document.getElementById(n.id).style.top = n.y + 'px';
+      });
+      
+      // Layout servers on the right (services)
+      const srvStartX = startX + spacingX * 4;
+      const srvStartY = startY + spacingY;
+      servers.forEach((n, i) => {
+        n.x = srvStartX;
+        n.y = srvStartY + i * spacingY;
+        document.getElementById(n.id).style.left = n.x + 'px';
+        document.getElementById(n.id).style.top = n.y + 'px';
+      });
+      
+      // Layout other devices below switches (access layer)
+      const otherStartY = swStartY + spacingY * 2;
+      others.forEach((n, i) => {
+        n.x = startX + (i % 6) * spacingX;
+        n.y = otherStartY + Math.floor(i / 6) * spacingY;
+        document.getElementById(n.id).style.left = n.x + 'px';
+        document.getElementById(n.id).style.top = n.y + 'px';
+      });
+      
+      updConnParams();
+      updateMiniMap();
+      updateGroupBounds();
+      drawConns();
+      fitAll();
+      log('System', 'success', 'Auto-Layout angewendet');
+    }
+    
+    function autoLayoutTree() {
+      if (S.nodes.length === 0) {
+        log('System', 'warn', 'Keine Geräte zum Anordnen');
+        return;
+      }
+      
+      saveState('Tree-Layout');
+      
+      // Build adjacency list
+      const adj = {};
+      S.nodes.forEach(n => adj[n.id] = []);
+      S.conns.forEach(c => {
+        if (adj[c.n1]) adj[c.n1].push(c.n2);
+        if (adj[c.n2]) adj[c.n2].push(c.n1);
+      });
+      
+      // Find root (router with most connections or first router)
+      let root = S.nodes.find(n => n.r) || S.nodes[0];
+      S.nodes.forEach(n => {
+        if (n.r && adj[n.id].length > adj[root.id].length) root = n;
+      });
+      
+      // BFS to assign levels
+      const levels = {};
+      const queue = [{ id: root.id, level: 0 }];
+      const visited = new Set([root.id]);
+      
+      while (queue.length > 0) {
+        const { id, level } = queue.shift();
+        levels[id] = level;
+        
+        adj[id].forEach(neighbor => {
+          if (!visited.has(neighbor)) {
+            visited.add(neighbor);
+            queue.push({ id: neighbor, level: level + 1 });
+          }
+        });
+      }
+      
+      // Assign unvisited nodes
+      S.nodes.forEach(n => {
+        if (levels[n.id] === undefined) levels[n.id] = 2;
+      });
+      
+      // Group by level
+      const byLevel = {};
+      Object.entries(levels).forEach(([id, level]) => {
+        if (!byLevel[level]) byLevel[level] = [];
+        byLevel[level].push(id);
+      });
+      
+      // Position nodes
+      const spacingX = 150;
+      const spacingY = 120;
+      const startX = 200;
+      const startY = 100;
+      
+      Object.entries(byLevel).forEach(([level, nodeIds]) => {
+        const y = startY + parseInt(level) * spacingY;
+        const totalWidth = nodeIds.length * spacingX;
+        const startOffset = startX + (S.nodes.length * spacingX - totalWidth) / 2;
+        
+        nodeIds.forEach((id, i) => {
+          const n = S.nodes.find(x => x.id === id);
+          if (n) {
+            n.x = startOffset + i * spacingX;
+            n.y = y;
+            const el = document.getElementById(n.id);
+            if (el) {
+              el.style.left = n.x + 'px';
+              el.style.top = n.y + 'px';
+            }
+          }
+        });
+      });
+      
+      updConnParams();
+      updateMiniMap();
+      updateGroupBounds();
+      drawConns();
+      fitAll();
+      log('System', 'success', 'Tree-Layout angewendet');
     }
 
     // ==================== QUICK TEMPLATES ====================

@@ -198,6 +198,7 @@
 - [x] **Enhanced Device Tooltip** - Detailed info (IP, MAC, Gateway, Subnet, Status)
 - [x] **JSON Export/Import** - Full topology save/load, settings preservation
 - [x] **Device Grouping** - Group selected devices, visual grouping, toolbar buttons
+- [x] **Auto-Layout** - Layer-based layout, tree layout algorithms, toolbar buttons
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
