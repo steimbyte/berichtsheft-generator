@@ -121,6 +121,8 @@
 - [x] **Auto-Forward simulation** - automatic packet generation
 - [x] **Simulation controls** - Play/Pause/Step/Speed
 - [x] **Enhanced status bar** - Geräte/Links/PKTs counters
+- [x] **QoS Policy panel** - traffic prioritization queues
+- [x] **Wireless Networks** - SSID, channel, security config
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

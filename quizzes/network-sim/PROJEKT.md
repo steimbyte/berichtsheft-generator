@@ -73,6 +73,7 @@ python3 -m http.server 8080
 
 ### Commit History
 ```
+83c2ecc feat: Add QoS policy panel, wireless network configuration
 42e0a31 feat: Auto-forward simulation, simulation controls, enhanced status bar
 72a2e86 feat: Add auto-save, export image, center view, keyboard shortcuts
 e89c122 feat: Realistic device front panels, port LEDs, system LEDs
@@ -162,6 +163,6 @@ ITSE IHK AP2 Projekt
 
 ---
 
-**Version:** 2.3  
+**Version:** 2.4  
 **Letzte Änderung:** 2026-04-26  
 **Status:** 🟢 Aktiv
