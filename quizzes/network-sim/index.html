@@ -1310,6 +1310,7 @@
       <button class="tool-btn" onclick="openInterfaceDashboard()" title="Interface Dashboard"><i class="ph ph-sidebar-simple"></i></button>
       <button class="tool-btn" onclick="openConfigDiff()" title="Config Diff"><i class="ph ph-git-compare"></i></button>
       <button class="tool-btn" onclick="openTopologyMap()" title="Topology Map"><i class="ph ph-graph"></i></button>
+      <button class="tool-btn" onclick="openEventLogPanel()" id="btnEventLog" title="Event Log"><i class="ph ph-list-bullets"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -6233,6 +6234,81 @@ hostname ${n.name}
         'smarttv': '📺', 'smartlight': '💡', 'thermostat': '🌡️', 'smartphone': '📱'
       };
       return icons[type] || '📦';
+    }
+
+    // ==================== EVENT LOG ====================
+    let eventLog = [];
+    let eventLogVisible = false;
+    
+    function logEvent(type, action, msg) {
+      const time = new Date().toLocaleTimeString();
+      eventLog.unshift({ time, type, action, msg, id: Date.now() });
+      if (eventLog.length > 100) eventLog.pop();
+      if (eventLogVisible) renderEventLog();
+    }
+    
+    function toggleEventLog() {
+      eventLogVisible = !eventLogVisible;
+      const panel = document.getElementById('eventLogPanel');
+      if (panel) {
+        panel.style.display = eventLogVisible ? 'flex' : 'none';
+        if (eventLogVisible) renderEventLog();
+      }
+      document.getElementById('btnEventLog')?.classList.toggle('active', eventLogVisible);
+    }
+    
+    function renderEventLog() {
+      const panel = document.getElementById('eventLogContent');
+      if (!panel) return;
+      const colors = { success: 'var(--ok)', fail: 'var(--error)', info: 'var(--accent)', warn: 'var(--warn)' };
+      panel.innerHTML = eventLog.map(e => `
+        <div style="display:grid;grid-template-columns:70px 60px 80px 1fr;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.55rem;">
+          <span style="color:var(--text-muted);">${e.time}</span>
+          <span style="color:${colors[e.type] || 'var(--text-muted)'};font-weight:600;">${e.action}</span>
+          <span style="color:var(--device);">${e.type}</span>
+          <span style="color:var(--text-primary);">${e.msg}</span>
+        </div>
+      `).join('') || '<div style="color:var(--text-muted);text-align:center;padding:20px;">No events</div>';
+    }
+    
+    function clearEventLog() {
+      eventLog = [];
+      renderEventLog();
+      log('System', 'info', 'Event log cleared');
+    }
+    
+    function exportEventLog() {
+      if (eventLog.length === 0) { alert('No events to export'); return; }
+      let csv = 'Time,Action,Type,Message\n';
+      eventLog.forEach(e => csv += `${e.time},${e.action},${e.type},${e.msg}\n`);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'event-log-' + Date.now() + '.csv';
+      a.click();
+    }
+    
+    function openEventLogPanel() {
+      if (document.getElementById('eventLogPanel')) return;
+      
+      const panel = document.createElement('div');
+      panel.id = 'eventLogPanel';
+      panel.style.cssText = 'position:fixed;bottom:50px;right:10px;width:600px;height:300px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;z-index:1000;';
+      panel.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);">
+          <span style="font-weight:600;font-size:0.7rem;color:var(--text-bright);"><i class="ph ph-list-bullets"></i> Event Log</span>
+          <div style="display:flex;gap:4px;">
+            <button onclick="exportEventLog()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:0.6rem;"><i class="ph ph-download"></i></button>
+            <button onclick="clearEventLog()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:0.6rem;"><i class="ph ph-trash"></i></button>
+            <button onclick="toggleEventLog()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:0.6rem;">×</button>
+          </div>
+        </div>
+        <div id="eventLogContent" style="flex:1;overflow:auto;padding:8px;"></div>
+      `;
+      document.body.appendChild(panel);
+      eventLogVisible = true;
+      renderEventLog();
+      document.getElementById('btnEventLog')?.classList.add('active');
     }
 
     function processCLI(cmd) {

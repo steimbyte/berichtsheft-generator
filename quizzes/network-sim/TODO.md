@@ -217,6 +217,7 @@
 - [x] **Interface Status Dashboard** - Per-device port status, speed, latency, refresh
 - [x] **Config Diff Tool** - Compare running configs between devices, side-by-side view
 - [x] **Topology Map View** - Hierarchical topology display, layer visualization, SVG export
+- [x] **Event Log Panel** - Real-time event logging, filter, export CSV, clear
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
