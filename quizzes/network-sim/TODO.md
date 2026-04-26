@@ -179,6 +179,7 @@
 - [x] **Extended Cable Types** - Console (RJ45), Coaxial (BNC) cable options
 - [x] **Improved Drag UX** - Drop zone indicators, snap guides enhancement, ghost elements
 - [x] **SSH/Telnet Status** - Connection indicator with animation, session status
+- [x] **IoT Devices** - Smart TV, Smart Light, Thermostat, Smart Speaker
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

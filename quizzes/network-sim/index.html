@@ -2957,6 +2957,12 @@
         { id: 'ap', name: 'WLAN AP', icon: 'ph-wifi-high', ports: 1, type: 'copper', desc: 'PoE', power: 15 },
         { id: 'phone', name: 'IP Phone', icon: 'ph-phone', ports: 1, type: 'copper', desc: 'PoE', power: 7 }
       ],
+      iot: [
+        { id: 'smarttv', name: 'Smart TV', icon: 'ph-television', ports: 1, type: 'copper', desc: 'Streaming' },
+        { id: 'smartlight', name: 'Smart Light', icon: 'ph-lightbulb', ports: 0, type: 'wireless', desc: 'IoT' },
+        { id: 'thermostat', name: 'Thermostat', icon: 'ph-thermometer', ports: 0, type: 'wireless', desc: 'Smart Home' },
+        { id: 'smartspeaker', name: 'Smart Speaker', icon: 'ph-speaker-high', ports: 0, type: 'wireless', desc: 'Voice' }
+      ],
       srv: [
         { id: 'http', name: 'Webserver', icon: 'ph-globe', ports: 1, type: 'copper', desc: 'HTTP/S', services: ['HTTP', 'HTTPS'] },
         { id: 'dns', name: 'DNS Server', icon: 'ph-broadcast', ports: 1, type: 'copper', desc: 'DNS', services: ['DNS'] },
@@ -2986,7 +2992,7 @@
       // Selection
       selectedNodes: new Set(),
       // Context Menu
-      ctxNode: null
+      ctxNode: null,
       capturedPackets: [],
       captureIndex: 0,
       cliHistory: [],
