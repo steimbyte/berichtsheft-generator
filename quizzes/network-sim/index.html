@@ -1324,6 +1324,7 @@
       <button class="tool-btn" onclick="openSTPViewer()" title="Spanning Tree"><i class="ph ph-tree-structure"></i></button>
       <button class="tool-btn" onclick="openCDPNeighbors()" title="CDP Neighbors"><i class="ph ph-users-three"></i></button>
       <button class="tool-btn" onclick="openARPTable()" title="ARP Table"><i class="ph ph-table"></i></button>
+      <button class="tool-btn" onclick="openInterfaceConfig()" title="Interface Config"><i class="ph ph-gear"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -7589,6 +7590,107 @@ ${generateVlandDoc()}
       arpEntries = [];
       document.getElementById('arpTableContent').innerHTML = renderARPTable();
       log('ARP', 'info', 'ARP table cleared');
+    }
+
+    // ==================== INTERFACE CONFIG ====================
+    function openInterfaceConfig() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'ifConfigModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      const device = S.sel || S.nodes[0];
+      
+      modal.innerHTML = `<div class="modal" style="max-width:700px;max-height:80vh;overflow:auto;">
+        <div class="modal-title"><i class="ph ph-gear"></i> Interface Configuration</div>
+        <div class="modal-body">
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label">Select Device</label>
+            <select class="form-select" id="ifDevice" onchange="updateInterfaceConfig()">
+              ${S.nodes.filter(n => n.r || n.sw).map(n => `<option value="${n.id}">${n.name}</option>`).join('')}
+            </select>
+          </div>
+          <div id="ifConfigContent">
+            ${renderInterfaceConfig(device)}
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn primary" onclick="applyInterfaceConfig()"><i class="ph ph-check"></i> Apply</button>
+          <button class="modal-btn secondary" onclick="document.getElementById('ifConfigModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+    
+    function renderInterfaceConfig(device) {
+      const interfaces = [];
+      for (let i = 0; i < device.totalPorts; i++) {
+        const conn = S.conns.find(c => (c.n1 === device.id && c.p1 === i) || (c.n2 === device.id && c.p2 === i));
+        interfaces.push({
+          port: i,
+          name: device.r ? `GigabitEthernet0/${i}` : `FastEthernet0/${i}`,
+          status: conn ? 'up' : 'down',
+          ip: conn && device.ip ? device.ip : 'Unassigned',
+          duplex: 'auto',
+          speed: 'auto',
+          bandwidth: conn ? (conn.bandwidth || 100) : 0
+        });
+      }
+      
+      return interfaces.map(iface => `
+        <div style="background:var(--bg-deep);border-radius:8px;padding:12px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-weight:600;color:var(--ok);">${iface.name}</span>
+            <label style="display:flex;align-items:center;gap:8px;font-size:0.6rem;">
+              <input type="checkbox" ${iface.status === 'up' ? 'checked' : ''} onchange="toggleInterface('${device.id}',${iface.port},this.checked)">
+              ${iface.status === 'up' ? '<span style="color:var(--ok);">UP</span>' : '<span style="color:var(--error);">DOWN</span>'}
+            </label>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.6rem;">
+            <div><span style="color:var(--text-muted);">IP:</span> ${iface.ip}</div>
+            <div><span style="color:var(--text-muted);">Bandwidth:</span> ${iface.bandwidth} Mbps</div>
+            <div><span style="color:var(--text-muted);">Duplex:</span>
+              <select style="background:transparent;border:1px solid var(--border);color:var(--text-primary);font-size:inherit;" onchange="setDuplex('${device.id}',${iface.port},this.value)">
+                <option value="auto" ${iface.duplex==='auto'?'selected':''}>Auto</option>
+                <option value="full" ${iface.duplex==='full'?'selected':''}>Full</option>
+                <option value="half" ${iface.duplex==='half'?'selected':''}>Half</option>
+              </select>
+            </div>
+            <div><span style="color:var(--text-muted);">Speed:</span>
+              <select style="background:transparent;border:1px solid var(--border);color:var(--text-primary);font-size:inherit;" onchange="setSpeed('${device.id}',${iface.port},this.value)">
+                <option value="auto" ${iface.speed==='auto'?'selected':''}>Auto</option>
+                <option value="10" ${iface.speed==='10'?'selected':''}>10 Mbps</option>
+                <option value="100" ${iface.speed==='100'?'selected':''}>100 Mbps</option>
+                <option value="1000" ${iface.speed==='1000'?'selected':''}>1 Gbps</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      `).join('') || '<div style="color:var(--text-muted);">No interfaces</div>';
+    }
+    
+    function updateInterfaceConfig() {
+      const device = S.nodes.find(n => n.id === document.getElementById('ifDevice').value);
+      if (device) {
+        document.getElementById('ifConfigContent').innerHTML = renderInterfaceConfig(device);
+      }
+    }
+    
+    function toggleInterface(deviceId, port, up) {
+      log('Interface', up ? 'success' : 'info', `Port ${port} ${up ? 'enabled' : 'disabled'}`);
+    }
+    
+    function setDuplex(deviceId, port, value) {
+      log('Interface', 'info', `Port ${port} duplex set to ${value}`);
+    }
+    
+    function setSpeed(deviceId, port, value) {
+      log('Interface', 'info', `Port ${port} speed set to ${value}`);
+    }
+    
+    function applyInterfaceConfig() {
+      log('Interface', 'success', 'Interface configuration applied');
+      document.getElementById('ifConfigModal')?.remove();
     }
 
     function processCLI(cmd) {
