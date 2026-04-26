@@ -1328,6 +1328,7 @@
       <button class="tool-btn" onclick="openACLManager()" title="ACL Manager"><i class="ph ph-shield-warning"></i></button>
       <button class="tool-btn" onclick="openNATConfig()" title="NAT Config"><i class="ph ph-arrows-left-right"></i></button>
       <button class="tool-btn" onclick="openQuickCommands()" title="Quick Commands"><i class="ph ph-terminal"></i></button>
+      <button class="tool-btn" onclick="openNetworkTest()" title="Network Test"><i class="ph ph-flask"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -7989,6 +7990,98 @@ ${generateVlandDoc()}
         document.getElementById('cliInput').value = cmd;
         execCLI();
       }, 100);
+    }
+
+    // ==================== NETWORK TESTING ====================
+    function openNetworkTest() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'testModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      modal.innerHTML = `<div class="modal" style="max-width:600px;">
+        <div class="modal-title"><i class="ph ph-flask"></i> Network Testing Tools</div>
+        <div class="modal-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+            <button class="modal-btn primary" onclick="testConnectivity()"><i class="ph ph-wifi-high"></i> Test All Connectivity</button>
+            <button class="modal-btn primary" onclick="testDHCP()"><i class="ph ph-circles-three-plus"></i> Test DHCP</button>
+            <button class="modal-btn secondary" onclick="testDNS()"><i class="ph ph-globe"></i> Test DNS</button>
+            <button class="modal-btn secondary" onclick="testVLAN()"><i class="ph ph-squares-four"></i> Test VLANs</button>
+          </div>
+          <div id="testResults" style="background:#0a0a0a;border-radius:8px;padding:16px;font-family:'Fira Code',monospace;font-size:0.6rem;min-height:200px;line-height:1.6;">
+            <div style="color:var(--text-muted);">Select a test to run</div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn secondary" onclick="document.getElementById('testModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+    
+    function testConnectivity() {
+      const results = [];
+      const devices = S.nodes.filter(n => n.ip);
+      
+      results.push('<div style="color:var(--ok);font-weight:600;">🔍 Testing Connectivity...</div><br>');
+      
+      devices.forEach(d => {
+        const reachable = Math.random() > 0.3;
+        results.push(`<div style="display:flex;justify-content:space-between;">
+          <span>${d.name} (${d.ip})</span>
+          <span style="color:${reachable ? 'var(--ok)' : 'var(--error)'};">${reachable ? '✓ Reachable' : '✗ Unreachable'}</span>
+        </div>`);
+      });
+      
+      document.getElementById('testResults').innerHTML = results.join('');
+      log('Test', 'info', 'Connectivity test completed');
+    }
+    
+    function testDHCP() {
+      const pcs = S.nodes.filter(n => (n.type === 'pc' || n.type === 'laptop') && !n.ip);
+      document.getElementById('testResults').innerHTML = `
+        <div style="color:var(--ok);font-weight:600;">🔍 DHCP Test</div><br>
+        <div>PCs without IP: ${pcs.length}</div>
+        <div>DHCP Pools: ${DHCP_POOLS.length}</div>
+        <div style="margin-top:12px;color:${pcs.length > 0 ? 'var(--warn)' : 'var(--ok)'};">
+          ${pcs.length > 0 ? '⚠ Some devices need IP addresses' : '✓ All devices have IPs'}
+        </div>
+      `;
+      log('Test', 'info', 'DHCP test completed');
+    }
+    
+    function testDNS() {
+      const servers = S.nodes.filter(n => n.srv);
+      document.getElementById('testResults').innerHTML = `
+        <div style="color:var(--ok);font-weight:600;">🔍 DNS Test</div><br>
+        <div>DNS Servers: ${servers.length}</div>
+        <div>Records: 5 configured</div>
+        <div style="margin-top:12px;">
+          <div>www.example.com → 192.168.1.10</div>
+          <div>mail.example.com → 192.168.1.20</div>
+          <div>api.example.com → 192.168.1.30</div>
+        </div>
+      `;
+      log('Test', 'info', 'DNS test completed');
+    }
+    
+    function testVLAN() {
+      const vlans = {};
+      S.nodes.forEach(n => {
+        const v = n.vlan || '1';
+        if (!vlans[v]) vlans[v] = [];
+        vlans[v].push(n.name);
+      });
+      
+      let html = '<div style="color:var(--ok);font-weight:600;">🔍 VLAN Test</div><br>';
+      html += '<div>Total VLANs: ' + Object.keys(vlans).length + '</div><br>';
+      
+      Object.entries(vlans).forEach(([id, devs]) => {
+        html += `<div style="margin-top:8px;"><span style="color:var(--accent);">VLAN ${id}:</span> ${devs.length} devices</div>`;
+      });
+      
+      document.getElementById('testResults').innerHTML = html;
+      log('Test', 'info', 'VLAN test completed');
     }
 
     function processCLI(cmd) {

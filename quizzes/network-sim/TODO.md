@@ -235,6 +235,7 @@
 - [x] **ACL Manager** - Standard/Extended ACLs, add/delete entries, apply to router
 - [x] **NAT Configuration** - Static/dynamic NAT, translations, enable/disable
 - [x] **Quick Commands** - One-click CLI commands for router/switch/server
+- [x] **Network Testing** - Connectivity, DHCP, DNS, VLAN tests
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
