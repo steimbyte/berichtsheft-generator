@@ -233,6 +233,7 @@
 - [x] **ARP Table** - View/clear ARP cache, IP/MAC/Interface/Type columns
 - [x] **Interface Configuration** - Port settings, speed/duplex, bandwidth, enable/disable
 - [x] **ACL Manager** - Standard/Extended ACLs, add/delete entries, apply to router
+- [x] **NAT Configuration** - Static/dynamic NAT, translations, enable/disable
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

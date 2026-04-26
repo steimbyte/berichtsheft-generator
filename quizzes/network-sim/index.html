@@ -1326,6 +1326,7 @@
       <button class="tool-btn" onclick="openARPTable()" title="ARP Table"><i class="ph ph-table"></i></button>
       <button class="tool-btn" onclick="openInterfaceConfig()" title="Interface Config"><i class="ph ph-gear"></i></button>
       <button class="tool-btn" onclick="openACLManager()" title="ACL Manager"><i class="ph ph-shield-warning"></i></button>
+      <button class="tool-btn" onclick="openNATConfig()" title="NAT Config"><i class="ph ph-arrows-left-right"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -7805,6 +7806,111 @@ ${generateVlandDoc()}
     
     function applyACL() {
       log('ACL', 'success', `Applied ${ACL_LISTS.length} ACLs to router`);
+    }
+
+    // ==================== NAT CONFIGURATION ====================
+    const NAT_CONFIG = {
+      enabled: true,
+      inside: [],
+      outside: [],
+      translations: [
+        { inside: '192.168.1.10', outside: '203.0.113.5', type: 'static' },
+        { inside: '192.168.1.20', outside: '203.0.113.10', type: 'dynamic', pool: 'POOL-1' }
+      ]
+    };
+    
+    function openNATConfig() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'natModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      modal.innerHTML = `<div class="modal" style="max-width:700px;max-height:80vh;overflow:auto;">
+        <div class="modal-title"><i class="ph ph-arrows-left-right"></i> NAT Configuration</div>
+        <div class="modal-body">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+            <div style="background:var(--bg-deep);padding:12px;border-radius:8px;text-align:center;">
+              <div style="font-size:1.2rem;color:${NAT_CONFIG.enabled ? 'var(--ok)' : 'var(--error)'};">${NAT_CONFIG.enabled ? 'ON' : 'OFF'}</div>
+              <div style="font-size:0.55rem;color:var(--text-muted);">Status</div>
+            </div>
+            <div style="background:var(--bg-deep);padding:12px;border-radius:8px;text-align:center;">
+              <div style="font-size:1.2rem;color:var(--accent);">${NAT_CONFIG.translations.length}</div>
+              <div style="font-size:0.55rem;color:var(--text-muted);">Translations</div>
+            </div>
+            <div style="background:var(--bg-deep);padding:12px;border-radius:8px;text-align:center;">
+              <div style="font-size:1.2rem;color:var(--layer3);">${NAT_CONFIG.inside.length}</div>
+              <div style="font-size:0.55rem;color:var(--text-muted);">Inside</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <button class="modal-btn ${NAT_CONFIG.enabled ? 'secondary' : 'primary'}" onclick="toggleNAT()">${NAT_CONFIG.enabled ? 'Disable' : 'Enable'} NAT</button>
+            <button class="modal-btn secondary" onclick="addNATEntry()"><i class="ph ph-plus"></i> Add Entry</button>
+            <button class="modal-btn secondary" onclick="clearNAT()"><i class="ph ph-trash"></i> Clear</button>
+          </div>
+          <div style="font-weight:600;font-size:0.7rem;margin-bottom:8px;">NAT Translations</div>
+          <div id="natTranslations" style="background:var(--bg-deep);border-radius:8px;overflow:hidden;">
+            <table class="data-table" style="width:100%;">
+              <thead>
+                <tr style="background:var(--bg-elevated);">
+                  <th>Inside Local</th>
+                  <th>Inside Global</th>
+                  <th>Type</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                ${NAT_CONFIG.translations.map((t, i) => `
+                  <tr>
+                    <td style="color:var(--layer3);">${t.inside}</td>
+                    <td style="color:var(--ok);">${t.outside}</td>
+                    <td><span style="color:${t.type === 'static' ? 'var(--accent)' : 'var(--ok)'};">${t.type}</span></td>
+                    <td><button onclick="deleteNATEntry(${i})" style="background:transparent;border:none;color:var(--error);cursor:pointer;">×</button></td>
+                  </tr>
+                `).join('') || '<tr><td colspan="4" style="color:var(--text-muted);text-align:center;">No translations</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn primary" onclick="saveNAT()"><i class="ph ph-floppy-disk"></i> Save</button>
+          <button class="modal-btn secondary" onclick="document.getElementById('natModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+    
+    function toggleNAT() {
+      NAT_CONFIG.enabled = !NAT_CONFIG.enabled;
+      openNATConfig();
+      log('NAT', NAT_CONFIG.enabled ? 'success' : 'info', `NAT ${NAT_CONFIG.enabled ? 'enabled' : 'disabled'}`);
+    }
+    
+    function addNATEntry() {
+      const inside = prompt('Inside Local IP (e.g., 192.168.1.100):');
+      const outside = prompt('Inside Global IP (e.g., 203.0.113.20):');
+      const type = prompt('Type (static/dynamic):');
+      if (inside && outside) {
+        NAT_CONFIG.translations.push({ inside, outside, type: type || 'static' });
+        openNATConfig();
+        log('NAT', 'success', `Translation added: ${inside} → ${outside}`);
+      }
+    }
+    
+    function deleteNATEntry(idx) {
+      NAT_CONFIG.translations.splice(idx, 1);
+      openNATConfig();
+      log('NAT', 'info', 'Translation deleted');
+    }
+    
+    function clearNAT() {
+      NAT_CONFIG.translations = [];
+      openNATConfig();
+      log('NAT', 'info', 'NAT table cleared');
+    }
+    
+    function saveNAT() {
+      log('NAT', 'success', 'NAT configuration saved');
+      document.getElementById('natModal')?.remove();
     }
 
     function processCLI(cmd) {
