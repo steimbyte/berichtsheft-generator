@@ -3367,32 +3367,39 @@
     function updZoom() { document.getElementById('sZoom').textContent = Math.round(S.pz.getScale() * 100) + '%'; updateMiniMap(); }
 
     // ==================== UNDO/REDO ====================
-    function saveState() {
+    let stateLabel = 'Initial';
+    
+    function saveState(label = 'Change') {
       const state = JSON.stringify({ nodes: S.nodes.map(n => ({...n, x: n.x, y: n.y})), conns: S.conns });
-      S.undoStack.push(state);
+      S.undoStack.push({ state, label: stateLabel, time: Date.now() });
       if (S.undoStack.length > S.maxUndo) S.undoStack.shift();
       S.redoStack = [];
+      stateLabel = label;
       updUndoRedo();
     }
 
     function undo() {
       if (S.undoStack.length === 0) return;
       const current = JSON.stringify({ nodes: S.nodes.map(n => ({...n, x: n.x, y: n.y})), conns: S.conns });
-      S.redoStack.push(current);
-      const prev = JSON.parse(S.undoStack.pop());
-      restoreState(prev);
+      const lastState = S.undoStack[S.undoStack.length - 1];
+      S.redoStack.push({ state: current, label: stateLabel, time: Date.now() });
+      const prev = S.undoStack.pop();
+      restoreState(JSON.parse(prev.state));
+      stateLabel = prev.label;
       updUndoRedo();
-      log('System', 'info', 'Undo');
+      log('System', 'info', `Undo: ${lastState.label}`);
     }
 
     function redo() {
       if (S.redoStack.length === 0) return;
       const current = JSON.stringify({ nodes: S.nodes.map(n => ({...n, x: n.x, y: n.y})), conns: S.conns });
-      S.undoStack.push(current);
-      const next = JSON.parse(S.redoStack.pop());
-      restoreState(next);
+      const lastState = S.redoStack[S.redoStack.length - 1];
+      S.undoStack.push({ state: current, label: stateLabel, time: Date.now() });
+      const next = S.redoStack.pop();
+      restoreState(JSON.parse(next.state));
+      stateLabel = next.label;
       updUndoRedo();
-      log('System', 'info', 'Redo');
+      log('System', 'info', `Redo: ${lastState.label}`);
     }
 
     function restoreState(state) {
@@ -3417,8 +3424,16 @@
     }
 
     function updUndoRedo() {
-      document.getElementById('btnUndo').classList.toggle('disabled', S.undoStack.length === 0);
-      document.getElementById('btnRedo').classList.toggle('disabled', S.redoStack.length === 0);
+      const undoBtn = document.getElementById('btnUndo');
+      const redoBtn = document.getElementById('btnRedo');
+      if (undoBtn) {
+        undoBtn.classList.toggle('disabled', S.undoStack.length === 0);
+        undoBtn.title = S.undoStack.length > 0 ? `Undo: ${S.undoStack[S.undoStack.length-1].label} (${S.undoStack.length})` : 'No changes to undo';
+      }
+      if (redoBtn) {
+        redoBtn.classList.toggle('disabled', S.redoStack.length === 0);
+        redoBtn.title = S.redoStack.length > 0 ? `Redo: ${S.redoStack[S.redoStack.length-1].label} (${S.redoStack.length})` : 'No changes to redo';
+      }
     }
 
     // ==================== SNAP TO GRID ====================
