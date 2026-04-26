@@ -697,6 +697,16 @@
     .conn-line.blocked { opacity: 0.3; stroke-dasharray: 12,6; }
     .conn-line.busy { animation: connPulse 0.5s infinite; }
     @keyframes connPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+    
+    /* Layer Visualization */
+    .layer-indicator { position: absolute; padding: 4px 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 20px; font-size: 0.55rem; font-weight: 600; pointer-events: none; z-index: 50; opacity: 0.8; }
+    .layer-indicator.core { border-color: var(--layer3); color: var(--layer3); }
+    .layer-indicator.distribution { border-color: var(--device); color: var(--device); }
+    .layer-indicator.access { border-color: var(--copper); color: var(--copper); }
+    .layer-bg { position: absolute; left: 0; right: 0; height: 1px; pointer-events: none; z-index: 0; }
+    .layer-bg.core { background: linear-gradient(90deg, transparent, var(--layer3), transparent); opacity: 0.1; }
+    .layer-bg.distribution { background: linear-gradient(90deg, transparent, var(--device), transparent); opacity: 0.1; }
+    .layer-bg.access { background: linear-gradient(90deg, transparent, var(--copper), transparent); opacity: 0.1; }
 
     /* Selection Glow Effect */
     .sim-node.selected { animation: selectedGlow 2s ease-in-out infinite; }
@@ -1282,6 +1292,7 @@
       <div style="display:flex;gap:2px;">
         <button class="tool-btn" onclick="autoLayout()" title="Auto Layout"><i class="ph ph-layout-grid"></i></button>
         <button class="tool-btn" onclick="autoLayoutTree()" title="Tree Layout"><i class="ph ph-tree-structure"></i></button>
+        <button class="tool-btn" onclick="toggleLayerView()" id="btnLayers" title="Layer View"><i class="ph ph-layers"></i></button>
       </div>
       <button class="tool-btn" onclick="toggleMacTable()" id="btnMac"><i class="ph ph-ethernet"></i> MAC</button>
       <button class="tool-btn" onclick="toggleRouteTable()" id="btnRoute"><i class="ph ph-path"></i> Routes</button>
@@ -7938,6 +7949,59 @@ ${S.conns.map(c => {
       drawConns();
       fitAll();
       log('System', 'success', 'Tree-Layout angewendet');
+    }
+    
+    // ==================== LAYER VISUALIZATION ====================
+    let showLayers = false;
+    
+    function toggleLayerView() {
+      showLayers = !showLayers;
+      document.getElementById('btnLayers')?.classList.toggle('active', showLayers);
+      
+      // Remove old layer indicators
+      document.querySelectorAll('.layer-indicator, .layer-bg').forEach(el => el.remove());
+      
+      if (!showLayers) return;
+      
+      const canvasInner = document.getElementById('canvasInner');
+      if (!canvasInner) return;
+      
+      // Assign layers based on device type and position
+      const layers = {
+        core: S.nodes.filter(n => n.r),
+        distribution: S.nodes.filter(n => n.sw && !n.r),
+        access: S.nodes.filter(n => n.end || n.srv)
+      };
+      
+      // Create layer backgrounds
+      Object.entries(layers).forEach(([layerName, nodes]) => {
+        if (nodes.length === 0) return;
+        
+        const minY = Math.min(...nodes.map(n => n.y)) - 50;
+        const maxY = Math.max(...nodes.map(n => n.y + 80)) + 50;
+        
+        const bg = document.createElement('div');
+        bg.className = `layer-bg ${layerName}`;
+        bg.style.top = minY + 'px';
+        bg.style.height = (maxY - minY) + 'px';
+        canvasInner.appendChild(bg);
+        
+        // Add layer label
+        const label = document.createElement('div');
+        label.className = `layer-indicator ${layerName}`;
+        label.textContent = layerName.charAt(0).toUpperCase() + layerName.slice(1);
+        label.style.left = '10px';
+        label.style.top = (minY + 10) + 'px';
+        canvasInner.appendChild(label);
+      });
+      
+      log('System', 'info', 'Layer-Ansicht aktiviert');
+    }
+    
+    function updateLayerView() {
+      if (!showLayers) return;
+      toggleLayerView();
+      toggleLayerView();
     }
 
     // ==================== QUICK TEMPLATES ====================

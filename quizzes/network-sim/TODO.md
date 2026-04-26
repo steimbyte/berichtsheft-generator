@@ -200,6 +200,7 @@
 - [x] **Device Grouping** - Group selected devices, visual grouping, toolbar buttons
 - [x] **Auto-Layout** - Layer-based layout, tree layout algorithms, toolbar buttons
 - [x] **Zoom to Selection** - Zoom controls, breadcrumb navigation, device zoom
+- [x] **Layer Visualization** - Core/Distribution/Access layers, layer indicators, toggle button
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
