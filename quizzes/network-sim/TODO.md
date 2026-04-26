@@ -127,6 +127,8 @@
 - [x] **STP Panel** - spanning tree protocol visualization
 - [x] **Root bridge selection** - auto or manual
 - [x] **Port states** - FWD/BLK with role display
+- [x] **DNS Panel** - domain resolution, static records
+- [x] **Device Labels** - IP/name below devices (toggle)
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

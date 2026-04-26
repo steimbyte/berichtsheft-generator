@@ -73,6 +73,7 @@ python3 -m http.server 8080
 
 ### Commit History
 ```
+523271d feat: Add DNS panel, device labels toggle
 db34837 feat: Add STP panel with spanning tree visualization
 70b5dbd feat: Connection details panel, enhanced connection visualization
 83c2ecc feat: Add QoS policy panel, wireless network configuration
@@ -165,6 +166,6 @@ ITSE IHK AP2 Projekt
 
 ---
 
-**Version:** 2.6  
+**Version:** 2.7  
 **Letzte Änderung:** 2026-04-26  
 **Status:** 🟢 Aktiv
