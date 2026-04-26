@@ -240,12 +240,22 @@
     .mini-map-node { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
 
     /* Context Menu */
-    .context-menu { position: fixed; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px 0; min-width: 160px; z-index: 10000; box-shadow: 0 4px 20px rgba(0,0,0,0.5); display: none; }
-    .context-menu.show { display: block; }
-    .context-item { padding: 8px 12px; font-size: 0.65rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.1s; }
+    .context-menu { position: fixed; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px 0; min-width: 180px; z-index: 10000; box-shadow: 0 8px 40px rgba(0,0,0,0.6); display: none; }
+    .context-menu.show { display: block; animation: ctxFadeIn 0.15s ease-out; }
+    @keyframes ctxFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .context-header { padding: 10px 12px; font-size: 0.6rem; font-weight: 600; color: var(--accent); border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+    .context-item { padding: 8px 12px; font-size: 0.65rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.1s; }
     .context-item:hover { background: var(--glass-light); }
-    .context-item i { width: 16px; }
+    .context-item:hover i { color: var(--accent); }
+    .context-item i { width: 16px; color: var(--text-muted); }
+    .context-item.danger { color: var(--error); }
+    .context-item.danger i { color: var(--error); }
     .context-sep { height: 1px; background: var(--border); margin: 4px 0; }
+    .context-submenu { position: relative; }
+    .context-submenu .context-item.has-sub::after { content: ''; }
+    .context-submenu:hover .context-submenu-content { display: block; }
+    .context-submenu-content { display: none; position: absolute; left: 100%; top: 0; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px 0; min-width: 150px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+    .context-submenu-content .context-item { font-size: 0.6rem; padding: 6px 12px; }
 
     /* Lasso Selection */
     .lasso { position: fixed; border: 2px dashed var(--accent); background: rgba(201, 162, 39, 0.1); pointer-events: none; z-index: 5000; display: none; }
@@ -1516,14 +1526,27 @@
 
       <!-- Context Menu -->
       <div class="context-menu" id="contextMenu">
+        <div class="context-header" id="ctxHeader">Geräte-Optionen</div>
         <div class="context-item" onclick="ctxDuplicate()"><i class="ph ph-copy"></i> Duplicate</div>
         <div class="context-item" onclick="ctxConfig()"><i class="ph ph-sliders"></i> Konfigurieren</div>
         <div class="context-item" onclick="ctxCLI()"><i class="ph ph-terminal"></i> CLI öffnen</div>
+        <div class="context-item" onclick="ctxInterface()"><i class="ph ph-plugs-connected"></i> Interface</div>
+        <div class="context-item" onclick="ctxSSH()"><i class="ph ph-plug"></i> SSH/Telnet</div>
         <div class="context-sep"></div>
-        <div class="context-item" onclick="ctxQuickVLAN()"><i class="ph ph-stack"></i> Quick VLAN</div>
+        <div class="context-submenu">
+          <div class="context-item has-sub"><i class="ph ph-stack"></i> VLAN <i class="ph ph-caret-right" style="margin-left:auto;font-size:10px;"></i></div>
+          <div class="context-submenu-content">
+            <div class="context-item" onclick="ctxAssignVLAN(1)">VLAN 1 - Default</div>
+            <div class="context-item" onclick="ctxAssignVLAN(10)">VLAN 10 - Verwaltung</div>
+            <div class="context-item" onclick="ctxAssignVLAN(20)">VLAN 20 - Produktion</div>
+            <div class="context-item" onclick="ctxAssignVLAN(30)">VLAN 30 - Gast</div>
+            <div class="context-item" onclick="ctxAssignVLAN(99)">VLAN 99 - Management</div>
+          </div>
+        </div>
         <div class="context-item" onclick="ctxInspect()"><i class="ph ph-magnifying-glass-plus"></i> Inspector</div>
         <div class="context-sep"></div>
-        <div class="context-item" onclick="ctxDelete()"><i class="ph ph-trash" style="color:var(--error)"></i> Löschen</div>
+        <div class="context-item" onclick="ctxPower()"><i class="ph ph-power"></i> Power Toggle</div>
+        <div class="context-item danger" onclick="ctxDelete()"><i class="ph ph-trash"></i> Löschen</div>
       </div>
       
       <!-- Quick VLAN Popup -->
