@@ -1330,6 +1330,7 @@
       <button class="tool-btn" onclick="openQuickCommands()" title="Quick Commands"><i class="ph ph-terminal"></i></button>
       <button class="tool-btn" onclick="openNetworkTest()" title="Network Test"><i class="ph ph-flask"></i></button>
       <button class="tool-btn" onclick="openDeviceStatus()" title="Network Overview"><i class="ph ph-chart-bar"></i></button>
+      <button class="tool-btn" onclick="openQoSConfig()" title="QoS Config"><i class="ph ph-traffic-signal"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -8145,6 +8146,81 @@ ${generateVlandDoc()}
         </div>
       </div>`;
       document.body.appendChild(modal);
+    }
+
+    // ==================== QoS CONFIGURATION ====================
+    const QoS_CONFIG = {
+      enabled: true,
+      mode: 'priority',
+      queues: [
+        { name: 'Voice', priority: 'high', bandwidth: '30%', queue: 1 },
+        { name: 'Video', priority: 'medium', bandwidth: '30%', queue: 2 },
+        { name: 'Data', priority: 'normal', bandwidth: '25%', queue: 3 },
+        { name: 'Best Effort', priority: 'low', bandwidth: '15%', queue: 4 }
+      ]
+    };
+    
+    function openQoSConfig() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'qosModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      modal.innerHTML = `<div class="modal" style="max-width:600px;max-height:80vh;overflow:auto;">
+        <div class="modal-title"><i class="ph ph-traffic-signal"></i> QoS Configuration</div>
+        <div class="modal-body">
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <button class="modal-btn ${QoS_CONFIG.enabled ? 'primary' : 'secondary'}" onclick="toggleQoS()">${QoS_CONFIG.enabled ? 'Disable' : 'Enable'} QoS</button>
+            <select class="form-select" style="flex:1;" onchange="setQoSMode(this.value)">
+              <option value="priority" ${QoS_CONFIG.mode === 'priority' ? 'selected' : ''}>Priority Queuing</option>
+              <option value="cbwfq" ${QoS_CONFIG.mode === 'cbwfq' ? 'selected' : ''}>CBWFQ</option>
+              <option value="fifo" ${QoS_CONFIG.mode === 'fifo' ? 'selected' : ''}>FIFO</option>
+            </select>
+          </div>
+          <div style="font-weight:600;font-size:0.7rem;margin-bottom:8px;">Queues</div>
+          <div id="qosQueues">
+            ${renderQoSQueues()}
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn primary" onclick="saveQoS()"><i class="ph ph-floppy-disk"></i> Save</button>
+          <button class="modal-btn secondary" onclick="document.getElementById('qosModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+    
+    function renderQoSQueues() {
+      const colors = { high: 'var(--error)', medium: 'var(--warn)', normal: 'var(--ok)', low: 'var(--text-muted)' };
+      return QoS_CONFIG.queues.map(q => `
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg-deep);border-radius:8px;margin-bottom:8px;">
+          <div style="width:8px;height:40px;background:${colors[q.priority]};border-radius:4px;"></div>
+          <div style="flex:1;">
+            <div style="font-weight:600;font-size:0.7rem;">${q.name}</div>
+            <div style="font-size:0.55rem;color:var(--text-muted);">Queue ${q.queue}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.7rem;color:var(--accent);">${q.bandwidth}</div>
+            <div style="font-size:0.5rem;color:${colors[q.priority]};">${q.priority}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function toggleQoS() {
+      QoS_CONFIG.enabled = !QoS_CONFIG.enabled;
+      openQoSConfig();
+      log('QoS', QoS_CONFIG.enabled ? 'success' : 'info', `QoS ${QoS_CONFIG.enabled ? 'enabled' : 'disabled'}`);
+    }
+    
+    function setQoSMode(mode) {
+      QoS_CONFIG.mode = mode;
+      log('QoS', 'info', `QoS mode: ${mode}`);
+    }
+    
+    function saveQoS() {
+      log('QoS', 'success', 'QoS configuration saved');
+      document.getElementById('qosModal')?.remove();
     }
 
     function processCLI(cmd) {
