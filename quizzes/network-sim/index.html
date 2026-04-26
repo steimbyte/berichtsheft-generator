@@ -611,7 +611,7 @@
       font-family: 'Fira Code', monospace;
       pointer-events: none;
     }
-    
+
     /* Connection Guide */
     .conn-guide { position: absolute; pointer-events: none; z-index: 999; }
     .conn-guide-line { stroke: var(--accent); stroke-width: 3; stroke-dasharray: 10,5; fill: none; animation: dashMove 0.5s linear infinite; }
@@ -620,7 +620,7 @@
     @keyframes targetPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.7; } }
     .conn-guide-hint { position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--bg-deep); padding: 8px 16px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; z-index: 10000; pointer-events: none; animation: fadeInUp 0.3s; white-space: nowrap; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-    
+
     /* Connection Preview */
     .conn-preview { position: fixed; pointer-events: none; z-index: 5000; }
     .conn-preview line { stroke-width: 4; stroke-linecap: round; }
@@ -789,7 +789,7 @@
       <button class="tool-btn" onclick="autoSave()" id="btnAutoSave" title="Auto-Save"><i class="ph ph-cloud-check"></i> AutoSave</button>
       <button class="tool-btn" onclick="exportImage()" title="Als Bild"><i class="ph ph-image"></i></button>
       <button class="tool-btn" onclick="openM('helpModal')" title="Help"><i class="ph ph-question"></i></button>
-      
+
       <div class="toolbar-spacer"></div>
 
       <button class="tool-btn" onclick="saveTopo()"><i class="ph ph-download-simple"></i></button>
@@ -2260,16 +2260,28 @@
       initCanvas();
       initLasso();
       setMode('realtime');
-      log('System', 'info', 'NetSim Pro geladen - Cisco Packet Tracer Style');
+      log('System', 'success', '🌐 NetSim Pro v3.0 geladen');
+      
+      // Show welcome message for new users
+      if (!localStorage.getItem('netsim_welcomed')) {
+        setTimeout(() => {
+          openM('helpModal');
+          localStorage.setItem('netsim_welcomed', 'true');
+        }, 500);
+      }
+      
       document.getElementById('cliTerm').innerHTML = `
         <div style="color:var(--ok)">Cisco IOS Simulation v15.x</div>
         <div style="color:var(--text-muted)">Commands: help, show ?, configure terminal, interface, exit</div>
       `;
-
+      
       // Show keyboard shortcuts hint
       setTimeout(() => {
-        log('System', 'info', 'Tastenkürzel: Entf=Löschen, Esc=Schließen, Strg+A=Alle wählen');
-      }, 1000);
+        log('System', 'info', 'Tastenkürzel: Del=Löschen, Esc=Schließen, F=Fit, C=Center');
+      }, 1500);
+      
+      // Load from autosave if available
+      loadFromLocalStorage();
     }
 
     function renderDevs() {
@@ -2858,14 +2870,14 @@
 
     function onPortMove(e) {
       if (!connState || !previewLine) return;
-      
+
       // Highlight available ports on hover
       document.querySelectorAll('.node-port').forEach(p => {
         if (!p.classList.contains('connecting')) {
           p.style.boxShadow = '';
         }
       });
-      
+
       const port = connState.sourceElement.querySelectorAll('.node-port')[connState.sourcePort];
       const rect = port.getBoundingClientRect();
       const line = previewLine.querySelector('line');
@@ -4939,7 +4951,9 @@ exit                - exit current mode
       { name: 'Router LAN', icon: 'ph-globe', desc: '2 PC + Router', nodes: [{ type: 'end', name: 'PC0' }, { type: 'end', name: 'PC1' }, { type: 'r', name: 'Router0' }] },
       { name: 'Server Farm', icon: 'ph-hard-drives', desc: '3 Server + Switch', nodes: [{ type: 'srv', name: 'Server0' }, { type: 'srv', name: 'Server1' }, { type: 'srv', name: 'Server2' }, { type: 'sw', name: 'Switch0' }] },
       { name: 'WAN Link', icon: 'ph-cloud', desc: '2 Router + WAN', nodes: [{ type: 'r', name: 'Router0' }, { type: 'r', name: 'Router1' }, { type: 'wan', name: 'WAN0' }] },
-      { name: 'PoE Setup', icon: 'ph-lightning', desc: '2 AP + PoE Switch', nodes: [{ type: 'end', name: 'PC0' }, { type: 'poe', name: 'PoE Switch0' }, { type: 'end', name: 'AccessPoint0' }] }
+      { name: 'PoE Setup', icon: 'ph-lightning', desc: '2 AP + PoE Switch', nodes: [{ type: 'end', name: 'PC0' }, { type: 'poe', name: 'PoE Switch0' }, { type: 'end', name: 'AccessPoint0' }] },
+      { name: 'Full Network', icon: 'ph-tree-structure', desc: 'Complete Enterprise', nodes: [{ type: 'end', name: 'PC0' }, { type: 'end', name: 'PC1' }, { type: 'end', name: 'PC2' }, { type: 'end', name: 'PC3' }, { type: 'sw', name: 'Switch0' }, { type: 'sw', name: 'Switch1' }, { type: 'r', name: 'Router0' }, { type: 'srv', name: 'Server0' }] },
+      { name: 'Data Center', icon: 'ph-database', desc: 'Server Rack', nodes: [{ type: 'srv', name: 'Server0' }, { type: 'srv', name: 'Server1' }, { type: 'srv', name: 'Server2' }, { type: 'srv', name: 'Server3' }, { type: 'sw', name: 'Core Switch' }] }
     ];
 
     function openQuickTemplates() {
