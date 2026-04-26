@@ -193,6 +193,7 @@
 - [x] **Enhanced Undo/Redo** - State labels, history count, better tooltips
 - [x] **Enhanced Port Security** - Sticky MAC, aging time, static MAC, live config preview
 - [x] **Enhanced Traffic Generator** - Protocol options, packet size, bandwidth, preview
+- [x] **Enhanced Network Summary** - Health score, device breakdown, IP/services, export report
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

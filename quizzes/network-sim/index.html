@@ -2128,12 +2128,24 @@
 
     <!-- Network Summary Modal -->
     <div class="modal-overlay" id="netSummaryModal">
-      <div class="modal" style="max-width:450px;">
+      <div class="modal" style="max-width:480px;">
         <div class="modal-title"><i class="ph ph-chart-pie"></i> Network Summary</div>
         <div id="netSummaryContent"></div>
         <button class="modal-btn" style="margin-top:16px;width:100%;" onclick="closeM('netSummaryModal')">Close</button>
       </div>
     </div>
+    <style>
+      .net-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+      .net-stat { background: var(--bg-deep); padding: 10px; border-radius: 6px; text-align: center; }
+      .net-stat-value { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+      .net-stat-label { font-size: 0.5rem; color: var(--text-muted); margin-top: 2px; }
+      .net-health-bar { background: var(--bg-deep); padding: 10px; border-radius: 6px; }
+      .net-breakdown { display: flex; flex-direction: column; gap: 6px; }
+      .breakdown-item { display: flex; align-items: center; gap: 8px; background: var(--bg-deep); padding: 6px 8px; border-radius: 4px; border-left: 3px solid var(--accent); font-size: 0.6rem; }
+      .breakdown-icon { font-size: 14px; }
+      .breakdown-label { flex: 1; color: var(--text-primary); }
+      .breakdown-value { font-weight: 700; color: var(--accent); }
+    </style>
 
     <!-- Status Bar -->
     <div class="status-bar">
@@ -6587,10 +6599,11 @@ exit                - exit current mode
       const onlineDevices = S.nodes.filter(n => n.on !== false).length;
       
       // Count connections by type
-      const copperStr = S.conns.filter(c => c.type === 'copper-str').length;
-      const copperCross = S.conns.filter(c => c.type === 'copper-cross').length;
+      const copperStr = S.conns.filter(c => c.type === 'copper-str' || c.type === 'copper').length;
+      const copperCross = S.conns.filter(c => c.type === 'copper-cross' || c.type === 'cross').length;
       const fiber = S.conns.filter(c => c.type === 'fiber').length;
       const serial = S.conns.filter(c => c.type === 'serial').length;
+      const consoleCable = S.conns.filter(c => c.type === 'console').length;
       
       // Calculate total bandwidth
       const totalBw = S.conns.reduce((sum, c) => {
@@ -6599,58 +6612,144 @@ exit                - exit current mode
         return sum + 100;
       }, 0);
       
+      // IP addressing stats
+      const configuredIPs = S.nodes.filter(n => n.ip).length;
+      const dhcpServers = S.nodes.filter(n => n.services?.includes('dhcp')).length;
+      const dnsServers = S.nodes.filter(n => n.services?.includes('dns')).length;
+      const webServers = S.nodes.filter(n => n.services?.includes('http')).length;
+      
+      // Network health score
+      const healthScore = totalDevices > 0 ? Math.round((onlineDevices / totalDevices) * 100) : 100;
+      const healthClass = healthScore >= 80 ? 'good' : healthScore >= 50 ? 'warn' : 'bad';
+      
       content.innerHTML = `
         <div class="net-stats">
           <div class="net-stat">
-            <div class="net-stat-value">${totalDevices}</div>
-            <div class="net-stat-label">Total Devices</div>
+            <div class="net-stat-value" style="color:var(--accent);">${totalDevices}</div>
+            <div class="net-stat-label">Devices</div>
           </div>
           <div class="net-stat">
-            <div class="net-stat-value">${onlineDevices}</div>
+            <div class="net-stat-value" style="color:var(--ok);">${onlineDevices}</div>
             <div class="net-stat-label">Online</div>
           </div>
           <div class="net-stat">
-            <div class="net-stat-value">${totalConns}</div>
-            <div class="net-stat-label">Connections</div>
+            <div class="net-stat-value" style="color:var(--layer3);">${totalConns}</div>
+            <div class="net-stat-label">Links</div>
           </div>
           <div class="net-stat">
-            <div class="net-stat-value">${totalBw}M</div>
+            <div class="net-stat-value" style="color:var(--fiber);">${totalBw}M</div>
             <div class="net-stat-label">Total BW</div>
           </div>
         </div>
         
-        <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
-          <div style="font-size:0.65rem;font-weight:600;color:var(--accent);margin-bottom:8px;">Device Breakdown:</div>
-          <div style="font-size:0.6rem;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
-            <div><span style="color:var(--layer3);">🌐</span> Routers: ${routers}</div>
-            <div><span style="color:var(--device);">🔀</span> Switches: ${switches}</div>
-            <div><span style="color:var(--ok);">🖥️</span> Servers: ${servers}</div>
-            <div><span style="color:var(--accent);">💻</span> PCs: ${pcs}</div>
-            <div><span style="color:var(--layer7);">📶</span> WLAN: ${wireless}</div>
-            <div><span style="color:var(--poe);">⚡</span> PoE: ${poe}</div>
+        <div class="net-health-bar">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:0.6rem;color:var(--text-muted);">Network Health</span>
+            <span style="font-size:0.8rem;font-weight:700;color:var(--${healthClass});">${healthScore}%</span>
+          </div>
+          <div class="health-bar">
+            <div class="health-bar-fill ${healthClass}" style="width:${healthScore}%"></div>
           </div>
         </div>
         
         <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
-          <div style="font-size:0.65rem;font-weight:600;color:var(--accent);margin-bottom:8px;">Cables:</div>
-          <div style="font-size:0.6rem;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+          <div style="font-size:0.65rem;font-weight:600;color:var(--accent);margin-bottom:8px;">📊 Device Breakdown</div>
+          <div class="net-breakdown">
+            <div class="breakdown-item" style="border-left-color:var(--layer3);">
+              <span class="breakdown-icon">🌐</span>
+              <span class="breakdown-label">Routers</span>
+              <span class="breakdown-value">${routers}</span>
+            </div>
+            <div class="breakdown-item" style="border-left-color:var(--device);">
+              <span class="breakdown-icon">🔀</span>
+              <span class="breakdown-label">Switches</span>
+              <span class="breakdown-value">${switches}</span>
+            </div>
+            <div class="breakdown-item" style="border-left-color:var(--ok);">
+              <span class="breakdown-icon">🖥️</span>
+              <span class="breakdown-label">Servers</span>
+              <span class="breakdown-value">${servers}</span>
+            </div>
+            <div class="breakdown-item" style="border-left-color:var(--copper);">
+              <span class="breakdown-icon">💻</span>
+              <span class="breakdown-label">PCs/End</span>
+              <span class="breakdown-value">${pcs}</span>
+            </div>
+            <div class="breakdown-item" style="border-left-color:var(--layer7);">
+              <span class="breakdown-icon">📶</span>
+              <span class="breakdown-label">WLAN</span>
+              <span class="breakdown-value">${wireless}</span>
+            </div>
+            <div class="breakdown-item" style="border-left-color:var(--poe);">
+              <span class="breakdown-icon">⚡</span>
+              <span class="breakdown-label">PoE</span>
+              <span class="breakdown-value">${poe}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+          <div style="font-size:0.65rem;font-weight:600;color:var(--accent);margin-bottom:8px;">🔌 Cables</div>
+          <div style="font-size:0.6rem;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
             <div><span style="color:var(--copper);">━</span> Copper: ${copperStr}</div>
             <div><span style="color:var(--copper-cross);">╳</span> Cross: ${copperCross}</div>
             <div><span style="color:var(--fiber);">━</span> Fiber: ${fiber}</div>
             <div><span style="color:var(--serial);">━</span> Serial: ${serial}</div>
+            <div><span style="color:var(--poe);">🔌</span> Console: ${consoleCable}</div>
+          </div>
+        </div>
+        
+        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+          <div style="font-size:0.65rem;font-weight:600;color:var(--accent);margin-bottom:8px;">🌐 IP & Services</div>
+          <div style="font-size:0.6rem;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">
+            <div><span style="color:var(--layer3);">📍</span> IP: ${configuredIPs}/${totalDevices}</div>
+            <div><span style="color:var(--ok);">📡</span> DHCP: ${dhcpServers}</div>
+            <div><span style="color:var(--device);">🌍</span> DNS: ${dnsServers}</div>
+            <div><span style="color:var(--accent);">🌐</span> HTTP: ${webServers}</div>
           </div>
         </div>
         
         <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
           <div style="font-size:0.6rem;color:var(--text-muted);">
-            Packets sent: <span style="color:var(--accent);">${S.pduCnt}</span> |
-            ARP entries: <span style="color:var(--ok);">${arpTable.length}</span> |
-            MAC entries: <span style="color:var(--device);">${macTable.length}</span>
+            Packets: <span style="color:var(--accent);">${S.pduCnt}</span> |
+            ARP: <span style="color:var(--ok);">${arpTable.length}</span> |
+            MAC: <span style="color:var(--device);">${macTable.length}</span>
           </div>
+        </div>
+        
+        <div style="margin-top:12px;">
+          <button class="modal-btn" style="width:100%;font-size:0.6rem;" onclick="exportNetworkReport()">
+            <i class="ph ph-download"></i> Export Report
+          </button>
         </div>
       `;
       
       openM('netSummaryModal');
+    }
+    
+    function exportNetworkReport() {
+      const report = `Network Topology Report
+========================
+Date: ${new Date().toLocaleString()}
+Devices: ${S.nodes.length}
+Connections: ${S.conns.length}
+
+Device List:
+${S.nodes.map(n => `- ${n.name} (${n.type}) - IP: ${n.ip || 'N/A'}`).join('\n')}
+
+Connection List:
+${S.conns.map(c => {
+  const n1 = S.nodes.find(x => x.id === c.n1)?.name || '?';
+  const n2 = S.nodes.find(x => x.id === c.n2)?.name || '?';
+  return `- ${n1} ↔ ${n2} (${c.type})`;
+}).join('\n')}`;
+      
+      const blob = new Blob([report], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'network-report.txt';
+      a.click();
+      log('System', 'success', 'Report exported');
     }
     
     // ==================== TOPOLOGY NOTES ====================
