@@ -163,6 +163,8 @@
 - [x] **Port labels on cables** - shows F0/0 etc on endpoints
 - [x] **Cable type button** - shows current type with color coding
 - [x] **Improved connection hover** - thicker line, glow effect
+- [x] **Keyboard shortcuts modal** - shows all shortcuts
+- [x] **Space = Play/Pause** - toggle auto-forward
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

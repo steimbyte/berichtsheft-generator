@@ -73,6 +73,7 @@ python3 -m http.server 8080
 
 ### Commit History
 ```
+be8145c feat: Add keyboard shortcuts modal, fit to selection, more shortcuts
 7384c84 feat: Add cable type selector, improved connection styling
 cc78094 feat: Add connection distance/quality indicators, alignment shortcuts
 4602ae1 feat: Add align selected devices, improved connection tooltip
@@ -184,6 +185,6 @@ ITSE IHK AP2 Projekt
 
 ---
 
-**Version:** 4.5  
+**Version:** 4.6  
 **Letzte Änderung:** 2026-04-26  
 **Status:** 🟢 Aktiv
