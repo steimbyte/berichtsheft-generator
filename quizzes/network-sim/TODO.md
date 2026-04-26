@@ -123,6 +123,7 @@
 - [x] **Enhanced status bar** - Geräte/Links/PKTs counters
 - [x] **QoS Policy panel** - traffic prioritization queues
 - [x] **Wireless Networks** - SSID, channel, security config
+- [x] **Connection Details panel** - click to view/edit/delete connections
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
