@@ -224,6 +224,7 @@
 - [x] **Documentation Generator** - Markdown/HTML export, topology, devices, IP schema, VLANs
 - [x] **Network Calculator** - Subnet mask, CIDR, broadcast, host range calculation
 - [x] **VLAN Manager** - Create/delete VLANs, assign devices, view by VLAN, status
+- [x] **Route Table Viewer** - View/add/delete routes, static/RIP/OSPF/EIGRP types
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

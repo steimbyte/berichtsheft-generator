@@ -1317,6 +1317,7 @@
       <button class="tool-btn" onclick="openDocumentation()" title="Documentation"><i class="ph ph-file-text"></i></button>
       <button class="tool-btn" onclick="openNetworkCalc()" title="Network Calculator"><i class="ph ph-calculator"></i></button>
       <button class="tool-btn" onclick="openVLANManager()" title="VLAN Manager"><i class="ph ph-squares-four"></i></button>
+      <button class="tool-btn" onclick="openRouteTable()" title="Route Table"><i class="ph ph-path"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -6960,6 +6961,102 @@ ${generateVlandDoc()}
     function applyVLANConfig() {
       log('VLAN', 'success', 'VLAN configuration applied');
       document.getElementById('vlanMgrModal')?.remove();
+    }
+
+    // ==================== ROUTE TABLE ====================
+    function openRouteTable() {
+      const routers = S.nodes.filter(n => n.r);
+      if (routers.length === 0) {
+        alert('No routers found');
+        return;
+      }
+      
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'routeTableModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      modal.innerHTML = `<div class="modal" style="max-width:800px;max-height:80vh;overflow:auto;">
+        <div class="modal-title"><i class="ph ph-path"></i> Routing Tables</div>
+        <div class="modal-body">
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label">Select Router</label>
+            <select class="form-select" id="routeRouter" onchange="updateRouteTable()">
+              ${routers.map(r => `<option value="${r.id}">${r.name}</option>`).join('')}
+            </select>
+          </div>
+          <div id="routeTableContent">
+            ${renderRouteTable(routers[0])}
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn primary" onclick="addStaticRoute()"><i class="ph ph-plus"></i> Add Route</button>
+          <button class="modal-btn secondary" onclick="document.getElementById('routeTableModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+    
+    function renderRouteTable(router) {
+      const routes = router.routes || [];
+      const typeColors = { static: 'var(--accent)', rip: 'var(--ok)', ospf: 'var(--layer3)', eigrp: 'var(--warn)', connected: 'var(--device)' };
+      
+      return `<table class="data-table" style="width:100%;">
+        <thead>
+          <tr style="background:var(--bg-elevated);">
+            <th>Network</th>
+            <th>Mask</th>
+            <th>Gateway</th>
+            <th>Interface</th>
+            <th>Type</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${routes.map((r, i) => `
+            <tr>
+              <td style="color:var(--layer3);">${r.net}</td>
+              <td>${r.mask}</td>
+              <td>${r.gw}</td>
+              <td>${r.iface}</td>
+              <td><span style="color:${typeColors[r.type]||'var(--text-muted)'};">${r.type.toUpperCase()}</span></td>
+              <td><button onclick="deleteRoute('${router.id}',${i})" style="background:transparent;border:none;color:var(--error);cursor:pointer;">×</button></td>
+            </tr>
+          `).join('') || '<tr><td colspan="6" style="color:var(--text-muted);text-align:center;">No routes configured</td></tr>'}
+        </tbody>
+      </table>`;
+    }
+    
+    function updateRouteTable() {
+      const router = S.nodes.find(n => n.id === document.getElementById('routeRouter').value);
+      if (router) {
+        document.getElementById('routeTableContent').innerHTML = renderRouteTable(router);
+      }
+    }
+    
+    function addStaticRoute() {
+      const router = S.nodes.find(n => n.id === document.getElementById('routeRouter').value);
+      if (!router) return;
+      
+      const net = prompt('Network (e.g., 10.0.0.0):');
+      const mask = prompt('Mask (e.g., 255.0.0.0):');
+      const gw = prompt('Gateway (e.g., 192.168.1.1):');
+      
+      if (net && mask && gw) {
+        if (!router.routes) router.routes = [];
+        router.routes.push({ net, mask, gw, iface: 'Gi0/0', type: 'static' });
+        updateRouteTable();
+        log('Route', 'success', `Static route added: ${net}/${mask}`);
+      }
+    }
+    
+    function deleteRoute(routerId, idx) {
+      const router = S.nodes.find(n => n.id === routerId);
+      if (router && router.routes) {
+        router.routes.splice(idx, 1);
+        updateRouteTable();
+        log('Route', 'info', 'Route deleted');
+      }
     }
 
     function processCLI(cmd) {
