@@ -172,6 +172,7 @@
 - [x] **Activity Mode** - Guided exercises with checklist
 - [x] **CDP Neighbors Panel** - Show neighbor devices
 - [x] **ACL Panel** - Access Control List viewer
+- [x] **Path Trace Panel** - Route visualization with hops, latency, bandwidth
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
