@@ -177,6 +177,7 @@
 - [x] **Interface Status Grid** - Auto-negotiation, speed, duplex, CRC stats
 - [x] **Running Config View** - CLI show running-config command with full config
 - [x] **Extended Cable Types** - Console (RJ45), Coaxial (BNC) cable options
+- [x] **Improved Drag UX** - Drop zone indicators, snap guides enhancement, ghost elements
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
