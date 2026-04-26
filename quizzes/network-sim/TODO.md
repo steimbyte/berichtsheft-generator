@@ -132,6 +132,7 @@
 - [x] **Network Clock** - simulation time with sync
 - [x] **Topology Notes** - document topologies, save/export notes
 - [x] **Help Tutorial** - quick start guide modal
+- [x] **Improved port UX** - highlighting, animations, ESC to cancel
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
