@@ -611,7 +611,16 @@
       font-family: 'Fira Code', monospace;
       pointer-events: none;
     }
-
+    
+    /* Connection Guide */
+    .conn-guide { position: absolute; pointer-events: none; z-index: 999; }
+    .conn-guide-line { stroke: var(--accent); stroke-width: 3; stroke-dasharray: 10,5; fill: none; animation: dashMove 0.5s linear infinite; }
+    @keyframes dashMove { to { stroke-dashoffset: -15; } }
+    .conn-guide-target { fill: var(--accent); opacity: 0.5; animation: targetPulse 1s ease-in-out infinite; }
+    @keyframes targetPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.7; } }
+    .conn-guide-hint { position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--bg-deep); padding: 8px 16px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; z-index: 10000; pointer-events: none; animation: fadeInUp 0.3s; white-space: nowrap; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    
     /* Connection Preview */
     .conn-preview { position: fixed; pointer-events: none; z-index: 5000; }
     .conn-preview line { stroke-width: 4; stroke-linecap: round; }
@@ -2715,12 +2724,21 @@
           startPortConnect(e, n, idx, el);
         });
         port.addEventListener('mouseenter', e => {
-          document.getElementById('sHint').textContent = `Port ${idx + 1} - Ziehen zum Verbinden`;
-          el.querySelectorAll('.node-port:not(.connected)').forEach(fp => fp.style.boxShadow = '0 0 10px var(--ok)');
+          document.getElementById('sHint').textContent = `Port ${idx + 1} - Ziehe Port zum Verbinden`;
+          // Highlight all unconnected ports of this device
+          el.querySelectorAll('.node-port:not(.connected)').forEach(fp => {
+            fp.style.boxShadow = '0 0 15px var(--ok)';
+            fp.style.transform = 'scale(1.3)';
+          });
           showPortTooltip(e, n, idx);
         });
         port.addEventListener('mouseleave', () => {
           document.getElementById('sHint').textContent = 'Geräte ziehen oder Ports verbinden';
+          // Reset port highlighting
+          el.querySelectorAll('.node-port').forEach(fp => {
+            fp.style.boxShadow = '';
+            fp.style.transform = '';
+          });
           hidePortTooltip();
         });
       });
@@ -2813,6 +2831,7 @@
 
     // ==================== PORT CONNECTION (Drag ports to connect!) ====================
     let connState = null, previewLine = null, quickConnect = null;
+    let connectionGuide = null;
 
     function startPortConnect(e, n, portIdx, el) {
       connState = { sourceNode: n, sourcePort: portIdx, sourceElement: el };
@@ -2831,7 +2850,7 @@
       document.body.appendChild(quickConnect);
 
       document.getElementById('connHint').classList.add('show');
-      document.getElementById('connHintText').textContent = 'Ziehe zu anderem Port...';
+      document.getElementById('connHintText').textContent = 'Ziehe zu anderem Port | Esc=Abbrechen';
 
       document.addEventListener('mousemove', onPortMove);
       document.addEventListener('mouseup', endPortConnect);
@@ -2839,7 +2858,14 @@
 
     function onPortMove(e) {
       if (!connState || !previewLine) return;
-
+      
+      // Highlight available ports on hover
+      document.querySelectorAll('.node-port').forEach(p => {
+        if (!p.classList.contains('connecting')) {
+          p.style.boxShadow = '';
+        }
+      });
+      
       const port = connState.sourceElement.querySelectorAll('.node-port')[connState.sourcePort];
       const rect = port.getBoundingClientRect();
       const line = previewLine.querySelector('line');
@@ -5880,6 +5906,19 @@ ${target.name}# `;
         if (S.sel) deleteSelected();
       }
       if (e.key === 'Escape') {
+        // Cancel active port connection
+        if (connState) {
+          const port = connState.sourceElement?.querySelectorAll('.node-port')[connState.sourcePort];
+          if (port) port.classList.remove('connecting');
+          if (previewLine) previewLine.remove();
+          if (quickConnect) quickConnect.remove();
+          document.getElementById('connHint').classList.remove('show');
+          document.removeEventListener('mousemove', onPortMove);
+          document.removeEventListener('mouseup', endPortConnect);
+          connState = null; previewLine = null; quickConnect = null;
+          log('System', 'info', 'Verbindung abgebrochen');
+          return;
+        }
         desel();
         closeM('pduModal'); closeM('cableModal'); closeM('natModal'); closeM('aclModal');
         closeM('cliModal'); closeM('trafficModal'); closeM('cdpModal'); closeM('pingModal');
