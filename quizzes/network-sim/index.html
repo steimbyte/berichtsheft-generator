@@ -739,6 +739,20 @@
     .snap-guide.h { animation: guidePulse 0.5s ease-in-out infinite; }
     .snap-guide.v { animation: guidePulse 0.5s ease-in-out infinite; }
     @keyframes guidePulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.7; } }
+    .selection-box { 
+      position: absolute; 
+      border: 1px dashed var(--accent); 
+      background: rgba(201, 162, 39, 0.1); 
+      pointer-events: none; 
+      z-index: 998;
+      border-radius: 2px;
+    }
+    .sim-node.in-selection { 
+      outline: 2px solid var(--ok); 
+      outline-offset: 2px;
+      animation: selectPulse 0.3s ease-out;
+    }
+    @keyframes selectPulse { 0% { transform: scale(1.05); } 100% { transform: scale(1); } }
     
     /* Port Activity Flash */
     .port-active { animation: portFlash 0.3s ease-out; }
@@ -3712,6 +3726,68 @@
         const rect = document.getElementById('canvasInner').getBoundingClientRect();
         const sc = S.pz.getScale();
         createNode(d, (e.clientX - rect.left) / sc - 50, (e.clientY - rect.top) / sc - 40);
+      });
+
+      // Selection box
+      let selBox = null, selStart = null;
+      cv.addEventListener('mousedown', e => {
+        if (e.target.id === 'canvasInner' && e.button === 0) {
+          selStart = { x: e.clientX, y: e.clientY };
+          selBox = document.createElement('div');
+          selBox.className = 'selection-box';
+          document.getElementById('canvasInner').appendChild(selBox);
+        }
+      });
+      document.addEventListener('mousemove', e => {
+        if (selStart && selBox) {
+          const x = Math.min(selStart.x, e.clientX);
+          const y = Math.min(selStart.y, e.clientY);
+          const w = Math.abs(e.clientX - selStart.x);
+          const h = Math.abs(e.clientY - selStart.y);
+          const rect = document.getElementById('canvasInner').getBoundingClientRect();
+          selBox.style.left = (x - rect.left) + 'px';
+          selBox.style.top = (y - rect.top) + 'px';
+          selBox.style.width = w + 'px';
+          selBox.style.height = h + 'px';
+        }
+      });
+      document.addEventListener('mouseup', e => {
+        if (selStart && selBox) {
+          const selRect = {
+            left: parseFloat(selBox.style.left),
+            top: parseFloat(selBox.style.top),
+            width: parseFloat(selBox.style.width),
+            height: parseFloat(selBox.style.height)
+          };
+          
+          // Select nodes within box
+          S.nodes.forEach(n => {
+            const el = document.getElementById(n.id);
+            if (!el) return;
+            const elRect = el.getBoundingClientRect();
+            const canvasRect = document.getElementById('canvasInner').getBoundingClientRect();
+            const elInCanvas = {
+              left: elRect.left - canvasRect.left,
+              top: elRect.top - canvasRect.top,
+              right: elRect.right - canvasRect.left,
+              bottom: elRect.bottom - canvasRect.top
+            };
+            
+            if (elInCanvas.left < selRect.left + selRect.width &&
+                elInCanvas.right > selRect.left &&
+                elInCanvas.top < selRect.top + selRect.height &&
+                elInCanvas.bottom > selRect.top) {
+              el.classList.add('in-selection');
+              addToSelection(n.id);
+            } else {
+              el.classList.remove('in-selection');
+            }
+          });
+          
+          selBox.remove();
+          selBox = null;
+          selStart = null;
+        }
       });
 
       // Click on canvas to deselect

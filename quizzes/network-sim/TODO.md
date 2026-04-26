@@ -188,6 +188,7 @@
 - [x] **Connection Quality Indicators** - Bandwidth display, quality dots, packet flow animation
 - [x] **Enhanced Port Status Panel** - Summary stats, port status LEDs, bandwidth display
 - [x] **Improved Drag UX** - Scale/shadow during drag, enhanced landing animation, guide pulse
+- [x] **Selection Box** - Click and drag to select multiple devices
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
