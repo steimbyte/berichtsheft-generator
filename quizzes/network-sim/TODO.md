@@ -156,6 +156,8 @@
 - [x] **Snap guides** - grid alignment lines while dragging
 - [x] **Alignment helpers** - snap to other devices
 - [x] **Animated connection preview** - dashed moving line
+- [x] **Align selected devices** - left, distribute horizontally/vertically
+- [x] **Improved connection tooltip** - shows cable type, valid indicator
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
