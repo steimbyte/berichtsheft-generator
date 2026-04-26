@@ -1307,7 +1307,8 @@
       <button class="tool-btn" onclick="toggleActivityPanel()" id="btnActivity"><i class="ph ph-target"></i> Activity</button>
       <button class="tool-btn" onclick="toggleNotes()" id="btnNotes"><i class="ph ph-note"></i> Notes</button>
       <button class="tool-btn" onclick="addAnnotation(500, 300)" title="Add Annotation"><i class="ph ph-note-pencil"></i></button>
-      <button class="tool-btn" onclick="openInterfaceDashboard()" title="Interface Dashboard"><i class="ph ph-plugs-connected"></i></button>
+      <button class="tool-btn" onclick="openInterfaceDashboard()" title="Interface Dashboard"><i class="ph ph-sidebar-simple"></i></button>
+      <button class="tool-btn" onclick="openConfigDiff()" title="Config Diff"><i class="ph ph-git-compare"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -6062,6 +6063,88 @@
     function refreshInterfaceDashboard() {
       const cards = document.getElementById('interfaceCards');
       if (cards) cards.innerHTML = renderInterfaceCards();
+    }
+
+    // ==================== CONFIG DIFF ====================
+    function openConfigDiff() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'configDiffModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      const nodes = S.nodes.filter(n => n.r || n.sw);
+      modal.innerHTML = `<div class="modal" style="max-width:900px;max-height:85vh;overflow:auto;">
+        <div class="modal-title"><i class="ph ph-git-diff"></i> Configuration Diff</div>
+        <div class="modal-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+            <div class="form-group">
+              <label class="form-label">Device 1</label>
+              <select class="form-select" id="diffDevice1">
+                ${nodes.map((n,i) => `<option value="${n.id}">${n.name}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Device 2</label>
+              <select class="form-select" id="diffDevice2">
+                ${nodes.map((n,i) => `<option value="${n.id}">${n.name}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <button class="modal-btn primary" onclick="runConfigDiff()" style="margin-bottom:12px;"><i class="ph ph-git-compare"></i> Compare</button>
+          <div id="diffOutput" style="background:#0a0a0a;border-radius:8px;padding:16px;font-family:'Fira Code',monospace;font-size:0.6rem;line-height:1.5;max-height:400px;overflow:auto;">
+            <div style="color:var(--text-muted);text-align:center;">Select devices and click Compare</div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn secondary" onclick="document.getElementById('configDiffModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+    
+    function runConfigDiff() {
+      const d1 = S.nodes.find(n => n.id === document.getElementById('diffDevice1').value);
+      const d2 = S.nodes.find(n => n.id === document.getElementById('diffDevice2').value);
+      if (!d1 || !d2) return;
+      
+      const cfg1 = generateRunningConfig(d1);
+      const cfg2 = generateRunningConfig(d2);
+      const lines1 = cfg1.split('\n');
+      const lines2 = cfg2.split('\n');
+      
+      let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">';
+      html += `<div style="border-right:1px solid var(--border);padding-right:8px;"><div style="color:var(--accent);font-weight:600;margin-bottom:8px;">${d1.name}</div>`;
+      html += lines1.map(l => `<div style="color:var(--ok);">${l}</div>`).join('');
+      html += '</div><div><div style="color:var(--accent);font-weight:600;margin-bottom:8px;">${d2.name}</div>';
+      html += lines2.map(l => `<div style="color:var(--ok);">${l}</div>`).join('');
+      html += '</div></div>';
+      
+      document.getElementById('diffOutput').innerHTML = html;
+    }
+    
+    function generateRunningConfig(n) {
+      let cfg = `! Configuration for ${n.name}
+! Type: ${n.type}
+hostname ${n.name}
+`;
+      if (n.ip) cfg += `interface Management
+ ip address ${n.ip} ${n.subnet || '255.255.255.0'}
+!
+`;
+      if (n.routing?.rip) cfg += 'router rip
+ network 192.168.0.0
+!
+';
+      if (n.routing?.ospf) cfg += 'router ospf 1
+ network 0.0.0.0 255.255.255.255 area 0
+!
+';
+      if (n.vlan && n.vlan !== '1') cfg += `interface VLAN ${n.vlan}
+ ip address dhcp
+!
+`;
+      cfg += 'end';
+      return cfg;
     }
 
     function processCLI(cmd) {
