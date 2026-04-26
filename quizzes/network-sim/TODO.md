@@ -230,6 +230,7 @@
 - [x] **DHCP Pool Viewer** - Create pools, view leases, simulate DHCP
 - [x] **Spanning Tree Panel** - STP status, port states (Forwarding/Blocking), roles, cost
 - [x] **CDP/LLDP Neighbors** - View neighbors, CDP/LLDP toggle, capability/platform info
+- [x] **ARP Table** - View/clear ARP cache, IP/MAC/Interface/Type columns
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

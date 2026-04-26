@@ -1323,6 +1323,7 @@
       <button class="tool-btn" onclick="openDHCPPools()" title="DHCP Pools"><i class="ph ph-circles-three-plus"></i></button>
       <button class="tool-btn" onclick="openSTPViewer()" title="Spanning Tree"><i class="ph ph-tree-structure"></i></button>
       <button class="tool-btn" onclick="openCDPNeighbors()" title="CDP Neighbors"><i class="ph ph-users-three"></i></button>
+      <button class="tool-btn" onclick="openARPTable()" title="ARP Table"><i class="ph ph-table"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -7513,6 +7514,81 @@ ${generateVlandDoc()}
     function refreshCDP() {
       document.getElementById('cdpTable').innerHTML = renderCDPTable('cdp');
       log('CDP', 'info', 'CDP neighbors refreshed');
+    }
+
+    // ==================== ARP TABLE ====================
+    function openARPTable() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'arpModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      modal.innerHTML = `<div class="modal" style="max-width:600px;max-height:80vh;overflow:auto;">
+        <div class="modal-title"><i class="ph ph-table"></i> ARP Table</div>
+        <div class="modal-body">
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <button class="modal-btn primary" onclick="refreshARP()"><i class="ph ph-arrows-clockwise"></i> Refresh</button>
+            <button class="modal-btn secondary" onclick="clearARP()"><i class="ph ph-trash"></i> Clear</button>
+          </div>
+          <div id="arpTableContent">
+            ${renderARPTable()}
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn secondary" onclick="document.getElementById('arpModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+    
+    let arpEntries = [];
+    
+    function renderARPTable() {
+      if (arpEntries.length === 0) {
+        // Generate sample entries
+        arpEntries = S.nodes.filter(n => n.ip).map(n => ({
+          ip: n.ip,
+          mac: n.mac,
+          interface: 'Fa0/0',
+          type: 'Dynamic',
+          age: Math.floor(Math.random() * 100)
+        }));
+      }
+      
+      return `<table class="data-table" style="width:100%;">
+        <thead>
+          <tr style="background:var(--bg-elevated);">
+            <th>IP Address</th>
+            <th>MAC Address</th>
+            <th>Interface</th>
+            <th>Type</th>
+            <th>Age</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${arpEntries.map(e => `
+            <tr>
+              <td style="color:var(--layer3);">${e.ip}</td>
+              <td style="font-family:'Fira Code',monospace;">${e.mac}</td>
+              <td style="color:var(--ok);">${e.interface}</td>
+              <td style="color:${e.type === 'Static' ? 'var(--accent)' : 'var(--ok)'};">${e.type}</td>
+              <td>${e.age}m</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div style="margin-top:8px;font-size:0.55rem;color:var(--text-muted);">Total: ${arpEntries.length} entries</div>`;
+    }
+    
+    function refreshARP() {
+      document.getElementById('arpTableContent').innerHTML = renderARPTable();
+      log('ARP', 'info', 'ARP table refreshed');
+    }
+    
+    function clearARP() {
+      arpEntries = [];
+      document.getElementById('arpTableContent').innerHTML = renderARPTable();
+      log('ARP', 'info', 'ARP table cleared');
     }
 
     function processCLI(cmd) {
