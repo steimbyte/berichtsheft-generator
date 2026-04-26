@@ -297,17 +297,25 @@
     .smart-label.name { border-color: var(--accent); color: var(--accent); }
 
     /* Interface Statistics Panel */
-    .if-stats-panel { position: absolute; bottom: 130px; right: 12px; width: 280px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; z-index: 100; overflow: hidden; }
+    .if-stats-panel { position: absolute; bottom: 130px; right: 12px; width: 300px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; z-index: 100; overflow: hidden; }
     .if-stats-header { padding: 8px 12px; background: var(--bg-elevated); display: flex; justify-content: space-between; align-items: center; font-size: 0.65rem; font-weight: 600; cursor: pointer; }
     .if-stats-header:hover { background: var(--glass-light); }
-    .if-stats-content { max-height: 300px; overflow-y: auto; }
-    .if-stats-row { display: grid; grid-template-columns: 80px 1fr 1fr 60px; gap: 4px; padding: 6px 8px; font-size: 0.55rem; border-bottom: 1px solid var(--border); align-items: center; }
+    .if-stats-content { max-height: 350px; overflow-y: auto; }
+    .if-stats-row { display: grid; grid-template-columns: 70px 40px 1fr 1fr 50px; gap: 4px; padding: 6px 8px; font-size: 0.55rem; border-bottom: 1px solid var(--border); align-items: center; }
     .if-stats-row.header { background: var(--bg-elevated); font-weight: 600; color: var(--text-muted); position: sticky; top: 0; }
     .if-stats-row .name { font-weight: 500; color: var(--accent); }
     .if-stats-row .stat { text-align: center; font-family: 'Fira Code', monospace; }
     .if-stats-row .stat.ok { color: var(--ok); }
     .if-stats-row .stat.warn { color: var(--warn); }
     .if-stats-row .speed { color: var(--layer3); }
+    .if-stats-row .port-status { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .if-stats-row .port-status.up { background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+    .if-stats-row .port-status.down { background: var(--error); }
+    .if-stats-row .port-status.disabled { background: var(--text-muted); }
+    .if-stats-summary { display: flex; justify-content: space-around; padding: 8px; background: var(--bg-deep); border-bottom: 1px solid var(--border); font-size: 0.55rem; }
+    .if-stats-summary-item { text-align: center; }
+    .if-stats-summary-value { font-size: 0.8rem; font-weight: 700; color: var(--accent); }
+    .if-stats-summary-label { color: var(--text-muted); }
 
     /* VLAN Table Panel */
     .vlan-panel { position: absolute; top: 60px; right: 380px; width: 260px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; z-index: 200; overflow: hidden; display: none; }
@@ -5803,21 +5811,45 @@ exit                - exit current mode
     
     function renderIfStats() {
       const content = document.getElementById('ifStatsContent');
-      let html = '<div class="if-stats-row header"><span>Interface</span><span>In</span><span>Out</span><span>Status</span></div>';
+      
+      // Calculate summary stats
+      let totalPorts = 0, upPorts = 0, downPorts = 0, totalIn = 0, totalOut = 0;
+      
+      S.nodes.forEach(n => {
+        for (let i = 0; i < n.totalPorts; i++) {
+          totalPorts++;
+          const key = `${n.id}_${i}`;
+          const stats = interfaceStats[key] || { in: 0, out: 0 };
+          const conn = S.conns.find(c => (c.n1 === n.id && c.p1 === i) || (c.n2 === n.id && c.p2 === i));
+          if (conn) { upPorts++; } else { downPorts++; }
+          totalIn += stats.in;
+          totalOut += stats.out;
+        }
+      });
+      
+      let html = `<div class="if-stats-summary">
+        <div class="if-stats-summary-item"><div class="if-stats-summary-value">${totalPorts}</div><div class="if-stats-summary-label">Ports</div></div>
+        <div class="if-stats-summary-item"><div class="if-stats-summary-value" style="color:var(--ok);">${upPorts}</div><div class="if-stats-summary-label">Up</div></div>
+        <div class="if-stats-summary-item"><div class="if-stats-summary-value" style="color:var(--error);">${downPorts}</div><div class="if-stats-summary-label">Down</div></div>
+        <div class="if-stats-summary-item"><div class="if-stats-summary-value">${formatBytes(totalIn)}</div><div class="if-stats-summary-label">In</div></div>
+        <div class="if-stats-summary-item"><div class="if-stats-summary-value">${formatBytes(totalOut)}</div><div class="if-stats-summary-label">Out</div></div>
+      </div>`;
+      html += '<div class="if-stats-row header"><span>Interface</span><span>Status</span><span>In</span><span>Out</span><span>BW</span></div>';
 
       S.nodes.forEach(n => {
         for (let i = 0; i < n.totalPorts; i++) {
           const key = `${n.id}_${i}`;
-          const stats = interfaceStats[key] || { in: 0, out: 0, errors: 0, drop: 0 };
+          const stats = interfaceStats[key] || { in: 0, out: 0 };
           const conn = S.conns.find(c => (c.n1 === n.id && c.p1 === i) || (c.n2 === n.id && c.p2 === i));
           const status = conn ? 'up' : 'down';
-          const statusClass = conn ? 'ok' : 'error';
-          const portName = i >= (n.ports || 4) ? `U${i - (n.ports || 4) + 1}` : `F0/${i}`;
+          const portName = i >= (n.ports || 4) ? `G0/${i - (n.ports || 4) + 1}` : `F0/${i}`;
+          const bw = conn ? (conn.type === 'fiber' ? '1G' : conn.type === 'serial' ? '2M' : '100M') : '-';
           html += `<div class="if-stats-row">
-            <span class="name">${n.name.substring(0, 8)}/${portName}</span>
+            <span class="name">${n.name.substring(0, 6)}/${portName}</span>
+            <span class="port-status ${status}"></span>
             <span class="stat">${formatBytes(stats.in)}</span>
             <span class="stat">${formatBytes(stats.out)}</span>
-            <span class="stat ${statusClass}">${status}</span>
+            <span class="speed">${bw}</span>
           </div>`;
         }
       });

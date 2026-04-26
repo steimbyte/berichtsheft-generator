@@ -186,6 +186,7 @@
 - [x] **Enhanced Health Dashboard** - Score display, stats grid (devices/links/online)
 - [x] **Keyboard Shortcuts Panel** - Categorized shortcuts, better UI
 - [x] **Connection Quality Indicators** - Bandwidth display, quality dots, packet flow animation
+- [x] **Enhanced Port Status Panel** - Summary stats, port status LEDs, bandwidth display
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
