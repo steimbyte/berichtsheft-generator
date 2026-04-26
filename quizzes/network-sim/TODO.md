@@ -133,6 +133,8 @@
 - [x] **Topology Notes** - document topologies, save/export notes
 - [x] **Help Tutorial** - quick start guide modal
 - [x] **Improved port UX** - highlighting, animations, ESC to cancel
+- [x] **8 Quick Templates** - including Full Network, Data Center
+- [x] **Welcome modal** for first-time users
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

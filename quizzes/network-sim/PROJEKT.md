@@ -73,6 +73,7 @@ python3 -m http.server 8080
 
 ### Commit History
 ```
+d19da60 feat: Add more templates, welcome modal for new users
 7972b48 feat: Improved port connection UX, visual guides
 4ca732b feat: Add topology notes panel, help tutorial modal
 a9adaac feat: Add network clock panel with time synchronization
@@ -169,6 +170,6 @@ ITSE IHK AP2 Projekt
 
 ---
 
-**Version:** 3.0  
+**Version:** 3.1  
 **Letzte Änderung:** 2026-04-26  
 **Status:** 🟢 Aktiv
