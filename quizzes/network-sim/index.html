@@ -1314,6 +1314,7 @@
       <button class="tool-btn" onclick="openSecurityAudit()" title="Security Audit"><i class="ph ph-shield-check"></i></button>
       <button class="tool-btn" onclick="openDeviceCompare()" title="Device Compare"><i class="ph ph-scales"></i></button>
       <button class="tool-btn" onclick="openBandwidthMonitor()" title="Bandwidth Monitor"><i class="ph ph-gauge"></i></button>
+      <button class="tool-btn" onclick="openDocumentation()" title="Documentation"><i class="ph ph-file-text"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -6665,6 +6666,122 @@ ${audit.results.map(r => `- ${r.passed ? '[PASS]' : '[FAIL]'} ${r.name}: ${r.des
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       });
       ctx.stroke();
+    }
+
+    // ==================== DOCUMENTATION ====================
+    function openDocumentation() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'docModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      modal.innerHTML = `<div class="modal" style="max-width:800px;max-height:80vh;overflow:auto;">
+        <div class="modal-title"><i class="ph ph-file-text"></i> Network Documentation</div>
+        <div class="modal-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+            <button class="modal-btn primary" onclick="generateFullDoc('md')"><i class="ph ph-file-text"></i> Markdown</button>
+            <button class="modal-btn primary" onclick="generateFullDoc('html')"><i class="ph ph-file-code"></i> HTML</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
+            <button class="modal-btn secondary" onclick="generateDoc('topology')">Topology</button>
+            <button class="modal-btn secondary" onclick="generateDoc('devices')">Devices</button>
+            <button class="modal-btn secondary" onclick="generateDoc('ip')">IP Schema</button>
+            <button class="modal-btn secondary" onclick="generateDoc('vlans')">VLANs</button>
+          </div>
+          <div id="docPreview" style="background:#0a0a0f;border-radius:8px;padding:16px;font-family:'Fira Code',monospace;font-size:0.6rem;line-height:1.5;max-height:400px;overflow:auto;">
+            <div style="color:var(--text-muted);text-align:center;padding:40px;">Select a format above to generate documentation</div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn secondary" onclick="exportDoc()"><i class="ph ph-download"></i> Export</button>
+          <button class="modal-btn secondary" onclick="document.getElementById('docModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+    
+    let currentDoc = '';
+    let currentDocType = 'md';
+    
+    function generateDoc(type) {
+      const docs = {
+        topology: generateTopologyDoc(),
+        devices: generateDevicesDoc(),
+        ip: generateIPDoc(),
+        vlans: generateVlandDoc()
+      };
+      currentDoc = docs[type] || '';
+      document.getElementById('docPreview').innerHTML = `<pre style="margin:0;white-space:pre-wrap;">${currentDoc}</pre>`;
+    }
+    
+    function generateFullDoc(type) {
+      currentDocType = type;
+      const doc = `# Network Documentation
+Generated: ${new Date().toLocaleString()}
+
+## Overview
+- Devices: ${S.nodes.length}
+- Connections: ${S.conns.length}
+- Routers: ${S.nodes.filter(n => n.r).length}
+- Switches: ${S.nodes.filter(n => n.sw).length}
+- Servers: ${S.nodes.filter(n => n.srv).length}
+
+## Topology
+${generateTopologyDoc()}
+
+## Device List
+${generateDevicesDoc()}
+
+## IP Addressing
+${generateIPDoc()}
+
+## VLAN Configuration
+${generateVlandDoc()}
+`;
+      currentDoc = doc;
+      document.getElementById('docPreview').innerHTML = `<pre style="margin:0;white-space:pre-wrap;">${doc}</pre>`;
+    }
+    
+    function generateTopologyDoc() {
+      return S.nodes.map(n => {
+        const conns = S.conns.filter(c => c.n1 === n.id || c.n2 === n.id);
+        const peers = conns.map(c => {
+          const otherId = c.n1 === n.id ? c.n2 : c.n1;
+          const other = S.nodes.find(x => x.id === otherId);
+          return other ? other.name : 'Unknown';
+        }).join(', ');
+        return `- ${n.name} (${n.type}) → [${peers || 'none'}]`;
+      }).join('\n');
+    }
+    
+    function generateDevicesDoc() {
+      return S.nodes.map(n => `### ${n.name}\n- Type: ${n.type}\n- IP: ${n.ip || 'N/A'}\n- MAC: ${n.mac || 'N/A'}\n- Ports: ${n.usedPorts}/${n.totalPorts}\n`).join('\n');
+    }
+    
+    function generateIPDoc() {
+      const devicesWithIP = S.nodes.filter(n => n.ip);
+      return devicesWithIP.map(n => `| ${n.name} | ${n.ip} | ${n.subnet || '255.255.255.0'} | ${n.gateway || 'N/A'} |`).join('\n');
+    }
+    
+    function generateVlandDoc() {
+      const vlans = {};
+      S.nodes.forEach(n => {
+        const v = n.vlan || '1';
+        if (!vlans[v]) vlans[v] = [];
+        vlans[v].push(n.name);
+      });
+      return Object.entries(vlans).map(([v, devs]) => `### VLAN ${v}\n${devs.join(', ')}`).join('\n\n');
+    }
+    
+    function exportDoc() {
+      if (!currentDoc) { alert('Generate documentation first'); return; }
+      const ext = currentDocType === 'html' ? '.html' : '.md';
+      const blob = new Blob([currentDoc], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'network-doc-' + Date.now() + ext;
+      a.click();
+      log('Export', 'success', 'Documentation exported');
     }
 
     function processCLI(cmd) {

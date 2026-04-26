@@ -221,6 +221,7 @@
 - [x] **Security Audit Panel** - Security score, checks (SSH/VLAN/ACL/PortSec), export report
 - [x] **Device Comparison Tool** - Side-by-side device comparison, property highlighting
 - [x] **Bandwidth Monitor** - Real-time bandwidth usage, utilization %, chart, link stats
+- [x] **Documentation Generator** - Markdown/HTML export, topology, devices, IP schema, VLANs
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
