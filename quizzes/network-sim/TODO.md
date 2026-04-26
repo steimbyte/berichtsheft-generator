@@ -218,6 +218,7 @@
 - [x] **Config Diff Tool** - Compare running configs between devices, side-by-side view
 - [x] **Topology Map View** - Hierarchical topology display, layer visualization, SVG export
 - [x] **Event Log Panel** - Real-time event logging, filter, export CSV, clear
+- [x] **Security Audit Panel** - Security score, checks (SSH/VLAN/ACL/PortSec), export report
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

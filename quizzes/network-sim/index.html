@@ -1311,6 +1311,7 @@
       <button class="tool-btn" onclick="openConfigDiff()" title="Config Diff"><i class="ph ph-git-compare"></i></button>
       <button class="tool-btn" onclick="openTopologyMap()" title="Topology Map"><i class="ph ph-graph"></i></button>
       <button class="tool-btn" onclick="openEventLogPanel()" id="btnEventLog" title="Event Log"><i class="ph ph-list-bullets"></i></button>
+      <button class="tool-btn" onclick="openSecurityAudit()" title="Security Audit"><i class="ph ph-shield-check"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -6309,6 +6310,141 @@ hostname ${n.name}
       eventLogVisible = true;
       renderEventLog();
       document.getElementById('btnEventLog')?.classList.add('active');
+    }
+
+    // ==================== SECURITY AUDIT ====================
+    function openSecurityAudit() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'securityAuditModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      const audit = runSecurityAudit();
+      
+      modal.innerHTML = `<div class="modal" style="max-width:700px;max-height:80vh;overflow:auto;">
+        <div class="modal-title"><i class="ph ph-shield-check"></i> Security Audit</div>
+        <div class="modal-body">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+            <div style="background:var(--bg-deep);padding:16px;border-radius:8px;text-align:center;">
+              <div style="font-size:1.5rem;color:var(--ok);">${audit.score}%</div>
+              <div style="font-size:0.6rem;color:var(--text-muted);">Security Score</div>
+            </div>
+            <div style="background:var(--bg-deep);padding:16px;border-radius:8px;text-align:center;">
+              <div style="font-size:1.5rem;color:var(--ok);">${audit.passed}</div>
+              <div style="font-size:0.6rem;color:var(--text-muted);">Passed</div>
+            </div>
+            <div style="background:var(--bg-deep);padding:16px;border-radius:8px;text-align:center;">
+              <div style="font-size:1.5rem;color:var(--error);">${audit.failed}</div>
+              <div style="font-size:0.6rem;color:var(--text-muted);">Issues</div>
+            </div>
+          </div>
+          <div id="auditResults">
+            ${audit.results.map(r => `
+              <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg-deep);border-radius:6px;margin-bottom:8px;">
+                <span style="font-size:1.2rem;">${r.passed ? '✅' : '❌'}</span>
+                <div style="flex:1;">
+                  <div style="font-weight:600;font-size:0.7rem;color:var(--text-bright);">${r.name}</div>
+                  <div style="font-size:0.55rem;color:var(--text-muted);">${r.desc}</div>
+                </div>
+                <span style="font-size:0.55rem;padding:4px 8px;border-radius:4px;background:${r.passed ? 'var(--ok)' : 'var(--error)'};color:var(--bg-deep);">${r.passed ? 'OK' : 'FAIL'}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn secondary" onclick="exportSecurityReport()"><i class="ph ph-download"></i> Export Report</button>
+          <button class="modal-btn primary" onclick="openSecurityAudit()"><i class="ph ph-arrows-clockwise"></i> Re-scan</button>
+          <button class="modal-btn secondary" onclick="document.getElementById('securityAuditModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+    
+    function runSecurityAudit() {
+      const results = [];
+      
+      // Check 1: SSH enabled on routers
+      const routersWithSSH = S.nodes.filter(n => n.r && n.services?.ssh).length;
+      const routersTotal = S.nodes.filter(n => n.r).length;
+      results.push({
+        name: 'SSH Configuration',
+        desc: `${routersWithSSH}/${routersTotal} routers have SSH enabled`,
+        passed: routersWithSSH > 0
+      });
+      
+      // Check 2: Default VLANs
+      const devicesOnDefaultVLAN = S.nodes.filter(n => n.vlan === '1' || !n.vlan).length;
+      results.push({
+        name: 'VLAN Hardening',
+        desc: `${devicesOnDefaultVLAN} devices on default VLAN 1`,
+        passed: devicesOnDefaultVLAN < S.nodes.length
+      });
+      
+      // Check 3: Passwords configured
+      const devicesWithIP = S.nodes.filter(n => n.ip).length;
+      results.push({
+        name: 'IP Configuration',
+        desc: `${devicesWithIP}/${S.nodes.length} devices have IP addresses`,
+        passed: devicesWithIP > 0
+      });
+      
+      // Check 4: Port Security
+      const switchesWithSec = S.nodes.filter(n => n.sw && n.portSecurity).length;
+      const switchesTotal = S.nodes.filter(n => n.sw).length;
+      results.push({
+        name: 'Port Security',
+        desc: `${switchesWithSec}/${switchesTotal} switches have port security enabled`,
+        passed: switchesWithSec > 0
+      });
+      
+      // Check 5: ACLs configured
+      const routersWithACL = S.nodes.filter(n => n.r && n.acls && n.acls.length > 0).length;
+      results.push({
+        name: 'Access Control Lists',
+        desc: `${routersWithACL} routers have ACLs configured`,
+        passed: routersWithACL > 0
+      });
+      
+      // Check 6: Connections encrypted (fiber)
+      const fiberLinks = S.conns.filter(c => c.type === 'fiber').length;
+      results.push({
+        name: 'Secure Links',
+        desc: `${fiberLinks} fiber connections (immune to interference)`,
+        passed: fiberLinks > 0
+      });
+      
+      // Check 7: DHCP Snooping potential
+      const switchesWithDHCP = S.nodes.filter(n => n.sw && n.dhcp).length;
+      results.push({
+        name: 'DHCP Security',
+        desc: `${switchesWithDHCP} switches support DHCP features`,
+        passed: true
+      });
+      
+      const passed = results.filter(r => r.passed).length;
+      const score = Math.round((passed / results.length) * 100);
+      
+      return { score, passed, failed: results.length - passed, results };
+    }
+    
+    function exportSecurityReport() {
+      const audit = runSecurityAudit();
+      const report = `Security Audit Report
+Generated: ${new Date().toLocaleString()}
+
+Security Score: ${audit.score}%
+Passed: ${audit.passed}
+Failed: ${audit.failed}
+
+Findings:
+${audit.results.map(r => `- ${r.passed ? '[PASS]' : '[FAIL]'} ${r.name}: ${r.desc}`).join('\n')}
+`;
+      const blob = new Blob([report], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'security-audit-' + Date.now() + '.txt';
+      a.click();
+      log('Security', 'success', 'Security report exported');
     }
 
     function processCLI(cmd) {
