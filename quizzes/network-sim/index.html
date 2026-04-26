@@ -733,6 +733,13 @@
     .conn-guide-hint { position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--bg-deep); padding: 8px 16px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; z-index: 10000; pointer-events: none; animation: fadeInUp 0.3s; white-space: nowrap; }
     @keyframes fadeInUp { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 
+    /* Connection Indicator */
+    .conn-indicator { width: 10px; height: 10px; border-radius: 50%; background: var(--error); }
+    .conn-indicator.connecting { background: var(--warn); animation: connBlink 0.5s infinite; }
+    .conn-indicator.connected { background: var(--ok); animation: connPulse 2s infinite; }
+    @keyframes connBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    @keyframes connPulse { 0%, 100% { box-shadow: 0 0 0 0 var(--ok); } 50% { box-shadow: 0 0 8px 4px rgba(90, 138, 106, 0.4); } }
+
     /* Connection Preview */
     .conn-preview { position: fixed; pointer-events: none; z-index: 5000; }
     .conn-preview line { stroke-width: 4; stroke-linecap: round; }
@@ -2876,6 +2883,10 @@
         <div class="form-group">
           <label class="form-label">Password</label>
           <input type="password" class="form-input" id="sshPass" placeholder="cisco">
+        </div>
+        <div id="sshStatus" style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-deep);border-radius:6px;margin-bottom:8px;">
+          <div class="conn-indicator" id="connIndicator"></div>
+          <span style="font-size:0.55rem;color:var(--text-muted);" id="connStatusText">Nicht verbunden</span>
         </div>
         <div class="props-section" style="margin-top:10px;">
           <div class="props-section-title">Session Output</div>
