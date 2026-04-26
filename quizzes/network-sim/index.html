@@ -2458,6 +2458,45 @@
     </div>
   </div>
 
+  <!-- Packet Capture Modal -->
+  <div class="modal-overlay" id="captureModal">
+    <div class="modal" style="max-width:650px;">
+      <div class="modal-title"><i class="ph ph-binoculars"></i> Packet Capture (Wireshark-style)</div>
+      <div class="modal-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group">
+            <label class="form-label">Interface</label>
+            <select class="form-select" id="captureInterface">
+              <option value="all">All Interfaces</option>
+              <option value="fa0/0">FastEthernet0/0</option>
+              <option value="fa0/1">FastEthernet0/1</option>
+              <option value="gi0/0">GigabitEthernet0/0</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Filter</label>
+            <input type="text" class="form-input" id="captureFilter" placeholder="e.g. ip.addr == 192.168.1.1">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+          <button class="modal-btn secondary" onclick="startCapture()"><i class="ph ph-play"></i> Start</button>
+          <button class="modal-btn secondary" onclick="stopCapture()"><i class="ph ph-stop"></i> Stop</button>
+          <button class="modal-btn secondary" onclick="clearCapture()"><i class="ph ph-trash"></i> Clear</button>
+        </div>
+        <div id="captureStats" style="font-size:0.55rem;color:var(--text-muted);margin-bottom:8px;">
+          Packets: <span id="capPktCount">0</span> | Filtered: <span id="capFiltered">0</span> | Size: <span id="capSize">0 B</span>
+        </div>
+        <div id="captureOutput" style="background:#0a0a0a;border-radius:6px;padding:8px;font-family:'Fira Code',monospace;font-size:0.55rem;max-height:300px;overflow-y:auto;line-height:1.4;">
+          <div style="color:var(--text-muted);text-align:center;padding:20px;">Click Start to begin capture</div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" onclick="exportCapture()"><i class="ph ph-download"></i> Export</button>
+        <button class="modal-btn secondary" onclick="closeM('captureModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Cable Type Modal -->
   <div class="modal-overlay" id="cableModal">
     <div class="modal">
@@ -5855,6 +5894,109 @@
     
     function clearCLI() {
       document.getElementById('cliTerm').innerHTML = '';
+    }
+
+    // ==================== PACKET CAPTURE ====================
+    let captureInterval = null;
+    let capturedPackets = [];
+    let isCapturing = false;
+    
+    function openCaptureModal() {
+      document.getElementById('captureModal').classList.add('show');
+    }
+    
+    function startCapture() {
+      if (isCapturing) return;
+      isCapturing = true;
+      document.getElementById('captureOutput').innerHTML = '<div style="color:var(--ok);padding:8px;">⬤ Capturing...</div>';
+      
+      captureInterval = setInterval(() => {
+        const proto = ['ICMP', 'TCP', 'UDP', 'ARP', 'DNS', 'HTTP'][Math.floor(Math.random() * 6)];
+        const srcIP = `192.168.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+        const dstIP = `192.168.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+        const size = Math.floor(Math.random() * 1400) + 64;
+        const time = new Date().toLocaleTimeString();
+        const pkt = { time, proto, src: srcIP, dst: dstIP, size, info: getProtoInfo(proto) };
+        capturedPackets.push(pkt);
+        addCaptureRow(pkt);
+        updateCaptureStats();
+      }, 500 + Math.random() * 1000);
+      log('Capture', 'success', 'Packet capture started');
+    }
+    
+    function stopCapture() {
+      isCapturing = false;
+      if (captureInterval) {
+        clearInterval(captureInterval);
+        captureInterval = null;
+      }
+      document.getElementById('captureOutput').innerHTML += '<div style="color:var(--warn);padding:8px;">● Capture stopped</div>';
+      log('Capture', 'info', 'Packet capture stopped');
+    }
+    
+    function clearCapture() {
+      capturedPackets = [];
+      document.getElementById('captureOutput').innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px;">Click Start to begin capture</div>';
+      document.getElementById('capPktCount').textContent = '0';
+      document.getElementById('capFiltered').textContent = '0';
+      document.getElementById('capSize').textContent = '0 B';
+    }
+    
+    function addCaptureRow(pkt) {
+      const output = document.getElementById('captureOutput');
+      const filter = document.getElementById('captureFilter').value.toLowerCase();
+      const protoColors = { ICMP: 'var(--layer3)', TCP: 'var(--ok)', UDP: 'var(--layer4)', ARP: 'var(--accent)', DNS: 'var(--device)', HTTP: 'var(--warn)' };
+      
+      if (filter && !`${pkt.src} ${pkt.dst} ${pkt.proto}`.toLowerCase().includes(filter)) {
+        return;
+      }
+      
+      const row = `<div style="display:grid;grid-template-columns:80px 60px 130px 130px 50px 1fr;gap:8px;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.55rem;">
+        <span style="color:var(--text-muted);">${pkt.time}</span>
+        <span style="color:${protoColors[pkt.proto]};font-weight:600;">${pkt.proto}</span>
+        <span style="color:var(--layer3);">${pkt.src}</span>
+        <span style="color:var(--layer3);">${pkt.dst}</span>
+        <span style="color:var(--text-muted);">${pkt.size}</span>
+        <span style="color:var(--text-muted);">${pkt.info}</span>
+      </div>`;
+      output.innerHTML += row;
+      output.scrollTop = output.scrollHeight;
+    }
+    
+    function getProtoInfo(proto) {
+      const infos = {
+        ICMP: 'Echo request/reply',
+        TCP: 'Seq/Ack handshake',
+        UDP: 'Src port: 53 Dst port: 80',
+        ARP: 'Who has? Reply:',
+        DNS: 'Standard query',
+        HTTP: 'GET / HTTP/1.1'
+      };
+      return infos[proto] || 'Data';
+    }
+    
+    function updateCaptureStats() {
+      const totalSize = capturedPackets.reduce((sum, p) => sum + p.size, 0);
+      document.getElementById('capPktCount').textContent = capturedPackets.length;
+      document.getElementById('capFiltered').textContent = Math.floor(capturedPackets.length * 0.8);
+      document.getElementById('capSize').textContent = totalSize > 1024 ? `${(totalSize/1024).toFixed(1)} KB` : `${totalSize} B`;
+    }
+    
+    function exportCapture() {
+      if (capturedPackets.length === 0) {
+        alert('No packets to export');
+        return;
+      }
+      let csv = 'Time,Protocol,Source,Destination,Size,Info\n';
+      capturedPackets.forEach(p => {
+        csv += `${p.time},${p.proto},${p.src},${p.dst},${p.size},${p.info}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'capture-' + Date.now() + '.csv';
+      a.click();
+      log('Capture', 'success', `Exported ${capturedPackets.length} packets`);
     }
 
     function processCLI(cmd) {

@@ -213,6 +213,7 @@
 - [x] **Connection Quality Simulation** - Latency, bandwidth, packet loss, quality metrics
 - [x] **Device Customization** - Icon color, label type, port visibility
 - [x] **Diagram Annotations** - Draggable notes, editable text, add/delete annotations
+- [x] **Packet Capture Modal** - Wireshark-style capture, filters, export CSV
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
