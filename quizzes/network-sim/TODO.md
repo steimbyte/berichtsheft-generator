@@ -207,6 +207,7 @@
 - [x] **Enhanced Cable Panel** - Bandwidth specs, connection recommendations, visual improvements
 - [x] **Real-time Statistics** - Traffic in/out, CPU load, error counter in status bar
 - [x] **Enhanced Device Inspector** - Detailed device info, connections list, quick actions
+- [x] **Auto-Save History** - Version history, load/delete previous saves, toolbar button
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

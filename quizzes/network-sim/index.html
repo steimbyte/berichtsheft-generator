@@ -1332,6 +1332,7 @@
       <button class="tool-btn" onclick="openDHCPPool()" title="DHCP Pool"><i class="ph ph-database"></i> DHCP</button>
       <button class="tool-btn" onclick="openDHCPHelper()" title="DHCP Relay"><i class="ph ph-arrows-left-right"></i> Helper</button>
       <button class="tool-btn" onclick="autoSave()" id="btnAutoSave" title="Auto-Save"><i class="ph ph-cloud-check"></i> AutoSave</button>
+      <button class="tool-btn" onclick="openSaveHistory()" title="Save History"><i class="ph ph-clock-counter-clockwise"></i></button>
       <button class="tool-btn" onclick="exportImage()" title="Als Bild"><i class="ph ph-image"></i></button>
       <button class="tool-btn" onclick="exportTopologyJSON()" title="Export JSON"><i class="ph ph-download"></i></button>
       <button class="tool-btn" onclick="importTopologyJSON()" title="Import JSON"><i class="ph ph-upload"></i></button>
@@ -2282,6 +2283,14 @@
         <div class="modal-title"><i class="ph ph-chart-pie"></i> Network Summary</div>
         <div id="netSummaryContent"></div>
         <button class="modal-btn" style="margin-top:16px;width:100%;" onclick="closeM('netSummaryModal')">Close</button>
+      </div>
+    </div>
+    
+    <!-- Save History Modal -->
+    <div class="modal-overlay" id="saveHistoryModal">
+      <div class="modal" style="max-width:450px;">
+        <div class="modal-title"><i class="ph ph-clock-counter-clockwise"></i> Save History</div>
+        <div id="saveHistoryContent"></div>
       </div>
     </div>
     <style>
@@ -8684,10 +8693,11 @@ ${S.conns.map(c => {
       i.click();
     }
 
-    // ==================== AUTO SAVE ====================
+    // ==================== AUTO SAVE & HISTORY ====================
     let autoSaveInterval = null;
     let lastAutoSave = null;
-
+    const MAX_SAVE_HISTORY = 10;
+    
     function autoSave() {
       const btn = document.getElementById('btnAutoSave');
       if (autoSaveInterval) {
@@ -8708,9 +8718,83 @@ ${S.conns.map(c => {
 
     function saveToLocalStorage() {
       const data = { nodes: S.nodes, conns: S.conns, version: '2.1' };
+      const timestamp = new Date().toISOString();
+      
+      // Save to history
+      let history = JSON.parse(localStorage.getItem('netsim_save_history') || '[]');
+      history.unshift({ timestamp, data });
+      if (history.length > MAX_SAVE_HISTORY) history = history.slice(0, MAX_SAVE_HISTORY);
+      localStorage.setItem('netsim_save_history', JSON.stringify(history));
+      
+      // Save current
       localStorage.setItem('netsim_autosave', JSON.stringify(data));
+      localStorage.setItem('netsim_autosave_time', timestamp);
       lastAutoSave = new Date();
       log('System', 'info', 'Auto-Save: ' + lastAutoSave.toLocaleTimeString());
+    }
+    
+    function openSaveHistory() {
+      const history = JSON.parse(localStorage.getItem('netsim_save_history') || '[]');
+      if (history.length === 0) {
+        alert('Keine gespeicherten Versionen vorhanden');
+        return;
+      }
+      
+      let html = '<div style="max-height:300px;overflow-y:auto;">';
+      history.forEach((item, idx) => {
+        const date = new Date(item.timestamp);
+        const dateStr = date.toLocaleString('de-DE');
+        const deviceCount = item.data.nodes?.length || 0;
+        const connCount = item.data.conns?.length || 0;
+        
+        html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid var(--border);">
+          <div>
+            <div style="font-size:0.6rem;font-weight:600;">${dateStr}</div>
+            <div style="font-size:0.5rem;color:var(--text-muted);">${deviceCount} Geräte, ${connCount} Verbindungen</div>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="modal-btn secondary" style="font-size:0.5rem;" onclick="loadFromHistory(${idx})">Laden</button>
+            <button class="modal-btn secondary" style="font-size:0.5rem;color:var(--error);" onclick="deleteFromHistory(${idx})">×</button>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+      html += '<button class="modal-btn" style="width:100%;margin-top:8px;font-size:0.6rem;" onclick="closeM(\'saveHistoryModal\')">Schließen</button>';
+      
+      document.getElementById('saveHistoryContent').innerHTML = html;
+      document.getElementById('saveHistoryModal').classList.add('show');
+    }
+    
+    function loadFromHistory(idx) {
+      const history = JSON.parse(localStorage.getItem('netsim_save_history') || '[]');
+      if (!history[idx]) return;
+      
+      const data = history[idx].data;
+      if (confirm('Diese Version laden? Aktuelle Arbeit geht verloren!')) {
+        clearAll(false);
+        data.nodes?.forEach(n => {
+          const dev = { id: n.type, name: n.name, icon: n.icon, ports: n.ports, uplink: n.uplink };
+          createNode(dev, n.x, n.y, false);
+        });
+        setTimeout(() => {
+          data.conns?.forEach(c => {
+            const n1 = S.nodes.find(x => x.id === c.n1);
+            const n2 = S.nodes.find(x => x.id === c.n2);
+            if (n1 && n2) makeConn(n1, c.p1, n2, c.p2, c.type);
+          });
+          updateAll();
+          closeM('saveHistoryModal');
+          log('System', 'success', 'Version geladen');
+        }, 100);
+      }
+    }
+    
+    function deleteFromHistory(idx) {
+      const history = JSON.parse(localStorage.getItem('netsim_save_history') || '[]');
+      history.splice(idx, 1);
+      localStorage.setItem('netsim_save_history', JSON.stringify(history));
+      openSaveHistory(); // Refresh
+      log('System', 'info', 'Version gelöscht');
     }
 
     function loadFromLocalStorage() {
