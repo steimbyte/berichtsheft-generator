@@ -923,7 +923,8 @@
       <button class="tool-btn" onclick="openDHCPHelper()" title="DHCP Relay"><i class="ph ph-arrows-left-right"></i> Helper</button>
       <button class="tool-btn" onclick="autoSave()" id="btnAutoSave" title="Auto-Save"><i class="ph ph-cloud-check"></i> AutoSave</button>
       <button class="tool-btn" onclick="exportImage()" title="Als Bild"><i class="ph ph-image"></i></button>
-      <button class="tool-btn" onclick="openM('helpModal')" title="Help"><i class="ph ph-question"></i></button>
+      <button class="tool-btn" onclick="openM('helpModal')" title="Help (?)"><i class="ph ph-question"></i></button>
+      <button class="tool-btn" onclick="openM('shortcutsModal')" title="Shortcuts (K)"><i class="ph ph-keyboard"></i></button>
       <button class="tool-btn" onclick="openNetSummary()" title="Summary"><i class="ph ph-chart-pie"></i></button>
 
       <!-- Zoom Controls -->
@@ -1524,6 +1525,35 @@
         <div class="node-info-row"><span>Verbindungen:</span><span id="sC">0</span></div>
         <div class="node-info-row"><span>Root Switch:</span><span id="sSTP">-</span></div>
         <div class="node-info-row"><span>PDUs:</span><span id="sPDUs">0</span></div>
+      </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div class="modal-overlay" id="shortcutsModal">
+      <div class="modal" style="max-width:600px;">
+        <div class="modal-title"><i class="ph ph-keyboard"></i> Tastenkürzel</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:0.6rem;">
+          <div class="shortcut-item"><kbd>Del</kbd> <span>Löschen</span></div>
+          <div class="shortcut-item"><kbd>Esc</kbd> <span>Abbrechen</span></div>
+          <div class="shortcut-item"><kbd>Ctrl+S</kbd> <span>Speichern</span></div>
+          <div class="shortcut-item"><kbd>Ctrl+O</kbd> <span>Laden</span></div>
+          <div class="shortcut-item"><kbd>Ctrl+Z</kbd> <span>Rückgängig</span></div>
+          <div class="shortcut-item"><kbd>Ctrl+Y</kbd> <span>Wiederholen</span></div>
+          <div class="shortcut-item"><kbd>Ctrl+D</kbd> <span>Duplizieren</span></div>
+          <div class="shortcut-item"><kbd>Ctrl+A</kbd> <span>Alle auswählen</span></div>
+          <div class="shortcut-item"><kbd>+ / -</kbd> <span>Zoom</span></div>
+          <div class="shortcut-item"><kbd>F</kbd> <span>Alles anzeigen</span></div>
+          <div class="shortcut-item"><kbd>R</kbd> <span>Reset Zoom</span></div>
+          <div class="shortcut-item"><kbd>C</kbd> <span>Auswahl zentrieren</span></div>
+          <div class="shortcut-item"><kbd>G</kbd> <span>Grid Snap</span></div>
+          <div class="shortcut-item"><kbd>[</kbd> <span>Links ausrichten</span></div>
+          <div class="shortcut-item"><kbd>H</kbd> <span>H-Distrib.</span></div>
+          <div class="shortcut-item"><kbd>V</kbd> <span>V-Distrib.</span></div>
+          <div class="shortcut-item"><kbd>Home</kbd> <span>Zentrieren</span></div>
+          <div class="shortcut-item"><kbd>Space</kbd> <span>Play/Pause</span></div>
+        </div>
+        <style>.shortcut-item{display:flex;justify-content:space-between;padding:6px;background:var(--bg-deep);border-radius:6px;}.shortcut-item kbd{background:var(--accent);color:var(--bg-deep);padding:2px 6px;border-radius:4px;font-weight:600;}</style>
+        <button class="modal-btn" style="margin-top:16px;width:100%;" onclick="closeM('shortcutsModal')">Schließen</button>
       </div>
     </div>
 
@@ -2603,6 +2633,27 @@
       return { x: Math.round(x / S.gridSize) * S.gridSize, y: Math.round(y / S.gridSize) * S.gridSize };
     }
 
+    // ==================== FIT TO SELECTION ====================
+    function fitToSelection() {
+      const selected = S.nodes.filter(n => S.sel && S.sel.includes && S.sel.includes(n.id));
+      if (selected.length === 0) {
+        log('System', 'warn', 'Keine Geräte ausgewählt');
+        return;
+      }
+      const minX = Math.min(...selected.map(n => n.x));
+      const maxX = Math.max(...selected.map(n => n.x + 100));
+      const minY = Math.min(...selected.map(n => n.y));
+      const maxY = Math.max(...selected.map(n => n.y + 80));
+      const w = maxX - minX + 100, h = maxY - minY + 100;
+      const canvas = document.getElementById('canvas');
+      const sc = Math.min(canvas.clientWidth / w, canvas.clientHeight / h, 2);
+      const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+      S.pz.pan(canvas.clientWidth / 2 - cx * sc, canvas.clientHeight / 2 - cy * sc);
+      S.pz.zoom(sc);
+      updZoom();
+      log('System', 'info', `${selected.length} Geräte fokussiert`);
+    }
+    
     // ==================== MINI MAP ====================
     function updateMiniMap() {
       if (S.nodes.length === 0) {
@@ -6719,8 +6770,12 @@ ${target.name}# `;
       if (e.key === 'v' || e.key === 'V') { e.preventDefault(); alignSelected('vdist'); }
       // N = New/Clear
       if (e.key === 'n' || e.key === 'N') { e.preventDefault(); if(confirm('Topologie leeren?')) clearAll(); }
+      // K = Keyboard shortcuts
+      if (e.key === 'k' || e.key === 'K') { e.preventDefault(); openM('shortcutsModal'); }
       // L = Cycle views
       if (e.key === 'l' || e.key === 'L') { e.preventDefault(); toggleViewMode(); }
+      // Space = Play/Pause
+      if (e.key === ' ' && !e.target.matches('input, textarea')) { e.preventDefault(); toggleAutoForward(); }
     });
 
     init();
