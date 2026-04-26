@@ -1014,6 +1014,27 @@
     .vtp-info-row { display: flex; justify-content: space-between; padding: 3px 0; }
     .vtp-info-row span:first-child { color: var(--text-muted); }
 
+    /* ACL Panel */
+    .acl-panel { position: absolute; top: 60px; right: 380px; width: 340px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; z-index: 200; overflow: hidden; display: none; max-height: 500px; }
+    .acl-panel.show { display: flex; flex-direction: column; }
+    .acl-header { padding: 10px 12px; background: var(--bg-elevated); display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; font-weight: 600; border-bottom: 1px solid var(--border); }
+    .acl-content { flex: 1; overflow-y: auto; padding: 12px; }
+    .acl-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+    .acl-tab { flex: 1; padding: 6px; background: var(--glass); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); cursor: pointer; font-size: 0.55rem; text-align: center; transition: all 0.15s; }
+    .acl-tab:hover { border-color: var(--accent); }
+    .acl-tab.active { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); }
+    .acl-rule { background: var(--bg-deep); border: 1px solid var(--border); border-radius: 6px; padding: 8px; margin-bottom: 6px; font-size: 0.55rem; }
+    .acl-rule-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .acl-rule-num { font-weight: 600; color: var(--accent); }
+    .acl-rule-action { padding: 2px 6px; border-radius: 4px; font-size: 0.45rem; }
+    .acl-rule-action.permit { background: var(--ok); color: var(--bg-deep); }
+    .acl-rule-action.deny { background: var(--error); color: white; }
+    .acl-rule-detail { color: var(--text-muted); font-family: 'Fira Code', monospace; font-size: 0.5rem; }
+    .acl-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .acl-stat { background: var(--bg-deep); padding: 8px; border-radius: 6px; text-align: center; }
+    .acl-stat-num { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
+    .acl-stat-label { font-size: 0.5rem; color: var(--text-muted); }
+
     /* Delete Zone */
     .delete-zone { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); background: var(--error); color: white; padding: 8px 20px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 100; }
     .delete-zone.show { opacity: 1; }
@@ -1540,6 +1561,31 @@
             <div class="vtp-info-row"><span>Revision</span><span id="vtpRevision">0</span></div>
             <div class="vtp-info-row"><span>VLANs</span><span>5</span></div>
             <div class="vtp-info-row"><span>Pruning</span><span>Enabled</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACL Panel -->
+      <div class="acl-panel" id="aclPanel">
+        <div class="acl-header">
+          <span><i class="ph ph-shield"></i> Access Control Lists</span>
+          <button onclick="toggleACL()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;">×</button>
+        </div>
+        <div class="acl-content">
+          <div class="acl-tabs">
+            <button class="acl-tab active" onclick="setACLTabs('standard')">Standard</button>
+            <button class="acl-tab" onclick="setACLTabs('extended')">Extended</button>
+          </div>
+          <div id="aclRules"></div>
+          <div class="acl-summary">
+            <div class="acl-stat">
+              <div class="acl-stat-num" id="aclTotalRules">0</div>
+              <div class="acl-stat-label">Total Rules</div>
+            </div>
+            <div class="acl-stat">
+              <div class="acl-stat-num" id="aclActiveRules">0</div>
+              <div class="acl-stat-label">Active</div>
+            </div>
           </div>
         </div>
       </div>
@@ -4300,7 +4346,63 @@
 
     // ==================== NAT & ACL ====================
     function openNAT() { document.getElementById('natModal').classList.add('show'); }
-    function openACL() { document.getElementById('aclModal').classList.add('show'); updateACLList(); }
+    function openACL() { 
+      // Toggle both modal and panel
+      const modal = document.getElementById('aclModal');
+      const panel = document.getElementById('aclPanel');
+      if (modal.classList.contains('show')) {
+        modal.classList.remove('show');
+      } else {
+        modal.classList.add('show');
+        updateACLList();
+      }
+      if (panel.classList.contains('show')) {
+        panel.classList.remove('show');
+      }
+    }
+
+    function toggleACL() {
+      const panel = document.getElementById('aclPanel');
+      panel.classList.toggle('show');
+      if (panel.classList.contains('show')) {
+        renderACLPanel();
+        log('ACL', 'info', 'ACL Panel geöffnet');
+      }
+    }
+
+    function setACLTabs(type) {
+      document.querySelectorAll('.acl-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.textContent.toLowerCase() === type);
+      });
+      renderACLPanel();
+    }
+
+    function renderACLPanel() {
+      const rulesEl = document.getElementById('aclRules');
+      const totalEl = document.getElementById('aclTotalRules');
+      const activeEl = document.getElementById('aclActiveRules');
+      
+      // Sample ACL rules
+      const rules = [
+        { num: 10, action: 'permit', src: '192.168.1.0', wild: '0.0.0.255', desc: 'Local Network' },
+        { num: 20, action: 'permit', src: '10.0.0.0', wild: '0.255.255.255', desc: 'Internal' },
+        { num: 30, action: 'deny', src: 'any', wild: '', desc: 'Deny All' }
+      ];
+      
+      rulesEl.innerHTML = rules.map(r => `
+        <div class="acl-rule">
+          <div class="acl-rule-header">
+            <span class="acl-rule-num">${r.num}</span>
+            <span class="acl-rule-action ${r.action}">${r.action.toUpperCase()}</span>
+          </div>
+          <div class="acl-rule-detail">${r.src} ${r.wild}</div>
+          <div class="acl-rule-detail" style="color:var(--accent);">${r.desc}</div>
+        </div>
+      `).join('');
+      
+      totalEl.textContent = rules.length;
+      activeEl.textContent = rules.filter(r => r.action === 'permit').length;
+    }
 
     function openPortSecurity() {
       if (!S.sel?.sw) { alert('Nur für Switches!'); return; }

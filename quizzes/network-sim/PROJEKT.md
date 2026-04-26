@@ -73,6 +73,7 @@ python3 -m http.server 8080
 
 ### Commit History
 ```
+5017039 feat: v5.1 CDP Neighbors Panel + VTP Configuration
 b29e511 feat: v5.0 Activity Mode + Network Clock
 6ae6147 feat: Enhanced Simulation Panel v4.9
 29b2a19 docs: Update version to 4.8, add test info
@@ -190,6 +191,6 @@ ITSE IHK AP2 Projekt
 
 ---
 
-**Version:** 5.1  
+**Version:** 5.2  
 **Letzte Änderung:** 2026-04-26  
 **Status:** 🟢 Aktiv
