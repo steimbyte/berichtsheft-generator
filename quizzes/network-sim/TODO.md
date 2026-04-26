@@ -129,6 +129,7 @@
 - [x] **Port states** - FWD/BLK with role display
 - [x] **DNS Panel** - domain resolution, static records
 - [x] **Device Labels** - IP/name below devices (toggle)
+- [x] **Network Clock** - simulation time with sync
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

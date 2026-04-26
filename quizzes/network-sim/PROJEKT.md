@@ -73,10 +73,11 @@ python3 -m http.server 8080
 
 ### Commit History
 ```
+a9adaac feat: Add network clock panel with time synchronization
 523271d feat: Add DNS panel, device labels toggle
 db34837 feat: Add STP panel with spanning tree visualization
 70b5dbd feat: Connection details panel, enhanced connection visualization
-83c2ecc feat: Add QoS policy panel, wireless network configuration
+83c2ecc feat: Add QoS policy, wireless network, STP, DNS
 42e0a31 feat: Auto-forward simulation, simulation controls, enhanced status bar
 72a2e86 feat: Add auto-save, export image, center view, keyboard shortcuts
 e89c122 feat: Realistic device front panels, port LEDs, system LEDs
@@ -166,6 +167,6 @@ ITSE IHK AP2 Projekt
 
 ---
 
-**Version:** 2.7  
+**Version:** 2.8  
 **Letzte Änderung:** 2026-04-26  
 **Status:** 🟢 Aktiv
