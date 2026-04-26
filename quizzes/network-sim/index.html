@@ -756,6 +756,8 @@
       <button class="tool-btn" onclick="toggleWirelessPanel()" id="btnWireless"><i class="ph ph-wifi-high"></i> WLAN</button>
       <button class="tool-btn" onclick="toggleConnDetails()" id="btnConnDetails"><i class="ph ph-plugs-connected"></i> Conn</button>
       <button class="tool-btn" onclick="toggleSTP()" id="btnSTP"><i class="ph ph-tree-structure"></i> STP</button>
+      <button class="tool-btn" onclick="toggleDNS()" id="btnDNS"><i class="ph ph-globe-hemisphere-west"></i> DNS</button>
+      <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
       <button class="tool-btn" onclick="toggleArpPanel()" id="btnArp"><i class="ph ph-table"></i> ARP</button>
@@ -1078,6 +1080,25 @@
             Priority: 32768 | Hello: 2s | Max Age: 20s
           </div>
           <div id="stpTable"></div>
+        </div>
+      </div>
+
+      <!-- DNS Panel -->
+      <div class="route-panel" id="dnsPanel" style="width:320px;top:110px;">
+        <div class="route-header">
+          <span><i class="ph ph-globe-hemisphere-west"></i> DNS Records</span>
+          <button onclick="toggleDNS()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;">×</button>
+        </div>
+        <div class="route-content">
+          <div style="margin-bottom:8px;">
+            <input id="dnsQuery" placeholder="Domain name..." style="width:100%;background:var(--bg-deep);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text-primary);font-size:0.6rem;" onkeypress="if(event.key==='Enter')resolveDNS()">
+            <button class="modal-btn" style="width:100%;margin-top:4px;font-size:0.6rem;" onclick="resolveDNS()">Resolve</button>
+          </div>
+          <div id="dnsResult" style="font-size:0.55rem;margin-top:8px;"></div>
+          <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:8px;">
+            <div style="font-size:0.6rem;color:var(--text-muted);margin-bottom:6px;">Static DNS Entries:</div>
+            <div id="dnsTable" style="font-size:0.5rem;"></div>
+          </div>
         </div>
       </div>
 
@@ -2637,6 +2658,7 @@
       log('Gerät', 'success', `${n.name} hinzugefügt`);
       updStats();
       updateMiniMap();
+      updateDeviceLabels();
       if (doSave) saveState();
       return n;
     }
@@ -4436,6 +4458,103 @@ exit                - exit current mode
         }
       });
       drawConns();
+    }
+    
+    // ==================== DNS PANEL ====================
+    let showDNSPanel = false;
+    const dnsRecords = [
+      { domain: 'www.example.com', ip: '192.168.1.10', type: 'A' },
+      { domain: 'mail.example.com', ip: '192.168.1.20', type: 'A' },
+      { domain: 'dns.example.com', ip: '192.168.1.5', type: 'A' },
+      { domain: 'server.local', ip: '192.168.1.100', type: 'A' },
+      { domain: 'gateway.local', ip: '192.168.1.1', type: 'A' },
+      { domain: 'switch.local', ip: '192.168.1.2', type: 'A' }
+    ];
+    
+    function toggleDNS() {
+      showDNSPanel = !showDNSPanel;
+      document.getElementById('dnsPanel').style.display = showDNSPanel ? 'block' : 'none';
+      document.getElementById('btnDNS').classList.toggle('active', showDNSPanel);
+      if (showDNSPanel) renderDNSRecords();
+    }
+    
+    function resolveDNS() {
+      const query = document.getElementById('dnsQuery').value.trim().toLowerCase();
+      const result = document.getElementById('dnsResult');
+      
+      if (!query) {
+        result.innerHTML = '<div style="color:var(--warn);">Enter a domain name</div>';
+        return;
+      }
+      
+      const record = dnsRecords.find(r => r.domain.toLowerCase() === query);
+      if (record) {
+        result.innerHTML = `
+          <div style="padding:8px;background:rgba(90,138,106,0.2);border-radius:6px;">
+            <div style="color:var(--ok);font-weight:600;margin-bottom:4px;">✓ Found: ${record.domain}</div>
+            <div>Type: <span style="color:var(--accent);">${record.type}</span></div>
+            <div>IP: <span style="color:var(--layer3);font-family:'Fira Code',monospace;">${record.ip}</span></div>
+          </div>
+        `;
+        log('DNS', 'success', `${query} → ${record.ip}`);
+      } else {
+        result.innerHTML = `
+          <div style="padding:8px;background:rgba(192,64,64,0.2);border-radius:6px;">
+            <div style="color:var(--error);font-weight:600;margin-bottom:4px;">✗ Not Found</div>
+            <div style="color:var(--text-muted);font-size:0.5rem;">${query} does not exist</div>
+          </div>
+        `;
+        log('DNS', 'fail', `DNS lookup failed: ${query}`);
+      }
+    }
+    
+    function renderDNSRecords() {
+      const table = document.getElementById('dnsTable');
+      table.innerHTML = dnsRecords.map(r => `
+        <div style="display:grid;grid-template-columns:1fr 90px 40px;gap:8px;padding:4px 0;border-bottom:1px solid var(--border);">
+          <span style="color:var(--accent);">${r.domain}</span>
+          <span style="font-family:'Fira Code',monospace;">${r.ip}</span>
+          <span style="color:var(--text-muted);">${r.type}</span>
+        </div>
+      `).join('');
+    }
+    
+    // ==================== LABELS TOGGLE ====================
+    let showLabels = true;
+    
+    function toggleLabels() {
+      showLabels = !showLabels;
+      document.getElementById('btnLabels').classList.toggle('active', showLabels);
+      updateDeviceLabels();
+      log('System', 'info', showLabels ? 'Labels shown' : 'Labels hidden');
+    }
+    
+    function updateDeviceLabels() {
+      // Remove existing labels
+      document.querySelectorAll('.device-label').forEach(l => l.remove());
+      
+      if (!showLabels) return;
+      
+      S.nodes.forEach(n => {
+        const el = document.getElementById(n.id);
+        if (!el) return;
+        
+        // IP label
+        if (n.ip) {
+          const ipLabel = document.createElement('div');
+          ipLabel.className = 'device-label';
+          ipLabel.style.cssText = 'position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);background:var(--bg-surface);border:1px solid var(--layer3);border-radius:3px;padding:1px 5px;font-size:0.45rem;font-family:"Fira Code",monospace;color:var(--layer3);white-space:nowrap;z-index:5;';
+          ipLabel.textContent = n.ip;
+          el.appendChild(ipLabel);
+        }
+        
+        // Name label (below IP)
+        const nameLabel = document.createElement('div');
+        nameLabel.className = 'device-label';
+        nameLabel.style.cssText = 'position:absolute;bottom:-32px;left:50%;transform:translateX(-50%);background:var(--bg-surface);border:1px solid var(--accent);border-radius:3px;padding:1px 5px;font-size:0.45rem;color:var(--accent);white-space:nowrap;z-index:5;';
+        nameLabel.textContent = n.name;
+        el.appendChild(nameLabel);
+      });
     }
     
     function renderWirelessClients() {
