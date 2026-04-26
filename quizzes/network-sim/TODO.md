@@ -242,6 +242,7 @@
 - [x] **Favorite Templates** - Save/load topologies, localStorage persistence
 - [x] **Device Template Editor** - Save/load device configs, apply to devices
 - [x] **Port Mirroring** - SPAN sessions, source/destination ports, traffic monitoring
+- [x] **Trunk Configuration** - Access/Trunk mode, native VLAN, allowed VLANs
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

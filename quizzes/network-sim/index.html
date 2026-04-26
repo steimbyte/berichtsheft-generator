@@ -1335,6 +1335,7 @@
       <button class="tool-btn" onclick="openFavorites()" title="Favorites"><i class="ph ph-star"></i></button>
       <button class="tool-btn" onclick="openDeviceTemplate()" title="Device Template"><i class="ph ph-cube"></i></button>
       <button class="tool-btn" onclick="openPortMirror()" title="Port Mirror"><i class="ph ph-copy"></i></button>
+      <button class="tool-btn" onclick="openTrunkConfig()" title="Trunk Config"><i class="ph ph-git-branch"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -8660,6 +8661,91 @@ ${generateVlandDoc()}
       PORT_MIRRORING.sessions = PORT_MIRRORING.sessions.filter(s => s.id !== id);
       document.getElementById('mirrorBody').innerHTML = renderMirrorSessions();
       log('Mirror', 'info', 'Session deleted');
+    }
+
+    // ==================== TRUNK CONFIGURATION ====================
+    function openTrunkConfig() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'trunkModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      const switches = S.nodes.filter(n => n.sw);
+      
+      modal.innerHTML = `<div class="modal" style="max-width:700px;max-height:80vh;overflow:auto;">
+        <div class="modal-title"><i class="ph ph-git-branch"></i> Trunk Port Configuration</div>
+        <div class="modal-body">
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label">Select Switch</label>
+            <select class="form-select" id="trunkSwitch" onchange="updateTrunkConfig()">
+              ${switches.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+            </select>
+          </div>
+          <div id="trunkContent">
+            ${renderTrunkPorts(switches[0])}
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn primary" onclick="saveTrunkConfig()"><i class="ph ph-floppy-disk"></i> Save</button>
+          <button class="modal-btn secondary" onclick="document.getElementById('trunkModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+    
+    function renderTrunkPorts(sw) {
+      if (!sw) return '<div style="color:var(--text-muted);">No switches found</div>';
+      
+      const conns = S.conns.filter(c => c.n1 === sw.id || c.n2 === sw.id);
+      
+      return `<table class="data-table" style="width:100%;">
+        <thead>
+          <tr style="background:var(--bg-elevated);">
+            <th>Port</th>
+            <th>Mode</th>
+            <th>Native VLAN</th>
+            <th>Allowed VLANs</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${conns.map((c, i) => {
+            const port = c.n1 === sw.id ? c.p1 : c.p2;
+            const isTrunk = Math.random() > 0.5;
+            return `<tr>
+              <td style="color:var(--ok);">Fa0/${port}</td>
+              <td>
+                <select style="background:transparent;border:1px solid var(--border);color:var(--text-primary);font-size:inherit;" onchange="setPortMode('${sw.id}',${port},this.value)">
+                  <option value="access" ${!isTrunk?'selected':''}>Access</option>
+                  <option value="trunk" ${isTrunk?'selected':''}>Trunk</option>
+                  <option value="dynamic">Dynamic</option>
+                </select>
+              </td>
+              <td>
+                <input type="number" value="1" style="width:50px;background:transparent;border:1px solid var(--border);color:var(--text-primary);font-size:inherit;">
+              </td>
+              <td>
+                <input type="text" value="1-100" style="width:80px;background:transparent;border:1px solid var(--border);color:var(--text-primary);font-size:inherit;">
+              </td>
+              <td><span style="color:var(--ok);">●</span></td>
+            </tr>`;
+          }).join('') || '<tr><td colspan="5" style="color:var(--text-muted);text-align:center;">No connections</td></tr>'}
+        </tbody>
+      </table>`;
+    }
+    
+    function updateTrunkConfig() {
+      const sw = S.nodes.find(n => n.id === document.getElementById('trunkSwitch').value);
+      document.getElementById('trunkContent').innerHTML = renderTrunkPorts(sw);
+    }
+    
+    function setPortMode(swId, port, mode) {
+      log('Trunk', 'info', `Port Fa0/${port} set to ${mode} mode`);
+    }
+    
+    function saveTrunkConfig() {
+      log('Trunk', 'success', 'Trunk configuration saved');
+      document.getElementById('trunkModal')?.remove();
     }
 
     function processCLI(cmd) {
