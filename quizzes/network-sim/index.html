@@ -56,6 +56,16 @@
     /* Device Panel */
     .device-panel { background: var(--bg-surface); border-right: 1px solid var(--border); padding: 8px; overflow-y: auto; }
     .panel-section { margin-bottom: 8px; }
+    .device-filters { display: flex; gap: 4px; margin-bottom: 8px; }
+    .device-filter { flex: 1; padding: 4px; background: var(--glass); border: 1px solid var(--border); border-radius: 4px; color: var(--text-primary); cursor: pointer; font-size: 0.5rem; transition: all 0.15s; }
+    .device-filter:hover { border-color: var(--accent); }
+    .device-filter.active { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); }
+    .search-box { display: flex; align-items: center; gap: 6px; background: var(--bg-deep); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; margin-bottom: 8px; }
+    .search-box i { color: var(--text-muted); font-size: 14px; }
+    .search-box input { flex: 1; background: none; border: none; color: var(--text-primary); font-size: 0.6rem; outline: none; }
+    .search-box input::placeholder { color: var(--text-muted); }
+    .device-item.hidden { display: none; }
+    .panel-section.hidden { display: none; }
     .panel-title { font-size: 0.55rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; text-transform: uppercase; cursor: pointer; }
     .panel-title:hover { color: var(--accent); }
     .fav-section { background: var(--bg-elevated); border-radius: 8px; padding: 8px; margin-bottom: 8px; }
@@ -1220,31 +1230,42 @@
           <div class="fav-dev" onclick="addDeviceFromFav('server')" title="Server">🖥️ Srv</div>
         </div>
       </div>
+      <!-- Quick Filters -->
+      <div class="device-filters">
+        <button class="device-filter active" onclick="setDeviceFilter('all')">Alle</button>
+        <button class="device-filter" onclick="setDeviceFilter('end')">End</button>
+        <button class="device-filter" onclick="setDeviceFilter('net')">Netz</button>
+        <button class="device-filter" onclick="setDeviceFilter('srv')">Srv</button>
+      </div>
       <div class="search-box">
         <i class="ph ph-magnifying-glass"></i>
         <input type="text" id="deviceSearch" placeholder="Geräte suchen..." oninput="filterDevices()">
       </div>
-      <div class="panel-section">
+      <div class="panel-section" id="sectionEnd">
         <div class="panel-title"><i class="ph ph-desktop"></i> Endgeräte</div>
         <div class="device-grid" id="endDev"></div>
       </div>
-      <div class="panel-section">
+      <div class="panel-section" id="sectionSw">
         <div class="panel-title"><i class="ph ph-swap"></i> Switches</div>
         <div class="device-grid" id="swDev"></div>
       </div>
-      <div class="panel-section">
+      <div class="panel-section" id="sectionR">
         <div class="panel-title"><i class="ph ph-globe"></i> Router</div>
         <div class="device-grid" id="rDev"></div>
       </div>
-      <div class="panel-section">
+      <div class="panel-section" id="sectionPoe">
         <div class="panel-title"><i class="ph ph-lightning"></i> PoE Geräte</div>
         <div class="device-grid" id="poeDev"></div>
       </div>
-      <div class="panel-section">
+      <div class="panel-section" id="sectionIot">
+        <div class="panel-title"><i class="ph ph-house"></i> IoT Geräte</div>
+        <div class="device-grid" id="iotDev"></div>
+      </div>
+      <div class="panel-section" id="sectionSrv">
         <div class="panel-title"><i class="ph ph-hard-drives"></i> Server</div>
         <div class="device-grid" id="srvDev"></div>
       </div>
-      <div class="panel-section">
+      <div class="panel-section" id="sectionWan">
         <div class="panel-title"><i class="ph ph-cloud"></i> WAN</div>
         <div class="device-grid" id="wanDev"></div>
       </div>
@@ -3156,13 +3177,53 @@
       Object.entries(DEVS).forEach(([t, ds]) => {
         const el = document.getElementById(m[t]);
         if (!el) return;
-        el.innerHTML = ds.map(d => `<div class="device-item ${c[t]}" draggable="true" data-d='${JSON.stringify(d).replace(/'/g,'&#39;')}'>
+        el.innerHTML = ds.map(d => `<div class="device-item ${c[t]}" draggable="true" data-d='${JSON.stringify(d).replace(/'/g,'&#39;')}' data-type="${t}">
           <div class="device-icon"><i class="ph ${d.icon}"></i></div>
           <div class="device-name">${d.name}</div>
         </div>`).join('');
         el.querySelectorAll('.device-item').forEach(el => {
           el.addEventListener('dragstart', e => e.dataTransfer.setData('app/json', el.dataset.d));
         });
+      });
+    }
+
+    let deviceFilter = 'all';
+
+    function setDeviceFilter(filter) {
+      deviceFilter = filter;
+      document.querySelectorAll('.device-filter').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.toLowerCase() === filter || (filter === 'all' && btn.textContent === 'Alle'));
+      });
+      
+      // Show/hide sections
+      const sections = {
+        sectionEnd: ['end'],
+        sectionSw: ['sw'],
+        sectionR: ['r'],
+        sectionPoe: ['poe'],
+        sectionSrv: ['srv'],
+        sectionWan: ['wan']
+      };
+      
+      Object.entries(sections).forEach(([id, types]) => {
+        const el = document.getElementById(id);
+        if (el) {
+          const show = filter === 'all' || types.includes(filter);
+          el.classList.toggle('hidden', !show);
+        }
+      });
+      
+      filterDevices();
+    }
+
+    function filterDevices() {
+      const query = document.getElementById('deviceSearch').value.toLowerCase();
+      document.querySelectorAll('.device-item').forEach(item => {
+        const name = item.querySelector('.device-name').textContent.toLowerCase();
+        const type = item.dataset.type;
+        const matchesFilter = deviceFilter === 'all' || type === deviceFilter;
+        const matchesSearch = !query || name.includes(query);
+        item.classList.toggle('hidden', !matchesFilter || !matchesSearch);
       });
     }
 

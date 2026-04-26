@@ -180,6 +180,7 @@
 - [x] **Improved Drag UX** - Drop zone indicators, snap guides enhancement, ghost elements
 - [x] **SSH/Telnet Status** - Connection indicator with animation, session status
 - [x] **IoT Devices** - Smart TV, Smart Light, Thermostat, Smart Speaker
+- [x] **Device Search & Filters** - Quick filter buttons, search box
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
