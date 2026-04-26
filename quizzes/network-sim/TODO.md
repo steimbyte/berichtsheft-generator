@@ -189,6 +189,7 @@
 - [x] **Enhanced Port Status Panel** - Summary stats, port status LEDs, bandwidth display
 - [x] **Improved Drag UX** - Scale/shadow during drag, enhanced landing animation, guide pulse
 - [x] **Selection Box** - Click and drag to select multiple devices
+- [x] **Enhanced Network Templates** - 11 templates, auto-connect, device count display
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
