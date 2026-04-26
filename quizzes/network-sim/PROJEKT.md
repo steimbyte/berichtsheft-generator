@@ -73,6 +73,7 @@ python3 -m http.server 8080
 
 ### Commit History
 ```
+5f47028 feat: Add duplicate device, Quick VLAN assignment, improved power button
 9914515 feat: Enhanced interface statistics with traffic graphs
 587fc9f feat: Add spark effect on connection, tips banner
 a32be84 feat: Improve port LED styling, add LED animation
@@ -176,6 +177,6 @@ ITSE IHK AP2 Projekt
 
 ---
 
-**Version:** 3.7  
+**Version:** 3.8  
 **Letzte Änderung:** 2026-04-26  
 **Status:** 🟢 Aktiv

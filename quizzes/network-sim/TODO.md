@@ -145,6 +145,8 @@
 - [x] **Spark effect** on successful connections
 - [x] **Tips banner** - quick reference on startup
 - [x] **Interface Statistics with traffic graphs** - detailed in/out monitoring
+- [x] **Duplicate device** - right-click to copy
+- [x] **Quick VLAN assignment** - popup with presets
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
