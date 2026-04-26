@@ -229,6 +229,7 @@
 - [x] **MAC Address Table** - View/clear MAC table, VLAN/Interface/Type columns
 - [x] **DHCP Pool Viewer** - Create pools, view leases, simulate DHCP
 - [x] **Spanning Tree Panel** - STP status, port states (Forwarding/Blocking), roles, cost
+- [x] **CDP/LLDP Neighbors** - View neighbors, CDP/LLDP toggle, capability/platform info
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

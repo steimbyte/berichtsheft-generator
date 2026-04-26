@@ -1322,6 +1322,7 @@
       <button class="tool-btn" onclick="openMACTable()" title="MAC Table"><i class="ph ph-identification-card"></i></button>
       <button class="tool-btn" onclick="openDHCPPools()" title="DHCP Pools"><i class="ph ph-circles-three-plus"></i></button>
       <button class="tool-btn" onclick="openSTPViewer()" title="Spanning Tree"><i class="ph ph-tree-structure"></i></button>
+      <button class="tool-btn" onclick="openCDPNeighbors()" title="CDP Neighbors"><i class="ph ph-users-three"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -7428,6 +7429,90 @@ ${generateVlandDoc()}
     function runSTP() {
       document.getElementById('stpPorts').querySelector('tbody').innerHTML = generateSTPPorts();
       log('STP', 'success', 'STP topology recalculated');
+    }
+
+    // ==================== CDP/LLDP NEIGHBORS ====================
+    function openCDPNeighbors() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'cdpModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      const device = S.sel && (S.sel.r || S.sel.sw) ? S.sel : S.nodes.find(n => n.r || n.sw);
+      const neighbors = generateCDPNeighbors(device);
+      
+      modal.innerHTML = `<div class="modal" style="max-width:700px;max-height:80vh;overflow:auto;">
+        <div class="modal-title"><i class="ph ph-users-three"></i> CDP Neighbors</div>
+        <div class="modal-body">
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <button class="modal-btn secondary" onclick="document.getElementById('cdpTable').innerHTML=renderCDPTable('cdp')">CDP</button>
+            <button class="modal-btn secondary" onclick="document.getElementById('cdpTable').innerHTML=renderCDPTable('lldp')">LLDP</button>
+            <button class="modal-btn primary" onclick="refreshCDP()"><i class="ph ph-arrows-clockwise"></i> Refresh</button>
+          </div>
+          <div id="cdpTable" style="background:var(--bg-deep);border-radius:8px;overflow:hidden;">
+            ${renderCDPTable('cdp')}
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn secondary" onclick="document.getElementById('cdpModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+    
+    function generateCDPNeighbors(device) {
+      if (!device) return [];
+      
+      return S.conns.filter(c => c.n1 === device.id || c.n2 === device.id).map(c => {
+        const neighborId = c.n1 === device.id ? c.n2 : c.n1;
+        const neighbor = S.nodes.find(n => n.id === neighborId);
+        const port = c.n1 === device.id ? c.p1 : c.p2;
+        
+        return {
+          device: neighbor ? neighbor.name : 'Unknown',
+          type: neighbor ? (neighbor.r ? 'Router' : neighbor.sw ? 'Switch' : neighbor.srv ? 'Server' : 'PC') : 'Unknown',
+          localPort: `Fa0/${port}`,
+          holdtime: Math.floor(Math.random() * 100) + 120,
+          capability: neighbor ? (neighbor.r ? 'Router Switch' : neighbor.sw ? 'Switch' : 'Host') : 'Unknown',
+          platform: neighbor ? (neighbor.r ? 'Cisco ISR' : neighbor.sw ? 'Catalyst 2960' : 'Generic') : 'Unknown'
+        };
+      });
+    }
+    
+    function renderCDPTable(protocol) {
+      const device = S.sel && (S.sel.r || S.sel.sw) ? S.sel : S.nodes.find(n => n.r || n.sw);
+      const neighbors = generateCDPNeighbors(device);
+      
+      return `<table class="data-table" style="width:100%;">
+        <thead>
+          <tr style="background:var(--bg-elevated);">
+            <th>Device ID</th>
+            <th>Local Intrf</th>
+            <th>Holdtime</th>
+            <th>Capability</th>
+            <th>Platform</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${neighbors.map(n => `
+            <tr>
+              <td><span style="color:var(--accent);">${n.device}</span><br><span style="font-size:0.5rem;color:var(--text-muted);">${n.type}</span></td>
+              <td style="color:var(--ok);">${n.localPort}</td>
+              <td>${n.holdtime}s</td>
+              <td>${n.capability}</td>
+              <td>${n.platform}</td>
+            </tr>
+          `).join('') || '<tr><td colspan="5" style="color:var(--text-muted);text-align:center;">No neighbors</td></tr>'}
+        </tbody>
+      </table>
+      <div style="padding:8px;font-size:0.55rem;color:var(--text-muted);">
+        Protocol: ${protocol.toUpperCase()} | Neighbors: ${neighbors.length}
+      </div>`;
+    }
+    
+    function refreshCDP() {
+      document.getElementById('cdpTable').innerHTML = renderCDPTable('cdp');
+      log('CDP', 'info', 'CDP neighbors refreshed');
     }
 
     function processCLI(cmd) {
