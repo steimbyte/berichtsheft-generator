@@ -462,22 +462,22 @@
 
     .node-icon { font-size: 26px; margin-bottom: 2px; }
     .node-name { font-family: 'Outfit', sans-serif; font-size: 0.65rem; font-weight: 600; margin-bottom: 6px; }
-    
+
     .node-ports { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
-    
+
     /* Simulation Control */
     .sim-control { position: absolute; top: 55px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
     .sim-control-btn { background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 6px; border-radius: 50%; font-size: 16px; transition: all 0.15s; }
     .sim-control-btn:hover { background: var(--glass-light); color: var(--accent); }
     .sim-control-btn.active { color: var(--ok); }
     .sim-speed { background: var(--bg-deep); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; color: var(--text-primary); font-size: 0.6rem; }
-    
+
     /* Port Utilization */
     .port-util { position: absolute; bottom: -15px; left: 0; right: 0; height: 3px; background: var(--bg-deep); border-radius: 2px; overflow: hidden; }
     .port-util-bar { height: 100%; background: var(--ok); transition: width 0.3s; }
     .port-util-bar.warning { background: var(--warn); }
     .port-util-bar.critical { background: var(--error); }
-    
+
     /* Ping Result Popup */
     .ping-result-popup { position: absolute; background: var(--bg-surface); border: 1px solid var(--ok); border-radius: 8px; padding: 12px; min-width: 220px; z-index: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
     .ping-result-header { font-size: 0.7rem; font-weight: 600; margin-bottom: 8px; color: var(--ok); display: flex; align-items: center; gap: 6px; }
@@ -485,7 +485,7 @@
     .ping-result-row:last-child { border-bottom: none; }
     .ping-success { color: var(--ok); }
     .ping-fail { color: var(--error); }
-    
+
     /* Realtime Mode Indicator */
     .realtime-badge { position: absolute; top: 55px; left: 12px; background: var(--ok); color: white; padding: 6px 14px; border-radius: 12px; font-size: 0.6rem; font-weight: 600; display: none; z-index: 100; }
     .realtime-badge.show { display: flex; align-items: center; gap: 8px; }
@@ -750,6 +750,8 @@
       <button class="tool-btn" onclick="togglePacketHistory()" id="btnPktHist"><i class="ph ph-list-bullets"></i> History</button>
       <button class="tool-btn" onclick="toggleIfStats()" id="btnIfStats"><i class="ph ph-chart-line"></i> IF Stats</button>
       <button class="tool-btn" onclick="toggleAutoForward()" id="btnAutoFwd" title="Auto-Forward"><i class="ph ph-play-circle"></i> AutoFwd</button>
+      <button class="tool-btn" onclick="toggleQoSPanel()" id="btnQoS"><i class="ph ph-gauge"></i> QoS</button>
+      <button class="tool-btn" onclick="toggleWirelessPanel()" id="btnWireless"><i class="ph ph-wifi-high"></i> WLAN</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
       <button class="tool-btn" onclick="toggleArpPanel()" id="btnArp"><i class="ph ph-table"></i> ARP</button>
@@ -965,6 +967,33 @@
         <div class="mac-content">
           <div class="mac-row header"><span>MAC Address</span><span>VLAN</span><span>Interface</span></div>
           <div id="macTableBody"></div>
+        </div>
+      </div>
+
+      <!-- QoS Panel -->
+      <div class="route-panel" id="qosPanel" style="width:300px;top:110px;">
+        <div class="route-header">
+          <span><i class="ph ph-gauge"></i> QoS Policy</span>
+          <button onclick="toggleQoSPanel()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;">×</button>
+        </div>
+        <div class="route-content">
+          <div style="font-size:0.6rem;margin-bottom:8px;color:var(--text-muted);">Traffic prioritization</div>
+          <div id="qosRulesList"></div>
+          <button class="modal-btn" style="width:100%;margin-top:8px;font-size:0.6rem;" onclick="addQosRule()">+ Add Rule</button>
+        </div>
+      </div>
+
+      <!-- Wireless Panel -->
+      <div class="route-panel" id="wirelessPanel" style="width:280px;top:110px;">
+        <div class="route-header">
+          <span><i class="ph ph-wifi-high"></i> Wireless Networks</span>
+          <button onclick="toggleWirelessPanel()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;">×</button>
+        </div>
+        <div class="route-content">
+          <div style="font-size:0.6rem;margin-bottom:8px;"><span style="color:var(--text-muted);">SSID:</span> <input id="wlanSSID" value="NetSim_WiFi" style="background:var(--bg-deep);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--text-primary);font-size:0.6rem;width:120px;"></div>
+          <div style="font-size:0.55rem;margin:8px 0;"><span style="color:var(--text-muted);">Channel:</span> <select id="wlanChannel" style="background:var(--bg-deep);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--text-primary);font-size:0.55rem;"><option value="1">1 (2.4 GHz)</option><option value="6">6</option><option value="11">11</option><option value="36">36 (5 GHz)</option><option value="157">157</option></select></div>
+          <div style="font-size:0.5rem;color:var(--text-muted);margin-top:8px;">Connected: <span id="wlanConnected" style="color:var(--ok);">0</span> devices</div>
+          <div id="wlanDevices" style="margin-top:8px;"></div>
         </div>
       </div>
 
@@ -3758,19 +3787,19 @@ exit                - exit current mode
       document.getElementById('packetHistory').classList.toggle('show', showPacketHistory);
       document.getElementById('btnPktHist').classList.toggle('active', showPacketHistory);
     }
-    
+
     // ==================== AUTO FORWARD SIMULATION ====================
     let autoForwardActive = false;
     let autoForwardInterval = null;
     let simSpeed = 500;
     let autoForwardDevices = [];
-    
+
     function toggleAutoForward() {
       autoForwardActive = !autoForwardActive;
       const btn = document.getElementById('btnAutoFwd');
       const btnPlay = document.getElementById('btnPlay');
       const simControl = document.getElementById('simControl');
-      
+
       if (autoForwardActive) {
         btn.classList.add('active');
         btnPlay.innerHTML = '<i class="ph ph-pause"></i>';
@@ -3784,7 +3813,7 @@ exit                - exit current mode
         log('Simulation', 'info', 'Auto-Forward pausiert');
       }
     }
-    
+
     function setSimSpeed() {
       simSpeed = parseInt(document.getElementById('simSpeed').value);
       if (autoForwardActive) {
@@ -3792,7 +3821,7 @@ exit                - exit current mode
         startAutoForward();
       }
     }
-    
+
     function startAutoForward() {
       // Auto-select devices for simulation if none selected
       if (autoForwardDevices.length === 0 && S.nodes.length >= 2) {
@@ -3802,7 +3831,7 @@ exit                - exit current mode
           autoForwardDevices = [{ src: pcNodes[0], dst: servers[0] }];
         }
       }
-      
+
       autoForwardInterval = setInterval(() => {
         if (autoForwardDevices.length > 0) {
           const pair = autoForwardDevices[Math.floor(Math.random() * autoForwardDevices.length)];
@@ -3827,14 +3856,14 @@ exit                - exit current mode
         }
       }, simSpeed);
     }
-    
+
     function stopAutoForward() {
       if (autoForwardInterval) {
         clearInterval(autoForwardInterval);
         autoForwardInterval = null;
       }
     }
-    
+
     function stepForward() {
       const validNodes = S.nodes.filter(n => n.on !== false && n.ip);
       if (validNodes.length >= 2) {
@@ -3846,7 +3875,7 @@ exit                - exit current mode
         simPDU(src, dst, 'icmp', 'L3');
       }
     }
-    
+
     function stepBack() {
       // Remove last packet from history
       if (packetHistory.length > 0) {
@@ -4164,7 +4193,76 @@ exit                - exit current mode
       const routers = S.nodes.filter(n => n.r);
       select.innerHTML = routers.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
     }
-
+    
+    // ==================== QoS PANEL ====================
+    let showQoSPanel = false;
+    const qosRules = [
+      { name: 'Voice', priority: 5, bandwidth: '30%', type: 'voice' },
+      { name: 'Video', priority: 4, bandwidth: '40%', type: 'video' },
+      { name: 'Data', priority: 2, bandwidth: '20%', type: 'data' },
+      { name: 'Background', priority: 1, bandwidth: '10%', type: 'bg' }
+    ];
+    
+    function toggleQoSPanel() {
+      showQoSPanel = !showQoSPanel;
+      document.getElementById('qosPanel').style.display = showQoSPanel ? 'block' : 'none';
+      document.getElementById('btnQoS').classList.toggle('active', showQoSPanel);
+      if (showQoSPanel) renderQosRules();
+    }
+    
+    function renderQosRules() {
+      const list = document.getElementById('qosRulesList');
+      list.innerHTML = qosRules.map((r, i) => `
+        <div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.55rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="color:var(--accent);font-weight:600;">${r.name}</span>
+            <span style="color:var(--text-muted);">P${r.priority}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="flex:1;height:6px;background:var(--bg-deep);border-radius:3px;overflow:hidden;">
+              <div style="width:${r.bandwidth};height:100%;background:${r.priority >= 4 ? 'var(--ok)' : r.priority >= 2 ? 'var(--layer3)' : 'var(--text-muted)'};border-radius:3px;"></div>
+            </div>
+            <span style="width:35px;text-align:right;color:var(--text-muted);">${r.bandwidth}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function addQosRule() {
+      qosRules.push({ name: 'Custom', priority: 3, bandwidth: '15%', type: 'data' });
+      renderQosRules();
+    }
+    
+    // ==================== WIRELESS PANEL ====================
+    let showWirelessPanel = false;
+    let wirelessNetwork = { ssid: 'NetSim_WiFi', channel: 6, security: 'wpa2', clients: [] };
+    
+    function toggleWirelessPanel() {
+      showWirelessPanel = !showWirelessPanel;
+      document.getElementById('wirelessPanel').style.display = showWirelessPanel ? 'block' : 'none';
+      document.getElementById('btnWireless').classList.toggle('active', showWirelessPanel);
+      if (showWirelessPanel) renderWirelessClients();
+    }
+    
+    function updateWireless() {
+      wirelessNetwork.ssid = document.getElementById('wlanSSID').value;
+      wirelessNetwork.channel = parseInt(document.getElementById('wlanChannel').value);
+      renderWirelessClients();
+    }
+    
+    function renderWirelessClients() {
+      // Find wireless devices
+      const wirelessDevices = S.nodes.filter(n => n.wireless || n.type?.includes('ap') || n.type?.includes('tablet') || n.type?.includes('phone'));
+      document.getElementById('wlanConnected').textContent = wirelessDevices.length;
+      document.getElementById('wlanDevices').innerHTML = wirelessDevices.map(d => `
+        <div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border);font-size:0.55rem;">
+          <i class="ph ph-wifi-high" style="color:var(--ok);"></i>
+          <span style="flex:1;">${d.name}</span>
+          <span style="color:var(--text-muted);">${d.ip || 'No IP'}</span>
+        </div>
+      `).join('') || '<div style="color:var(--text-muted);font-size:0.55rem;text-align:center;padding:10px;">No wireless devices</div>';
+    }
+    
     function renderRouteTable() {
       const body = document.getElementById('routeTableBody');
       const deviceId = document.getElementById('routeDeviceSelect').value;
