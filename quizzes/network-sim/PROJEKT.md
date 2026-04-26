@@ -195,6 +195,6 @@ ITSE IHK AP2 Projekt
 
 ---
 
-**Version:** 5.73  
+**Version:** 5.74  
 **Letzte Änderung:** 2026-04-26  
 **Status:** 🟢 Aktiv

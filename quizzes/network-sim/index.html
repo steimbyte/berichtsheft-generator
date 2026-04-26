@@ -1336,6 +1336,7 @@
       <button class="tool-btn" onclick="openDeviceTemplate()" title="Device Template"><i class="ph ph-cube"></i></button>
       <button class="tool-btn" onclick="openPortMirror()" title="Port Mirror"><i class="ph ph-copy"></i></button>
       <button class="tool-btn" onclick="openTrunkConfig()" title="Trunk Config"><i class="ph ph-git-branch"></i></button>
+      <button class="tool-btn" onclick="openEtherChannel()" title="EtherChannel"><i class="ph ph-stack"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -8746,6 +8747,92 @@ ${generateVlandDoc()}
     function saveTrunkConfig() {
       log('Trunk', 'success', 'Trunk configuration saved');
       document.getElementById('trunkModal')?.remove();
+    }
+
+    // ==================== ETHERCHANNEL CONFIG ====================
+    const ETHERCHANNEL_CONFIGS = [
+      { id: 1, name: 'Port-Channel1', switches: ['Switch1', 'Switch2'], ports: ['Fa0/1', 'Fa0/2'], mode: 'lacp', status: 'up' }
+    ];
+    
+    function openEtherChannel() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'etherModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      modal.innerHTML = `<div class="modal" style="max-width:600px;max-height:80vh;overflow:auto;">
+        <div class="modal-title"><i class="ph ph-stack"></i> EtherChannel Configuration</div>
+        <div class="modal-body">
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <button class="modal-btn primary" onclick="addEtherChannel()"><i class="ph ph-plus"></i> Add Channel</button>
+            <button class="modal-btn secondary" onclick="refreshEtherChannel()">Refresh</button>
+          </div>
+          <div id="etherChannelList">
+            ${renderEtherChannels()}
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn secondary" onclick="document.getElementById('etherModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+    
+    function renderEtherChannels() {
+      if (ETHERCHANNEL_CONFIGS.length === 0) {
+        return '<div style="color:var(--text-muted);text-align:center;padding:20px;">No EtherChannel configured</div>';
+      }
+      
+      const modeColors = { lacp: 'var(--accent)', pagp: 'var(--ok)', on: 'var(--warn)' };
+      
+      return ETHERCHANNEL_CONFIGS.map(e => `
+        <div style="background:var(--bg-deep);border-radius:8px;padding:16px;margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-weight:600;color:var(--accent);">${e.name}</span>
+            <span style="display:flex;align-items:center;gap:8px;">
+              <span style="color:${e.status === 'up' ? 'var(--ok)' : 'var(--error)'};">●</span>
+              <span style="font-size:0.55rem;color:${modeColors[e.mode]};">${e.mode.toUpperCase()}</span>
+              <button onclick="deleteEtherChannel(${e.id})" style="background:transparent;border:none;color:var(--error);cursor:pointer;margin-left:8px;">×</button>
+            </span>
+          </div>
+          <table class="data-table">
+            <tr><td style="color:var(--text-muted);width:100px;">Switches:</td><td>${e.switches.join(' ↔ ')}</td></tr>
+            <tr><td style="color:var(--text-muted);">Ports:</td><td>${e.ports.join(', ')}</td></tr>
+            <tr><td style="color:var(--text-muted);">Bandwidth:</td><td style="color:var(--ok);">${e.ports.length * 100} Mbps</td></tr>
+          </table>
+        </div>
+      `).join('');
+    }
+    
+    function addEtherChannel() {
+      const name = prompt('Channel name (e.g., Port-Channel1):');
+      const sw1 = prompt('Switch 1:');
+      const sw2 = prompt('Switch 2:');
+      const ports = prompt('Ports (comma-separated, e.g., Fa0/1,Fa0/2):');
+      const mode = prompt('Mode (lacp/pagp/on):') || 'lacp';
+      
+      if (name && sw1 && sw2 && ports) {
+        ETHERCHANNEL_CONFIGS.push({
+          id: Date.now(),
+          name,
+          switches: [sw1, sw2],
+          ports: ports.split(',').map(p => p.trim()),
+          mode,
+          status: 'up'
+        });
+        document.getElementById('etherChannelList').innerHTML = renderEtherChannels();
+        log('EtherChannel', 'success', `Channel "${name}" created`);
+      }
+    }
+    
+    function deleteEtherChannel(id) {
+      ETHERCHANNEL_CONFIGS.splice(ETHERCHANNEL_CONFIGS.findIndex(e => e.id === id), 1);
+      document.getElementById('etherChannelList').innerHTML = renderEtherChannels();
+      log('EtherChannel', 'info', 'Channel deleted');
+    }
+    
+    function refreshEtherChannel() {
+      document.getElementById('etherChannelList').innerHTML = renderEtherChannels();
     }
 
     function processCLI(cmd) {
