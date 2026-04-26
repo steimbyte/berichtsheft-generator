@@ -153,6 +153,9 @@
 - [x] **Enhanced status bar** - devices, connections, online count
 - [x] **Improved drag UX** - scale, shadow, landing animations
 - [x] **Target port highlighting** - pulsing green when connecting
+- [x] **Snap guides** - grid alignment lines while dragging
+- [x] **Alignment helpers** - snap to other devices
+- [x] **Animated connection preview** - dashed moving line
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

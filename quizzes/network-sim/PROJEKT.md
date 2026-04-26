@@ -73,6 +73,7 @@ python3 -m http.server 8080
 
 ### Commit History
 ```
+908328b feat: Add snap guides, alignment helpers, improved connection preview
 62aa9ca feat: Improve drag UX, target port highlighting, better animations
 caf5fe1 feat: Add zoom slider, enhanced status bar, device/connection counts
 a21aae7 feat: Add keyboard shortcuts, favorites section, zoom controls
@@ -180,6 +181,6 @@ ITSE IHK AP2 Projekt
 
 ---
 
-**Version:** 4.1  
+**Version:** 4.2  
 **Letzte Änderung:** 2026-04-26  
 **Status:** 🟢 Aktiv
