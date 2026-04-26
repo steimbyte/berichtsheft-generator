@@ -2006,29 +2006,43 @@
 
     <!-- Keyboard Shortcuts Modal -->
     <div class="modal-overlay" id="shortcutsModal">
-      <div class="modal" style="max-width:600px;">
+      <div class="modal" style="max-width:650px;">
         <div class="modal-title"><i class="ph ph-keyboard"></i> Tastenkürzel</div>
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:0.6rem;">
-          <div class="shortcut-item"><kbd>Del</kbd> <span>Löschen</span></div>
-          <div class="shortcut-item"><kbd>Esc</kbd> <span>Abbrechen</span></div>
-          <div class="shortcut-item"><kbd>Ctrl+S</kbd> <span>Speichern</span></div>
-          <div class="shortcut-item"><kbd>Ctrl+O</kbd> <span>Laden</span></div>
-          <div class="shortcut-item"><kbd>Ctrl+Z</kbd> <span>Rückgängig</span></div>
-          <div class="shortcut-item"><kbd>Ctrl+Y</kbd> <span>Wiederholen</span></div>
-          <div class="shortcut-item"><kbd>Ctrl+D</kbd> <span>Duplizieren</span></div>
-          <div class="shortcut-item"><kbd>Ctrl+A</kbd> <span>Alle auswählen</span></div>
-          <div class="shortcut-item"><kbd>+ / -</kbd> <span>Zoom</span></div>
-          <div class="shortcut-item"><kbd>F</kbd> <span>Alles anzeigen</span></div>
-          <div class="shortcut-item"><kbd>R</kbd> <span>Reset Zoom</span></div>
-          <div class="shortcut-item"><kbd>C</kbd> <span>Auswahl zentrieren</span></div>
-          <div class="shortcut-item"><kbd>G</kbd> <span>Grid Snap</span></div>
-          <div class="shortcut-item"><kbd>[</kbd> <span>Links ausrichten</span></div>
-          <div class="shortcut-item"><kbd>H</kbd> <span>H-Distrib.</span></div>
-          <div class="shortcut-item"><kbd>V</kbd> <span>V-Distrib.</span></div>
-          <div class="shortcut-item"><kbd>Home</kbd> <span>Zentrieren</span></div>
-          <div class="shortcut-item"><kbd>Space</kbd> <span>Play/Pause</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:0.6rem;">
+          <div>
+            <div style="font-weight:600;color:var(--accent);margin-bottom:8px;font-size:0.65rem;">🖱️ Navigation</div>
+            <div class="shortcut-item"><kbd>F</kbd> <span>Alles anzeigen</span></div>
+            <div class="shortcut-item"><kbd>R</kbd> <span>Reset Zoom</span></div>
+            <div class="shortcut-item"><kbd>C</kbd> <span>Auswahl zentrieren</span></div>
+            <div class="shortcut-item"><kbd>Home</kbd> <span>Zentrieren</span></div>
+            <div class="shortcut-item"><kbd>+</kbd> / <kbd>-</kbd> <span>Zoom In/Out</span></div>
+            <div class="shortcut-item"><kbd>G</kbd> <span>Grid Snap</span></div>
+          </div>
+          <div>
+            <div style="font-weight:600;color:var(--accent);margin-bottom:8px;font-size:0.65rem;">✂️ Bearbeitung</div>
+            <div class="shortcut-item"><kbd>Del</kbd> <span>Löschen</span></div>
+            <div class="shortcut-item"><kbd>Esc</kbd> <span>Abbrechen</span></div>
+            <div class="shortcut-item"><kbd>Ctrl+D</kbd> <span>Duplizieren</span></div>
+            <div class="shortcut-item"><kbd>Ctrl+A</kbd> <span>Alle auswählen</span></div>
+            <div class="shortcut-item"><kbd>Ctrl+Z</kbd> <span>Rückgängig</span></div>
+            <div class="shortcut-item"><kbd>Ctrl+Y</kbd> <span>Wiederholen</span></div>
+          </div>
+          <div>
+            <div style="font-weight:600;color:var(--accent);margin-bottom:8px;font-size:0.65rem;">📐 Ausrichten</div>
+            <div class="shortcut-item"><kbd>[</kbd> <span>Links ausrichten</span></div>
+            <div class="shortcut-item"><kbd>]</kbd> <span>Rechts ausrichten</span></div>
+            <div class="shortcut-item"><kbd>H</kbd> <span>H-Distrib.</span></div>
+            <div class="shortcut-item"><kbd>V</kbd> <span>V-Distrib.</span></div>
+          </div>
+          <div>
+            <div style="font-weight:600;color:var(--accent);margin-bottom:8px;font-size:0.65rem;">⚡ Simulation</div>
+            <div class="shortcut-item"><kbd>Space</kbd> <span>Play/Pause</span></div>
+            <div class="shortcut-item"><kbd>K</kbd> <span>Shortcuts anzeigen</span></div>
+            <div class="shortcut-item"><kbd>Ctrl+S</kbd> <span>Speichern</span></div>
+            <div class="shortcut-item"><kbd>Ctrl+O</kbd> <span>Laden</span></div>
+          </div>
         </div>
-        <style>.shortcut-item{display:flex;justify-content:space-between;padding:6px;background:var(--bg-deep);border-radius:6px;}.shortcut-item kbd{background:var(--accent);color:var(--bg-deep);padding:2px 6px;border-radius:4px;font-weight:600;}</style>
+        <style>.shortcut-item{display:flex;justify-content:space-between;padding:6px 8px;background:var(--bg-deep);border-radius:6px;margin-bottom:4px;}.shortcut-item kbd{background:var(--accent);color:var(--bg-deep);padding:2px 6px;border-radius:4px;font-weight:600;font-size:0.55rem;min-width:24px;text-align:center;}</style>
         <button class="modal-btn" style="margin-top:16px;width:100%;" onclick="closeM('shortcutsModal')">Schließen</button>
       </div>
     </div>
@@ -7545,12 +7559,61 @@ exit                - exit current mode
         const x1 = n1.x + 50 - minX, y1 = n1.y + 40 - minY;
         const x2 = n2.x + 50 - minX, y2 = n2.y + 40 - minY;
 
-        ctx.strokeStyle = c.type === 'fiber' ? '#4080c0' : c.type === 'serial' ? '#606060' : '#e07020';
+        // Connection color based on type
+        const connColors = {
+          fiber: '#4080c0',
+          serial: '#606060',
+          cross: '#e07020',
+          console: '#9030c0',
+          coaxial: '#c0c020',
+          'straight': '#e07020'
+        };
+        ctx.strokeStyle = connColors[c.type] || '#e07020';
+        
+        // Connection quality indicator (based on packet loss, latency, etc.)
+        const quality = c.quality || 100;
+        const qualityColors = {
+          good: 'rgba(76, 175, 80, 0.3)',
+          medium: 'rgba(255, 193, 7, 0.3)',
+          poor: 'rgba(244, 67, 54, 0.3)'
+        };
+        
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
         ctx.stroke();
+        
+        // Draw quality indicator in the middle
+        const midX = (x1 + x2) / 2;
+        const midY = (y1 + y2) / 2;
+        const qualityColor = quality > 80 ? qualityColors.good : quality > 50 ? qualityColors.medium : qualityColors.poor;
+        ctx.fillStyle = qualityColor;
+        ctx.beginPath();
+        ctx.arc(midX, midY, 4, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Draw bandwidth indicator for high bandwidth connections
+        if (c.bandwidth && c.bandwidth > 1000) {
+          ctx.fillStyle = 'rgba(76, 175, 80, 0.8)';
+          ctx.font = '8px Space Grotesk';
+          ctx.textAlign = 'center';
+          ctx.fillText(`${(c.bandwidth/1000).toFixed(0)}G`, midX, midY - 8);
+        }
+        
+        // Draw animated packet flow for active connections
+        if (c.active && S.sim) {
+          const progress = (Date.now() % 1000) / 1000;
+          const packetX = x1 + (x2 - x1) * progress;
+          const packetY = y1 + (y2 - y1) * progress;
+          ctx.fillStyle = '#00ff88';
+          ctx.shadowColor = '#00ff88';
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.arc(packetX, packetY, 4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
       });
 
       // Draw nodes
