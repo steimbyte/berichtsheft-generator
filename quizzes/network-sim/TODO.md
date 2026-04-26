@@ -161,6 +161,8 @@
 - [x] **Connection distance indicator** - shows pixel distance on cables
 - [x] **Connection quality indicator** - shows signal quality %
 - [x] **Port labels on cables** - shows F0/0 etc on endpoints
+- [x] **Cable type button** - shows current type with color coding
+- [x] **Improved connection hover** - thicker line, glow effect
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
