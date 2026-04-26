@@ -454,11 +454,43 @@
     .sim-node.fiber { border-color: var(--fiber); --glow: rgba(64, 128, 192, 0.5); }
     .sim-node.poe { border-color: var(--poe); --glow: rgba(90, 138, 106, 0.5); }
     .sim-node.network { border-color: var(--device); --glow: rgba(128, 96, 192, 0.5); }
+    .sim-node.power-off { opacity: 0.4; filter: grayscale(0.8); }
+    .sim-node.sending { animation: sendPulse 0.5s; }
+    .sim-node.receiving { animation: recvPulse 0.3s; }
+    @keyframes sendPulse { 0%, 100% { box-shadow: 0 0 25px var(--glow); } 50% { box-shadow: 0 0 50px var(--layer3); } }
+    @keyframes recvPulse { 0%, 100% { box-shadow: 0 0 25px var(--glow); } 50% { box-shadow: 0 0 40px var(--ok); } }
 
     .node-icon { font-size: 26px; margin-bottom: 2px; }
     .node-name { font-family: 'Outfit', sans-serif; font-size: 0.65rem; font-weight: 600; margin-bottom: 6px; }
-
+    
     .node-ports { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
+    
+    /* Simulation Control */
+    .sim-control { position: absolute; top: 55px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; background: var(--bg-surface); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .sim-control-btn { background: none; border: none; color: var(--text-primary); cursor: pointer; padding: 6px; border-radius: 50%; font-size: 16px; transition: all 0.15s; }
+    .sim-control-btn:hover { background: var(--glass-light); color: var(--accent); }
+    .sim-control-btn.active { color: var(--ok); }
+    .sim-speed { background: var(--bg-deep); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; color: var(--text-primary); font-size: 0.6rem; }
+    
+    /* Port Utilization */
+    .port-util { position: absolute; bottom: -15px; left: 0; right: 0; height: 3px; background: var(--bg-deep); border-radius: 2px; overflow: hidden; }
+    .port-util-bar { height: 100%; background: var(--ok); transition: width 0.3s; }
+    .port-util-bar.warning { background: var(--warn); }
+    .port-util-bar.critical { background: var(--error); }
+    
+    /* Ping Result Popup */
+    .ping-result-popup { position: absolute; background: var(--bg-surface); border: 1px solid var(--ok); border-radius: 8px; padding: 12px; min-width: 220px; z-index: 500; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+    .ping-result-header { font-size: 0.7rem; font-weight: 600; margin-bottom: 8px; color: var(--ok); display: flex; align-items: center; gap: 6px; }
+    .ping-result-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.6rem; border-bottom: 1px solid var(--border); }
+    .ping-result-row:last-child { border-bottom: none; }
+    .ping-success { color: var(--ok); }
+    .ping-fail { color: var(--error); }
+    
+    /* Realtime Mode Indicator */
+    .realtime-badge { position: absolute; top: 55px; left: 12px; background: var(--ok); color: white; padding: 6px 14px; border-radius: 12px; font-size: 0.6rem; font-weight: 600; display: none; z-index: 100; }
+    .realtime-badge.show { display: flex; align-items: center; gap: 8px; }
+    .realtime-badge::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: white; animation: blinkDot 1s infinite; }
+    @keyframes blinkDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
     /* Port Styling */
     .node-port {
@@ -717,6 +749,7 @@
       <button class="tool-btn" onclick="openCDP()"><i class="ph ph-broadcast"></i> CDP</button>
       <button class="tool-btn" onclick="togglePacketHistory()" id="btnPktHist"><i class="ph ph-list-bullets"></i> History</button>
       <button class="tool-btn" onclick="toggleIfStats()" id="btnIfStats"><i class="ph ph-chart-line"></i> IF Stats</button>
+      <button class="tool-btn" onclick="toggleAutoForward()" id="btnAutoFwd" title="Auto-Forward"><i class="ph ph-play-circle"></i> AutoFwd</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
       <button class="tool-btn" onclick="toggleArpPanel()" id="btnArp"><i class="ph ph-table"></i> ARP</button>
@@ -788,6 +821,20 @@
     <!-- Canvas -->
     <div class="canvas-area">
       <div class="mode-badge realtime" id="modeBadge">REALTIME</div>
+      <div class="realtime-badge" id="realtimeBadge">
+        <span>Simulation Active</span>
+      </div>
+      <div class="sim-control" id="simControl" style="display:none;">
+        <button class="sim-control-btn" onclick="stepBack()" title="Step Back"><i class="ph ph-skip-back"></i></button>
+        <button class="sim-control-btn" onclick="toggleAutoForward()" id="btnPlay" title="Play/Pause"><i class="ph ph-play"></i></button>
+        <button class="sim-control-btn" onclick="stepForward()" title="Step Forward"><i class="ph ph-skip-forward"></i></button>
+        <select class="sim-speed" id="simSpeed" onchange="setSimSpeed()">
+          <option value="1000">0.5x</option>
+          <option value="500" selected>1x</option>
+          <option value="200">2x</option>
+          <option value="100">5x</option>
+        </select>
+      </div>
 
       <div class="ws-tabs">
         <div class="ws-tab active" onclick="setWS('logical')">Logical</div>
@@ -1160,10 +1207,13 @@
     <!-- Status Bar -->
     <div class="status-bar">
       <div class="status-item"><span class="status-label">Modus:</span><span class="status-value" id="sMode">Echtzeit</span></div>
-      <div class="status-item"><span class="status-label">Workspace:</span><span class="status-value" id="sWS">Logical</span></div>
+      <div class="status-item"><span class="status-label">WS:</span><span class="status-value" id="sWS">Logical</span></div>
       <div class="status-item"><span class="status-label">Zoom:</span><span class="status-value" id="sZoom">100%</span></div>
-      <div class="status-item"><span class="status-label">Ausgewählt:</span><span class="status-value" id="sSel">-</span></div>
+      <div class="status-item"><span class="status-label">Sel:</span><span class="status-value" id="sSel">-</span></div>
       <div class="status-item"><span class="status-label">Kabel:</span><span class="status-value" id="sCable">Kupfer</span></div>
+      <div class="status-item"><span class="status-label">Geräte:</span><span class="status-value" id="sNodes">0</span></div>
+      <div class="status-item"><span class="status-label">Links:</span><span class="status-value" id="sLinks">0</span></div>
+      <div class="status-item"><span class="status-label">PKTs:</span><span class="status-value" id="sPkts">0</span></div>
     </div>
   </div>
 
@@ -3708,6 +3758,103 @@ exit                - exit current mode
       document.getElementById('packetHistory').classList.toggle('show', showPacketHistory);
       document.getElementById('btnPktHist').classList.toggle('active', showPacketHistory);
     }
+    
+    // ==================== AUTO FORWARD SIMULATION ====================
+    let autoForwardActive = false;
+    let autoForwardInterval = null;
+    let simSpeed = 500;
+    let autoForwardDevices = [];
+    
+    function toggleAutoForward() {
+      autoForwardActive = !autoForwardActive;
+      const btn = document.getElementById('btnAutoFwd');
+      const btnPlay = document.getElementById('btnPlay');
+      const simControl = document.getElementById('simControl');
+      
+      if (autoForwardActive) {
+        btn.classList.add('active');
+        btnPlay.innerHTML = '<i class="ph ph-pause"></i>';
+        simControl.style.display = 'flex';
+        startAutoForward();
+        log('Simulation', 'info', 'Auto-Forward gestartet');
+      } else {
+        btn.classList.remove('active');
+        btnPlay.innerHTML = '<i class="ph ph-play"></i>';
+        stopAutoForward();
+        log('Simulation', 'info', 'Auto-Forward pausiert');
+      }
+    }
+    
+    function setSimSpeed() {
+      simSpeed = parseInt(document.getElementById('simSpeed').value);
+      if (autoForwardActive) {
+        stopAutoForward();
+        startAutoForward();
+      }
+    }
+    
+    function startAutoForward() {
+      // Auto-select devices for simulation if none selected
+      if (autoForwardDevices.length === 0 && S.nodes.length >= 2) {
+        const pcNodes = S.nodes.filter(n => n.end && n.ip);
+        const servers = S.nodes.filter(n => n.srv || n.r);
+        if (pcNodes.length > 0 && servers.length > 0) {
+          autoForwardDevices = [{ src: pcNodes[0], dst: servers[0] }];
+        }
+      }
+      
+      autoForwardInterval = setInterval(() => {
+        if (autoForwardDevices.length > 0) {
+          const pair = autoForwardDevices[Math.floor(Math.random() * autoForwardDevices.length)];
+          if (pair.src && pair.dst) {
+            const types = ['icmp', 'arp', 'dhcp', 'dns', 'tcp', 'udp'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            simPDU(pair.src, pair.dst, type, 'L3');
+          }
+        } else {
+          // Random traffic between any two nodes
+          const validNodes = S.nodes.filter(n => n.on !== false);
+          if (validNodes.length >= 2) {
+            const src = validNodes[Math.floor(Math.random() * validNodes.length)];
+            let dst = validNodes[Math.floor(Math.random() * validNodes.length)];
+            while (dst.id === src.id) {
+              dst = validNodes[Math.floor(Math.random() * validNodes.length)];
+            }
+            const types = ['icmp', 'arp', 'tcp'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            simPDU(src, dst, type, 'L3');
+          }
+        }
+      }, simSpeed);
+    }
+    
+    function stopAutoForward() {
+      if (autoForwardInterval) {
+        clearInterval(autoForwardInterval);
+        autoForwardInterval = null;
+      }
+    }
+    
+    function stepForward() {
+      const validNodes = S.nodes.filter(n => n.on !== false && n.ip);
+      if (validNodes.length >= 2) {
+        const src = validNodes[Math.floor(Math.random() * validNodes.length)];
+        let dst = validNodes[Math.floor(Math.random() * validNodes.length)];
+        while (dst.id === src.id) {
+          dst = validNodes[Math.floor(Math.random() * validNodes.length)];
+        }
+        simPDU(src, dst, 'icmp', 'L3');
+      }
+    }
+    
+    function stepBack() {
+      // Remove last packet from history
+      if (packetHistory.length > 0) {
+        packetHistory.shift();
+        renderPacketHistory();
+        log('Simulation', 'info', 'Letzter Schritt rückgängig');
+      }
+    }
 
     function addToPacketHistory(packet) {
       packetHistory.unshift(packet);
@@ -4582,11 +4729,11 @@ exit                - exit current mode
       };
       i.click();
     }
-    
+
     // ==================== AUTO SAVE ====================
     let autoSaveInterval = null;
     let lastAutoSave = null;
-    
+
     function autoSave() {
       const btn = document.getElementById('btnAutoSave');
       if (autoSaveInterval) {
@@ -4604,14 +4751,14 @@ exit                - exit current mode
         log('System', 'success', 'Auto-Save aktiviert (alle 30s)');
       }
     }
-    
+
     function saveToLocalStorage() {
       const data = { nodes: S.nodes, conns: S.conns, version: '2.1' };
       localStorage.setItem('netsim_autosave', JSON.stringify(data));
       lastAutoSave = new Date();
       log('System', 'info', 'Auto-Save: ' + lastAutoSave.toLocaleTimeString());
     }
-    
+
     function loadFromLocalStorage() {
       const saved = localStorage.getItem('netsim_autosave');
       if (saved) {
@@ -4638,34 +4785,34 @@ exit                - exit current mode
         }
       }
     }
-    
+
     // ==================== EXPORT IMAGE ====================
     function exportImage() {
       log('System', 'info', 'Exportiere als Bild...');
-      
+
       // Create a canvas from the SVG/HTML
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const canvasInner = document.getElementById('canvasInner');
-      
+
       // Get bounds of all nodes
       if (S.nodes.length === 0) {
         alert('Keine Geräte zum Exportieren');
         return;
       }
-      
+
       const minX = Math.min(...S.nodes.map(n => n.x)) - 50;
       const minY = Math.min(...S.nodes.map(n => n.y)) - 50;
       const maxX = Math.max(...S.nodes.map(n => n.x + 100)) + 50;
       const maxY = Math.max(...S.nodes.map(n => n.y + 100)) + 50;
-      
+
       canvas.width = maxX - minX;
       canvas.height = maxY - minY;
-      
+
       // Fill background
       ctx.fillStyle = '#0a0a0f';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
+
       // Draw grid
       ctx.strokeStyle = 'rgba(201, 162, 39, 0.1)';
       ctx.lineWidth = 0.5;
@@ -4681,16 +4828,16 @@ exit                - exit current mode
         ctx.lineTo(canvas.width, y - minY);
         ctx.stroke();
       }
-      
+
       // Draw connections
       S.conns.forEach(c => {
         const n1 = S.nodes.find(x => x.id === c.n1);
         const n2 = S.nodes.find(x => x.id === c.n2);
         if (!n1 || !n2) return;
-        
+
         const x1 = n1.x + 50 - minX, y1 = n1.y + 40 - minY;
         const x2 = n2.x + 50 - minX, y2 = n2.y + 40 - minY;
-        
+
         ctx.strokeStyle = c.type === 'fiber' ? '#4080c0' : c.type === 'serial' ? '#606060' : '#e07020';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -4698,11 +4845,11 @@ exit                - exit current mode
         ctx.lineTo(x2, y2);
         ctx.stroke();
       });
-      
+
       // Draw nodes
       S.nodes.forEach(n => {
         const x = n.x - minX, y = n.y - minY;
-        
+
         // Node background
         ctx.fillStyle = '#1a1a24';
         ctx.strokeStyle = '#2a2a34';
@@ -4711,19 +4858,19 @@ exit                - exit current mode
         ctx.roundRect(x, y, 90, 80, 8);
         ctx.fill();
         ctx.stroke();
-        
+
         // Icon (simplified)
         ctx.fillStyle = '#c9a227';
         ctx.font = '24px Arial';
         ctx.textAlign = 'center';
         const icon = n.r ? '🌐' : n.sw ? '🔀' : n.srv ? '🖥️' : '💻';
         ctx.fillText(icon, x + 45, y + 35);
-        
+
         // Name
         ctx.fillStyle = '#e8e8f0';
         ctx.font = '10px Space Grotesk';
         ctx.fillText(n.name.substring(0, 12), x + 45, y + 65);
-        
+
         // IP if exists
         if (n.ip) {
           ctx.fillStyle = '#c9a227';
@@ -4731,7 +4878,7 @@ exit                - exit current mode
           ctx.fillText(n.ip, x + 45, y + 75);
         }
       });
-      
+
       // Download
       const link = document.createElement('a');
       link.download = 'network-topology-' + Date.now() + '.png';
@@ -4739,11 +4886,11 @@ exit                - exit current mode
       link.click();
       log('System', 'success', 'Bild exportiert');
     }
-    
+
     // ==================== CENTER SELECTED ====================
     function centerSelected() {
       if (S.nodes.length === 0) return;
-      
+
       if (S.sel && S.sel.length > 0) {
         // Center on selected nodes
         const selNodes = S.nodes.filter(n => S.sel.includes(n.id));
@@ -4753,11 +4900,11 @@ exit                - exit current mode
         }
         const avgX = selNodes.reduce((sum, n) => sum + n.x, 0) / selNodes.length;
         const avgY = selNodes.reduce((sum, n) => sum + n.y, 0) / selNodes.length;
-        
+
         const canvas = document.getElementById('canvas');
         const cx = canvas.clientWidth / 2;
         const cy = canvas.clientHeight / 2;
-        
+
         S.pz.pan(cx - avgX * S.pz.getScale() - 50, cy - avgY * S.pz.getScale() - 40);
         log('System', 'info', 'Auswahl zentriert');
       } else {
@@ -4765,10 +4912,10 @@ exit                - exit current mode
       }
       updZoom();
     }
-    
+
     // ==================== VIEW MODE ====================
     let currentView = 'logical';
-    
+
     function toggleViewMode() {
       const views = ['logical', 'physical', 'config'];
       const idx = views.indexOf(currentView);
@@ -4776,7 +4923,7 @@ exit                - exit current mode
       log('System', 'info', `View: ${currentView.charAt(0).toUpperCase() + currentView.slice(1)}`);
       // View modes could be expanded for physical workspace
     }
-    
+
     // ==================== VTP ====================
     let vtpState = { mode: 'server', domain: '', pass: '', revision: 0 };
 
@@ -4954,6 +5101,10 @@ ${target.name}# `;
       document.getElementById('sN').textContent = S.nodes.length;
       document.getElementById('sC').textContent = S.conns.length;
       document.getElementById('sPDUs').textContent = S.pduCnt;
+      // Update status bar
+      document.getElementById('sNodes').textContent = S.nodes.length;
+      document.getElementById('sLinks').textContent = S.conns.length;
+      document.getElementById('sPkts').textContent = S.pduCnt;
     }
 
     function log(layer, type, msg) {
