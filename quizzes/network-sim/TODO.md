@@ -210,6 +210,7 @@
 - [x] **Auto-Save History** - Version history, load/delete previous saves, toolbar button
 - [x] **Enhanced Templates** - 14 templates with categories (Basic/Enterprise/WAN/Special)
 - [x] **Enhanced CLI** - Tab completion, command history (↑↓), suggestions, hostname display
+- [x] **Connection Quality Simulation** - Latency, bandwidth, packet loss, quality metrics
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

@@ -4754,11 +4754,26 @@
         return;
       }
 
+      // Calculate distance and quality
+      const dx = n2.x - n1.x;
+      const dy = n2.y - n1.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const maxDistance = c.type === 'fiber' ? 500 : 100;
+      const quality = Math.max(0, Math.min(100, 100 - (distance / maxDistance * 30));
+      const latency = Math.round(distance / 10) + (c.type === 'serial' ? 20 : c.type === 'fiber' ? 1 : 5);
+      const bandwidth = c.type === 'fiber' ? 1000 : c.type === 'serial' ? 2 : 100;
+
       const c = {
         id: 'c' + S.cid++,
         n1: n1.id, p1, n2: n2.id, p2,
         type: S.cableType,
-        len: 0, atten: 0, blocked: false
+        len: distance, atten: 0, blocked: false,
+        quality: quality,
+        latency: latency,
+        bandwidth: bandwidth,
+        packetLoss: Math.max(0, 100 - quality) / 10,
+        traffic: { in: 0, out: 0 },
+        errors: 0
       };
 
       S.conns.push(c);
@@ -4769,7 +4784,7 @@
       drawConns();
       updPortVisuals();
       updStats();
-      log('Verbindung', 'success', `${n1.name} ↔ ${n2.name} [${c.type}]`);
+      log('Verbindung', 'success', `${n1.name} ↔ ${n2.name} [${c.type}] ${distance.toFixed(0)}m, ${latency}ms`);
 
       // Connection success animation
       const n1El = document.getElementById(n1.id);
