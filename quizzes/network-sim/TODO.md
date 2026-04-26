@@ -202,6 +202,7 @@
 - [x] **Zoom to Selection** - Zoom controls, breadcrumb navigation, device zoom
 - [x] **Layer Visualization** - Core/Distribution/Access layers, layer indicators, toggle button
 - [x] **Packet Tracer Port Interface** - Enhanced port display, status indicators, hover effects
+- [x] **IP Address Planning Panel** - Subnet overview, host list, IP range display
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

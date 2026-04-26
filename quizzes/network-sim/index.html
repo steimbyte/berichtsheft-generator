@@ -362,6 +362,21 @@
     .arp-row .mac { color: var(--device); }
     .arp-row .interface { color: var(--accent); }
 
+    /* IP Planning Panel */
+    .ip-planning-panel { position: absolute; bottom: 130px; left: 260px; width: 350px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px; z-index: 200; overflow: hidden; display: none; }
+    .ip-planning-panel.show { display: block; }
+    .ip-planning-header { padding: 8px 12px; background: var(--bg-elevated); display: flex; justify-content: space-between; align-items: center; font-size: 0.65rem; font-weight: 600; }
+    .ip-planning-content { max-height: 350px; overflow-y: auto; padding: 12px; }
+    .ip-subnet { background: var(--bg-deep); border-radius: 6px; padding: 10px; margin-bottom: 8px; }
+    .ip-subnet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .ip-subnet-name { font-size: 0.6rem; font-weight: 600; color: var(--accent); }
+    .ip-subnet-range { font-size: 0.55rem; color: var(--text-muted); font-family: 'Fira Code', monospace; }
+    .ip-host-list { font-size: 0.55rem; font-family: 'Fira Code', monospace; }
+    .ip-host-item { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid var(--border); }
+    .ip-host-item:last-child { border-bottom: none; }
+    .ip-host-item.used { color: var(--ok); }
+    .ip-host-item.available { color: var(--text-muted); }
+
     /* Link Status Indicator */
     .link-status { position: absolute; width: 6px; height: 6px; border-radius: 50%; animation: blink 1s infinite; }
     .link-status.up { background: var(--ok); }
@@ -1306,6 +1321,7 @@
       <button class="tool-btn" onclick="toggleRouteTable()" id="btnRoute"><i class="ph ph-path"></i> Routes</button>
       <button class="tool-btn" onclick="togglePathTrace()" id="btnPathTrace"><i class="ph ph-git-branch"></i> Path</button>
       <button class="tool-btn" onclick="toggleNatTable()" id="btnNat"><i class="ph ph-arrows-left-right"></i> NAT</button>
+      <button class="tool-btn" onclick="toggleIPPlanning()" id="btnIPPlan"><i class="ph ph-map-pin"></i> IP Plan</button>
       <button class="tool-btn" onclick="openVTP()"><i class="ph ph-swap"></i> VTP</button>
       <button class="tool-btn" onclick="openHSRP()"><i class="ph ph-arrows-clockwise"></i> HSRP</button>
       <button class="tool-btn" onclick="openSyslog()"><i class="ph ph-list-bullets"></i> Syslog</button>
@@ -1574,6 +1590,15 @@
           <div class="arp-row header"><span>IP</span><span>MAC</span><span>Interface</span></div>
           <div id="arpTableBody"></div>
         </div>
+      </div>
+
+      <!-- IP Address Planning Panel -->
+      <div class="ip-planning-panel" id="ipPlanningPanel">
+        <div class="ip-planning-header">
+          <span><i class="ph ph-map-pin"></i> IP Address Planning</span>
+          <button onclick="toggleIPPlanning()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;">×</button>
+        </div>
+        <div class="ip-planning-content" id="ipPlanningContent"></div>
       </div>
 
       <!-- MAC Address Table -->
@@ -6588,6 +6613,94 @@ exit                - exit current mode
           addArpEntry(n1.ip, n1.mac, n2.name);
         }
       });
+    }
+
+    // ==================== IP ADDRESS PLANNING ====================
+    let showIPPlanning = false;
+    
+    function toggleIPPlanning() {
+      showIPPlanning = !showIPPlanning;
+      document.getElementById('ipPlanningPanel').classList.toggle('show', showIPPlanning);
+      document.getElementById('btnIPPlan')?.classList.toggle('active', showIPPlanning);
+      if (showIPPlanning) renderIPPlanning();
+    }
+    
+    function renderIPPlanning() {
+      const content = document.getElementById('ipPlanningContent');
+      if (S.nodes.length === 0) {
+        content.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:0.6rem;padding:20px;">Keine Geräte vorhanden</div>';
+        return;
+      }
+      
+      // Group devices by subnet
+      const subnets = {};
+      S.nodes.forEach(n => {
+        if (!n.ip) return;
+        const subnet = getSubnet(n.ip, n.subnet || '255.255.255.0');
+        if (!subnets[subnet]) {
+          subnets[subnet] = { mask: n.subnet || '255.255.255.0', hosts: [], total: 0 };
+        }
+        subnets[subnet].hosts.push(n);
+        subnets[subnet].total++;
+      });
+      
+      let html = '';
+      Object.entries(subnets).forEach(([subnet, data]) => {
+        const hostCount = countHosts(data.mask);
+        const used = data.hosts.length;
+        const available = hostCount - used - 2; // -2 for network and broadcast
+        
+        html += `<div class="ip-subnet">
+          <div class="ip-subnet-header">
+            <span class="ip-subnet-name">${subnet}/${cidrFromMask(data.mask)}</span>
+            <span style="font-size:0.5rem;color:var(--ok);">${used}/${hostCount} Used</span>
+          </div>
+          <div class="ip-subnet-range">Range: ${getFirstIP(subnet, data.mask)} - ${getLastIP(subnet, data.mask)}</div>
+          <div class="ip-host-list" style="margin-top:6px;">`;
+        
+        // Show first 10 hosts
+        const displayHosts = data.hosts.slice(0, 10);
+        displayHosts.forEach(h => {
+          html += `<div class="ip-host-item used"><span>${h.ip}</span><span>${h.name}</span></div>`;
+        });
+        
+        if (data.hosts.length > 10) {
+          html += `<div class="ip-host-item" style="color:var(--text-muted);">... und ${data.hosts.length - 10} weitere</div>`;
+        }
+        
+        html += '</div></div>';
+      });
+      
+      if (Object.keys(subnets).length === 0) {
+        html = '<div style="text-align:center;color:var(--warn);font-size:0.6rem;padding:20px;">Keine konfigurierten IPs vorhanden.<br>Nutze Auto-Config oder Quick Config.</div>';
+      }
+      
+      content.innerHTML = html;
+    }
+    
+    function getSubnet(ip, mask) {
+      const parts = ip.split('.').map(Number);
+      const maskParts = mask.split('.').map(Number);
+      return parts.map((p, i) => p & maskParts[i]).join('.');
+    }
+    
+    function cidrFromMask(mask) {
+      return mask.split('.').map(Number).reduce((a, b) => a + (b.toString(2).match(/1/g) || []).length, 0);
+    }
+    
+    function countHosts(mask) {
+      return Math.pow(2, 32 - cidrFromMask(mask));
+    }
+    
+    function getFirstIP(subnet, mask) {
+      const parts = subnet.split('.').map(Number);
+      return `${parts[0]}.${parts[1]}.${parts[2]}.${parts[3] + 1}`;
+    }
+    
+    function getLastIP(subnet, mask) {
+      const parts = subnet.split('.').map(Number);
+      const hosts = countHosts(mask) - 1;
+      return `${parts[0]}.${parts[1]}.${parts[2]}.${parts[3] + hosts - 1}`;
     }
 
     // ==================== MAC ADDRESS TABLE ====================
