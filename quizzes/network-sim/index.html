@@ -1320,6 +1320,7 @@
       <button class="tool-btn" onclick="openRouteTable()" title="Route Table"><i class="ph ph-path"></i></button>
       <button class="tool-btn" onclick="openPingTraceroute()" title="Ping/Traceroute"><i class="ph ph-radar"></i></button>
       <button class="tool-btn" onclick="openMACTable()" title="MAC Table"><i class="ph ph-identification-card"></i></button>
+      <button class="tool-btn" onclick="openDHCPPools()" title="DHCP Pools"><i class="ph ph-circles-three-plus"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -7249,6 +7250,84 @@ ${generateVlandDoc()}
         updateMACTable();
         log('Switch', 'info', 'MAC table cleared');
       }
+    }
+
+    // ==================== DHCP POOLS ====================
+    const DHCP_POOLS = [
+      { name: 'POOL-192', network: '192.168.1.0', mask: '255.255.255.0', gateway: '192.168.1.1', dns: '8.8.8.8', start: '192.168.1.10', end: '192.168.1.250', leased: [] },
+      { name: 'POOL-10', network: '10.0.0.0', mask: '255.0.0.0', gateway: '10.0.0.1', dns: '8.8.8.8', start: '10.0.0.100', end: '10.255.255.250', leased: [] }
+    ];
+    
+    function openDHCPPools() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'dhcpModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      modal.innerHTML = `<div class="modal" style="max-width:800px;max-height:80vh;overflow:auto;">
+        <div class="modal-title"><i class="ph ph-circles-three-plus"></i> DHCP Pools</div>
+        <div class="modal-body">
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <button class="modal-btn primary" onclick="addDHCPPool()"><i class="ph ph-plus"></i> Add Pool</button>
+            <button class="modal-btn secondary" onclick="simulateDHCP()"><i class="ph ph-play"></i> Simulate DHCP</button>
+          </div>
+          <div id="dhcpPoolsContent">
+            ${renderDHCPPools()}
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn secondary" onclick="document.getElementById('dhcpModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+    }
+    
+    function renderDHCPPools() {
+      return DHCP_POOLS.map(p => {
+        const total = p.leased.length;
+        const available = 0;
+        return `<div style="background:var(--bg-deep);border-radius:8px;padding:16px;margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-weight:600;color:var(--accent);">${p.name}</span>
+            <span style="font-size:0.6rem;color:var(--ok);">${total} leased</span>
+          </div>
+          <table class="data-table">
+            <tr><td style="color:var(--text-muted);width:100px;">Network:</td><td>${p.network}/${p.mask}</td></tr>
+            <tr><td style="color:var(--text-muted);">Gateway:</td><td>${p.gateway}</td></tr>
+            <tr><td style="color:var(--text-muted);">DNS:</td><td>${p.dns}</td></tr>
+            <tr><td style="color:var(--text-muted);">Range:</td><td>${p.start} - ${p.end}</td></tr>
+          </table>
+          ${p.leased.length > 0 ? `<div style="margin-top:12px;"><div style="font-size:0.6rem;color:var(--text-muted);margin-bottom:4px;">Leased Addresses:</div>${p.leased.map(l => `<span style="display:inline-block;background:var(--bg-elevated);padding:2px 6px;border-radius:4px;font-size:0.55rem;margin:2px;">${l.ip}</span>`).join('')}</div>` : ''}
+        </div>`;
+      }).join('');
+    }
+    
+    function addDHCPPool() {
+      const name = prompt('Pool name:');
+      const network = prompt('Network (e.g., 172.16.0.0):');
+      const mask = prompt('Mask (e.g., 255.255.0.0):');
+      if (name && network && mask) {
+        DHCP_POOLS.push({
+          name, network, mask, gateway: network.split('.')[0] + '.0.1',
+          dns: '8.8.8.8', start: network.split('.')[0] + '.0.100', end: network.split('.')[0] + '.255.250', leased: []
+        });
+        document.getElementById('dhcpPoolsContent').innerHTML = renderDHCPPools();
+        log('DHCP', 'success', `Pool ${name} created`);
+      }
+    }
+    
+    function simulateDHCP() {
+      const pcs = S.nodes.filter(n => n.type === 'pc' || n.type === 'laptop');
+      pcs.forEach(pc => {
+        if (!pc.ip || pc.ip === '0.0.0.0') {
+          const pool = DHCP_POOLS[0];
+          const ip = pool.start.split('.').slice(0,3).join('.') + '.' + (100 + pool.leased.length);
+          pc.ip = ip;
+          pool.leased.push({ ip, mac: pc.mac, time: new Date().toLocaleTimeString() });
+        }
+      });
+      document.getElementById('dhcpPoolsContent').innerHTML = renderDHCPPools();
+      log('DHCP', 'success', `DHCP simulation complete: ${pcs.length} devices`);
     }
 
     function processCLI(cmd) {
