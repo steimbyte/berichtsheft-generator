@@ -2417,40 +2417,65 @@
           <div class="conn-type-icon"><i class="ph ph-cable"></i></div>
           <div class="conn-type-name">Kupfer</div>
           <div class="conn-type-desc">Straight-Through</div>
+          <div class="conn-type-specs">100M / 1G</div>
         </div>
         <div class="conn-type copper-cross" onclick="selectCable('copper-cross', this)">
           <div class="conn-type-icon"><i class="ph ph-arrows-left-right"></i></div>
           <div class="conn-type-name">Crossover</div>
           <div class="conn-type-desc">Gekreuzt</div>
+          <div class="conn-type-specs">100M / 1G</div>
         </div>
         <div class="conn-type fiber" onclick="selectCable('fiber', this)">
           <div class="conn-type-icon"><i class="ph ph-fiber-optic"></i></div>
           <div class="conn-type-name">Glasfaser</div>
           <div class="conn-type-desc">Fiber Optic</div>
+          <div class="conn-type-specs">1G / 10G</div>
         </div>
         <div class="conn-type serial" onclick="selectCable('serial', this)">
           <div class="conn-type-icon"><i class="ph ph-plugs"></i></div>
           <div class="conn-type-name">Seriell</div>
           <div class="conn-type-desc">WAN DTE/DCE</div>
+          <div class="conn-type-specs">2 Mbps</div>
         </div>
         <div class="conn-type console" onclick="selectCable('console', this)">
           <div class="conn-type-icon"><i class="ph ph-terminal"></i></div>
           <div class="conn-type-name">Console</div>
           <div class="conn-type-desc">RJ45 Console</div>
+          <div class="conn-type-specs">CLI Access</div>
         </div>
         <div class="conn-type coaxial" onclick="selectCable('coaxial', this)">
           <div class="conn-type-icon"><i class="ph ph-circle"></i></div>
           <div class="conn-type-name">Coaxial</div>
           <div class="conn-type-desc">Cable/BNC</div>
+          <div class="conn-type-specs">TV/Modem</div>
         </div>
       </div>
-      <div style="font-size:0.6rem;color:var(--text-muted);text-align:center;margin-bottom:12px;">
-        <p><strong>Kupfer Straight:</strong> PC→Switch, PC→Router, Switch→Router</p>
-        <p><strong>Crossover:</strong> PC→PC, Switch→Switch, Router→Router</p>
-        <p><strong>Glasfaser:</strong> Fast/Gigabit Ethernet über lange Distanzen</p>
-        <p><strong>Seriell:</strong> WAN Verbindungen (PPP, HDLC)</p>
-        <p><strong>Console:</strong> PC→Router/Switch CLI</p>
-        <p><strong>Coaxial:</strong> Cable Modem, TV</p>
+      <div style="font-size:0.6rem;color:var(--text-muted);margin-bottom:12px;">
+        <div style="background:var(--bg-deep);padding:10px;border-radius:6px;margin-bottom:8px;">
+          <div style="font-weight:600;color:var(--accent);margin-bottom:6px;">📋 Empfehlungen</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+            <div>🖥️ PC → 🔀 Switch: <strong style="color:var(--copper);">Kupfer</strong></div>
+            <div>🖥️ PC → 🌐 Router: <strong style="color:var(--copper);">Kupfer</strong></div>
+            <div>🔀 Switch → 🌐 Router: <strong style="color:var(--copper);">Kupfer</strong></div>
+            <div>🌐 Router → 🌐 Router: <strong style="color:var(--fiber);">Glasfaser</strong></div>
+            <div>🔀 Switch → 🔀 Switch: <strong style="color:var(--copper-cross);">Crossover</strong></div>
+            <div>🖥️ PC → 🖥️ PC: <strong style="color:var(--copper-cross);">Crossover</strong></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <div style="background:rgba(224,112,32,0.1);padding:6px;border-radius:4px;border-left:2px solid var(--copper);">
+            <strong>Kupfer:</strong> Cat5e/Cat6, max 100m
+          </div>
+          <div style="background:rgba(64,128,192,0.1);padding:6px;border-radius:4px;border-left:2px solid var(--fiber);">
+            <strong>Glasfaser:</strong> MM/SM, max 500m+
+          </div>
+          <div style="background:rgba(192,192,32,0.1);padding:6px;border-radius:4px;border-left:2px solid var(--serial);">
+            <strong>Seriell:</strong> V.35/V.24, WAN
+          </div>
+          <div style="background:rgba(144,48,192,0.1);padding:6px;border-radius:4px;border-left:2px solid var(--poe);">
+            <strong>Console:</strong> CLI Management
+          </div>
+        </div>
       </div>
       <div class="modal-actions">
         <button class="modal-btn secondary" onclick="closeM('cableModal')">Schließen</button>

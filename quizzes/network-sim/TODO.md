@@ -204,6 +204,7 @@
 - [x] **Packet Tracer Port Interface** - Enhanced port display, status indicators, hover effects
 - [x] **IP Address Planning Panel** - Subnet overview, host list, IP range display
 - [x] **Enhanced Wireless AP** - SSID, Security (WPA2/WPA3/WEP), Channel, Bandwidth settings
+- [x] **Enhanced Cable Panel** - Bandwidth specs, connection recommendations, visual improvements
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
