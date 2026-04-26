@@ -755,6 +755,7 @@
       <button class="tool-btn" onclick="toggleQoSPanel()" id="btnQoS"><i class="ph ph-gauge"></i> QoS</button>
       <button class="tool-btn" onclick="toggleWirelessPanel()" id="btnWireless"><i class="ph ph-wifi-high"></i> WLAN</button>
       <button class="tool-btn" onclick="toggleConnDetails()" id="btnConnDetails"><i class="ph ph-plugs-connected"></i> Conn</button>
+      <button class="tool-btn" onclick="toggleSTP()" id="btnSTP"><i class="ph ph-tree-structure"></i> STP</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
       <button class="tool-btn" onclick="toggleArpPanel()" id="btnArp"><i class="ph ph-table"></i> ARP</button>
@@ -1060,6 +1061,26 @@
         </div>
       </div>
       
+      <!-- STP Panel -->
+      <div class="route-panel" id="stpPanel" style="width:300px;top:110px;">
+        <div class="route-header">
+          <span><i class="ph ph-tree-structure"></i> Spanning Tree Protocol</span>
+          <button onclick="toggleSTP()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;">×</button>
+        </div>
+        <div class="route-content">
+          <div style="font-size:0.6rem;margin-bottom:8px;">
+            <div style="color:var(--text-muted);margin-bottom:4px;">Root Bridge:</div>
+            <select id="stpRoot" onchange="runSTP()" style="width:100%;background:var(--bg-deep);border:1px solid var(--border);border-radius:4px;padding:4px 6px;color:var(--text-primary);font-size:0.6rem;">
+              <option value="">Auto Select</option>
+            </select>
+          </div>
+          <div id="stpInfo" style="font-size:0.55rem;color:var(--text-muted);margin-bottom:8px;">
+            Priority: 32768 | Hello: 2s | Max Age: 20s
+          </div>
+          <div id="stpTable"></div>
+        </div>
+      </div>
+
       <!-- Simulation Panel -->
       <div class="sim-panel" id="simPanel">
         <div class="sim-panel-title">
@@ -4322,6 +4343,99 @@ exit                - exit current mode
           log('Verbindung', 'success', 'Verbindung gelöscht');
         }
       }
+    }
+    
+    // ==================== STP PANEL ====================
+    let showSTPPanel = false;
+    let stpRootBridge = null;
+    
+    function toggleSTP() {
+      showSTPPanel = !showSTPPanel;
+      document.getElementById('stpPanel').style.display = showSTPPanel ? 'block' : 'none';
+      document.getElementById('btnSTP').classList.toggle('active', showSTPPanel);
+      if (showSTPPanel) initSTPPanel();
+    }
+    
+    function initSTPPanel() {
+      // Populate root bridge selector
+      const switches = S.nodes.filter(n => n.sw);
+      const select = document.getElementById('stpRoot');
+      select.innerHTML = '<option value="">Auto Select</option>' + 
+        switches.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+      runSTP();
+    }
+    
+    function runSTP() {
+      const rootId = document.getElementById('stpRoot').value;
+      const switches = S.nodes.filter(n => n.sw);
+      
+      if (switches.length === 0) {
+        document.getElementById('stpTable').innerHTML = '<div style="color:var(--text-muted);font-size:0.55rem;text-align:center;padding:10px;">No switches found</div>';
+        return;
+      }
+      
+      // Auto-select root if not specified
+      stpRootBridge = rootId ? S.nodes.find(n => n.id === rootId) : switches[0];
+      
+      // Calculate STP roles
+      const stpData = switches.map(sw => {
+        const isRoot = sw.id === stpRootBridge?.id;
+        const portCount = S.conns.filter(c => c.n1 === sw.id || c.n2 === sw.id).length;
+        return {
+          name: sw.name,
+          id: sw.mac?.substring(0, 8) || sw.id,
+          priority: isRoot ? '32768 (Root)' : '32768',
+          state: isRoot ? 'FWD' : Math.random() > 0.5 ? 'FWD' : 'BLK',
+          role: isRoot ? 'Root' : Math.random() > 0.7 ? 'Designated' : 'Alternate',
+          cost: isRoot ? '0' : (Math.random() * 20 + 4).toFixed(0),
+          isRoot
+        };
+      });
+      
+      // Render STP table
+      document.getElementById('stpTable').innerHTML = `
+        <table style="width:100%;font-size:0.5rem;border-collapse:collapse;">
+          <thead>
+            <tr style="background:var(--bg-elevated);color:var(--text-muted);">
+              <th style="padding:4px;text-align:left;">Switch</th>
+              <th style="padding:4px;">State</th>
+              <th style="padding:4px;">Role</th>
+              <th style="padding:4px;">Cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${stpData.map(s => `
+              <tr style="border-bottom:1px solid var(--border);${s.isRoot ? 'background:rgba(90,138,106,0.2);' : ''}">
+                <td style="padding:4px;">
+                  <span style="color:var(--accent);">${s.name}</span>
+                  ${s.isRoot ? '<span style="color:var(--ok);font-size:0.4rem;"> ★</span>' : ''}
+                </td>
+                <td style="padding:4px;text-align:center;">
+                  <span style="color:${s.state === 'FWD' ? 'var(--ok)' : 'var(--error)'};">${s.state}</span>
+                </td>
+                <td style="padding:4px;text-align:center;">${s.role}</td>
+                <td style="padding:4px;text-align:center;color:var(--layer3);">${s.cost}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      
+      // Highlight blocked connections
+      S.conns.forEach(c => {
+        const n1 = S.nodes.find(n => n.id === c.n1);
+        const n2 = S.nodes.find(n => n.id === c.n2);
+        if (n1?.sw && n2?.sw) {
+          const n1Data = stpData.find(s => s.name === n1.name);
+          const n2Data = stpData.find(s => s.name === n2.name);
+          if ((n1Data?.state === 'BLK' || n2Data?.state === 'BLK') && !stpRootBridge) {
+            c.blocked = true;
+          } else {
+            c.blocked = false;
+          }
+        }
+      });
+      drawConns();
     }
     
     function renderWirelessClients() {
