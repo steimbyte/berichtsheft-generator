@@ -114,6 +114,10 @@
 - [x] **Port LED indicators** - green=up, dark=down
 - [x] **System LEDs** - power, PoE, activity, speed
 - [x] **Panel labels** - device type identification
+- [x] **Auto-Save** to localStorage (every 30s)
+- [x] **Export as PNG** image
+- [x] **Center selected** (C key)
+- [x] **Extended shortcuts**: F, C, R, G, N, L keys
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
