@@ -577,7 +577,16 @@
       border-color: var(--accent);
       background: var(--accent);
       transform: scale(1.8);
+      box-shadow: 0 0 25px var(--accent);
     }
+    .node-port.target-highlight {
+      animation: targetPulse 0.6s infinite;
+      border-color: var(--ok);
+      background: rgba(90, 138, 106, 0.3);
+      transform: scale(1.5);
+    }
+    @keyframes targetPulse { 0%, 100% { box-shadow: 0 0 10px var(--ok); } 50% { box-shadow: 0 0 25px var(--ok); } }
+    
     .port-label {
       position: absolute;
       bottom: 100%;
@@ -643,6 +652,22 @@
     /* Selection Glow Effect */
     .sim-node.selected { animation: selectedGlow 2s ease-in-out infinite; }
     @keyframes selectedGlow { 0%, 100% { box-shadow: 0 0 15px var(--accent), 0 0 30px rgba(201, 162, 39, 0.3); } 50% { box-shadow: 0 0 25px var(--accent), 0 0 50px rgba(201, 162, 39, 0.5); } }
+    
+    /* Dragging States */
+    .sim-node.dragging { 
+      cursor: grabbing !important; 
+      transform: scale(1.05) !important;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 30px var(--accent) !important;
+      z-index: 1000 !important;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .sim-node.dragging .node-front-panel { border-color: var(--accent); }
+    .sim-node.snapping { animation: snapPulse 0.3s ease-out; }
+    @keyframes snapPulse { 0% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    .sim-node.landing { animation: landDrop 0.2s ease-out; }
+    @keyframes landDrop { 0% { transform: scale(1.05); } 50% { transform: scale(0.98); } 100% { transform: scale(1); } }
+    .sim-node.selected:not(.dragging) { cursor: grab; }
+    .sim-node:hover:not(.dragging) { cursor: grab; }
 
     /* Port Activity Flash */
     .port-active { animation: portFlash 0.3s ease-out; }
@@ -2887,6 +2912,7 @@
         const onUp = () => {
           el.classList.remove('dragging');
           if (dragSt.moved) {
+            const oldX = dragSt.node.x, oldY = dragSt.node.y;
             const pos = snapPos(dragSt.node.x, dragSt.node.y);
             dragSt.node.x = pos.x;
             dragSt.node.y = pos.y;
@@ -2895,6 +2921,9 @@
             updConnParams();
             saveState();
             updateMiniMap();
+            // Landing animation
+            el.classList.add('landing');
+            setTimeout(() => el.classList.remove('landing'), 200);
           } else {
             sel(dragSt.node, el);
           }
@@ -3049,8 +3078,7 @@
                 (c.n1 === node.id && c.p1 === i) || (c.n2 === node.id && c.p2 === i)
               );
               if (!isUsed) {
-                p.style.boxShadow = '0 0 15px var(--ok)';
-                p.style.borderColor = 'var(--ok)';
+                p.classList.add('target-highlight');
               }
             });
           }
@@ -3121,6 +3149,7 @@
 
       const port = connState.sourceElement.querySelectorAll('.node-port')[connState.sourcePort];
       port.classList.remove('connecting');
+      document.querySelectorAll('.target-highlight').forEach(p => p.classList.remove('target-highlight'));
 
       document.getElementById('connHint').classList.remove('show');
 
@@ -3220,8 +3249,7 @@
     .spark::before { width: 8px; height: 8px; margin: -4px 0 0 -4px; animation: sparkAnim 0.4s ease-out forwards; }
     .spark::after { width: 16px; height: 16px; margin: -8px 0 0 -8px; opacity: 0.5; animation: sparkAnim2 0.5s ease-out forwards; }
     @keyframes sparkAnim { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
-    @keyframes sparkAnim2 { 0% { transform: scale(0); opacity: 0.8; } 100% { transform: scale(3); opacity: 0; }
-    }
+    @keyframes sparkAnim2 { 0% { transform: scale(0); opacity: 0.8; } 100% { transform: scale(3); opacity: 0; } }
 
     function updConnParams() {
       S.conns.forEach(c => {
@@ -6411,6 +6439,7 @@ ${target.name}# `;
           if (previewLine) previewLine.remove();
           if (quickConnect) quickConnect.remove();
           document.getElementById('connHint').classList.remove('show');
+          document.querySelectorAll('.target-highlight').forEach(p => p.classList.remove('target-highlight'));
           document.removeEventListener('mousemove', onPortMove);
           document.removeEventListener('mouseup', endPortConnect);
           connState = null; previewLine = null; quickConnect = null;
