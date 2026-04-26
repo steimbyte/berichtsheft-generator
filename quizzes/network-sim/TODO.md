@@ -219,6 +219,7 @@
 - [x] **Topology Map View** - Hierarchical topology display, layer visualization, SVG export
 - [x] **Event Log Panel** - Real-time event logging, filter, export CSV, clear
 - [x] **Security Audit Panel** - Security score, checks (SSH/VLAN/ACL/PortSec), export report
+- [x] **Device Comparison Tool** - Side-by-side device comparison, property highlighting
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

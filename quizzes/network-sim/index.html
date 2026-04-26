@@ -1312,6 +1312,7 @@
       <button class="tool-btn" onclick="openTopologyMap()" title="Topology Map"><i class="ph ph-graph"></i></button>
       <button class="tool-btn" onclick="openEventLogPanel()" id="btnEventLog" title="Event Log"><i class="ph ph-list-bullets"></i></button>
       <button class="tool-btn" onclick="openSecurityAudit()" title="Security Audit"><i class="ph ph-shield-check"></i></button>
+      <button class="tool-btn" onclick="openDeviceCompare()" title="Device Compare"><i class="ph ph-scales"></i></button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -6445,6 +6446,85 @@ ${audit.results.map(r => `- ${r.passed ? '[PASS]' : '[FAIL]'} ${r.name}: ${r.des
       a.download = 'security-audit-' + Date.now() + '.txt';
       a.click();
       log('Security', 'success', 'Security report exported');
+    }
+
+    // ==================== DEVICE COMPARISON ====================
+    function openDeviceCompare() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay show';
+      modal.id = 'deviceCompareModal';
+      modal.onclick = e => { if (e.target === modal) modal.remove(); };
+      
+      modal.innerHTML = `<div class="modal" style="max-width:900px;max-height:80vh;overflow:auto;">
+        <div class="modal-title"><i class="ph ph-scales"></i> Device Comparison</div>
+        <div class="modal-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+            <div class="form-group">
+              <label class="form-label">Device 1</label>
+              <select class="form-select" id="cmpDevice1" onchange="updateDeviceCompare()">
+                ${S.nodes.map(n => `<option value="${n.id}">${n.name} (${n.type})</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Device 2</label>
+              <select class="form-select" id="cmpDevice2" onchange="updateDeviceCompare()">
+                ${S.nodes.map(n => `<option value="${n.id}">${n.name} (${n.type})</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div id="compareResults" style="background:var(--bg-deep);border-radius:8px;overflow:hidden;"></div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn secondary" onclick="document.getElementById('deviceCompareModal').remove()">Close</button>
+        </div>
+      </div>`;
+      document.body.appendChild(modal);
+      updateDeviceCompare();
+    }
+    
+    function updateDeviceCompare() {
+      const d1 = S.nodes.find(n => n.id === document.getElementById('cmpDevice1').value);
+      const d2 = S.nodes.find(n => n.id === document.getElementById('cmpDevice2').value);
+      if (!d1 || !d2) return;
+      
+      const rows = [
+        ['Type', d1.type, d2.type],
+        ['Name', d1.name, d2.name],
+        ['IP Address', d1.ip || 'N/A', d2.ip || 'N/A'],
+        ['Subnet', d1.subnet || 'N/A', d2.subnet || 'N/A'],
+        ['Gateway', d1.gateway || 'N/A', d2.gateway || 'N/A'],
+        ['MAC', d1.mac || 'N/A', d2.mac || 'N/A'],
+        ['VLAN', d1.vlan || '1', d2.vlan || '1'],
+        ['Ports', d1.totalPorts, d2.totalPorts],
+        ['Used Ports', d1.usedPorts, d2.usedPorts],
+        ['Status', d1.on ? 'Online' : 'Offline', d2.on ? 'Online' : 'Offline'],
+        ['Layer', d1.layer || 'N/A', d2.layer || 'N/A'],
+        ['SSH', d1.services?.ssh ? 'Yes' : 'No', d2.services?.ssh ? 'Yes' : 'No'],
+        ['Telnet', d1.services?.telnet ? 'Yes' : 'No', d2.services?.telnet ? 'Yes' : 'No'],
+        ['HTTP', d1.services?.http ? 'Yes' : 'No', d2.services?.http ? 'Yes' : 'No'],
+      ];
+      
+      document.getElementById('compareResults').innerHTML = `
+        <table class="data-table">
+          <thead>
+            <tr style="background:var(--bg-elevated);">
+              <th style="width:30%;">Property</th>
+              <th style="width:35%;">${d1.name}</th>
+              <th style="width:35%;">${d2.name}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r => {
+              const same = r[1] === r[2];
+              return `<tr>
+                <td style="color:var(--text-muted);">${r[0]}</td>
+                <td style="color:${same ? 'var(--ok)' : 'var(--text-primary)'};">${r[1]}</td>
+                <td style="color:${same ? 'var(--ok)' : 'var(--text-primary)'};">${r[2]}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
     }
 
     function processCLI(cmd) {
