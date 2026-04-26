@@ -130,6 +130,8 @@
 - [x] **DNS Panel** - domain resolution, static records
 - [x] **Device Labels** - IP/name below devices (toggle)
 - [x] **Network Clock** - simulation time with sync
+- [x] **Topology Notes** - document topologies, save/export notes
+- [x] **Help Tutorial** - quick start guide modal
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)
