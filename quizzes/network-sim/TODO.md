@@ -173,6 +173,7 @@
 - [x] **CDP Neighbors Panel** - Show neighbor devices
 - [x] **ACL Panel** - Access Control List viewer
 - [x] **Path Trace Panel** - Route visualization with hops, latency, bandwidth
+- [x] **QoS Queue Visualization** - Priority/High/Normal/Low queue status
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

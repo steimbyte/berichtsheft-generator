@@ -73,6 +73,7 @@ python3 -m http.server 8080
 
 ### Commit History
 ```
+58c6b46 feat: v5.3 Path Trace Panel + Physical Rack View
 1eda4ad feat: v5.2 ACL Panel + Interface Security
 5017039 feat: v5.1 CDP Neighbors Panel + VTP Configuration
 b29e511 feat: v5.0 Activity Mode + Network Clock
@@ -192,6 +193,6 @@ ITSE IHK AP2 Projekt
 
 ---
 
-**Version:** 5.3  
+**Version:** 5.4  
 **Letzte Änderung:** 2026-04-26  
 **Status:** 🟢 Aktiv

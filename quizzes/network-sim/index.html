@@ -1078,6 +1078,21 @@
     .rack-port-led { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
     .rack-port-led.off { background: var(--border); }
 
+    /* QoS Queue Visualization */
+    .qos-queues { display: flex; flex-direction: column; gap: 6px; }
+    .qos-queue { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+    .qos-queue-label { min-width: 70px; font-size: 0.5rem; display: flex; align-items: center; gap: 4px; }
+    .qos-queue-bar { flex: 1; height: 12px; background: var(--bg-deep); border-radius: 4px; overflow: hidden; }
+    .qos-queue-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+    .qos-queue-count { min-width: 35px; font-size: 0.5rem; color: var(--text-muted); text-align: right; }
+
+    /* DSCP Classification */
+    .dscp-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; }
+    .dscp-class { padding: 4px; background: var(--bg-deep); border-radius: 4px; text-align: center; font-size: 0.45rem; }
+    .dscp-class.best-effort { border-left: 2px solid var(--text-muted); }
+    .dscp-class.assured { border-left: 2px solid var(--layer3); }
+    .dscp-class.expedited { border-left: 2px solid var(--ok); }
+
     @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; } }
   </style>
 </head>
@@ -2593,6 +2608,32 @@
         <div class="form-group">
           <label class="form-label">Policing Rate (Mbps)</label>
           <input type="number" class="form-input" id="qosRate" placeholder="100">
+        </div>
+        <!-- QoS Queue Visualization -->
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+          <div style="font-size:0.6rem;font-weight:600;color:var(--accent);margin-bottom:8px;">Queue Status</div>
+          <div class="qos-queues">
+            <div class="qos-queue">
+              <div class="qos-queue-label"><span style="color:var(--error);">●</span> Priority</div>
+              <div class="qos-queue-bar"><div class="qos-queue-fill" style="width:25%;background:var(--error);"></div></div>
+              <div class="qos-queue-count">25%</div>
+            </div>
+            <div class="qos-queue">
+              <div class="qos-queue-label"><span style="color:var(--warn);">●</span> High</div>
+              <div class="qos-queue-bar"><div class="qos-queue-fill" style="width:35%;background:var(--warn);"></div></div>
+              <div class="qos-queue-count">35%</div>
+            </div>
+            <div class="qos-queue">
+              <div class="qos-queue-label"><span style="color:var(--layer3);">●</span> Normal</div>
+              <div class="qos-queue-bar"><div class="qos-queue-fill" style="width:20%;background:var(--layer3);"></div></div>
+              <div class="qos-queue-count">20%</div>
+            </div>
+            <div class="qos-queue">
+              <div class="qos-queue-label"><span style="color:var(--text-muted);">●</span> Low</div>
+              <div class="qos-queue-bar"><div class="qos-queue-fill" style="width:20%;background:var(--text-muted);"></div></div>
+              <div class="qos-queue-count">20%</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-actions">
