@@ -757,6 +757,7 @@
       <button class="tool-btn" onclick="toggleConnDetails()" id="btnConnDetails"><i class="ph ph-plugs-connected"></i> Conn</button>
       <button class="tool-btn" onclick="toggleSTP()" id="btnSTP"><i class="ph ph-tree-structure"></i> STP</button>
       <button class="tool-btn" onclick="toggleDNS()" id="btnDNS"><i class="ph ph-globe-hemisphere-west"></i> DNS</button>
+      <button class="tool-btn" onclick="toggleClock()" id="btnClock"><i class="ph ph-clock"></i> Clock</button>
       <button class="tool-btn" onclick="toggleLabels()" id="btnLabels" title="Toggle Labels"><i class="ph ph-tag"></i> Labels</button>
       <button class="tool-btn" onclick="toggleHealthDashboard()" id="btnHealth"><i class="ph ph-heartbeat"></i> Health</button>
       <button class="tool-btn" onclick="toggleVlanPanel()" id="btnVlan"><i class="ph ph-squares-four"></i> VLANs</button>
@@ -1080,6 +1081,21 @@
             Priority: 32768 | Hello: 2s | Max Age: 20s
           </div>
           <div id="stpTable"></div>
+        </div>
+      </div>
+
+      <!-- Network Clock Panel -->
+      <div class="route-panel" id="clockPanel" style="width:200px;top:110px;">
+        <div class="route-header">
+          <span><i class="ph ph-clock"></i> Network Clock</span>
+          <button onclick="toggleClock()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;">×</button>
+        </div>
+        <div style="padding:12px;text-align:center;">
+          <div id="netClock" style="font-size:1.5rem;font-weight:700;color:var(--accent);font-family:'Fira Code',monospace;">00:00:00</div>
+          <div id="netDate" style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;">2026-01-01</div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+            <button class="modal-btn secondary" style="width:100%;font-size:0.55rem;" onclick="syncClock()">Sync All</button>
+          </div>
         </div>
       </div>
 
@@ -4458,6 +4474,52 @@ exit                - exit current mode
         }
       });
       drawConns();
+    }
+    
+    // ==================== NETWORK CLOCK ====================
+    let showClockPanel = false;
+    let networkTime = new Date('2026-01-01T00:00:00');
+    let clockInterval = null;
+    
+    function toggleClock() {
+      showClockPanel = !showClockPanel;
+      document.getElementById('clockPanel').style.display = showClockPanel ? 'block' : 'none';
+      document.getElementById('btnClock').classList.toggle('active', showClockPanel);
+      if (showClockPanel) startClock();
+      else stopClock();
+    }
+    
+    function startClock() {
+      if (clockInterval) clearInterval(clockInterval);
+      updateClock();
+      clockInterval = setInterval(() => {
+        networkTime = new Date(networkTime.getTime() + 1000);
+        updateClock();
+      }, 1000);
+    }
+    
+    function stopClock() {
+      if (clockInterval) {
+        clearInterval(clockInterval);
+        clockInterval = null;
+      }
+    }
+    
+    function updateClock() {
+      const time = networkTime.toLocaleTimeString('de-DE');
+      const date = networkTime.toISOString().split('T')[0];
+      document.getElementById('netClock').textContent = time;
+      document.getElementById('netDate').textContent = date;
+    }
+    
+    function syncClock() {
+      // Sync time across all devices
+      S.nodes.forEach(n => {
+        if (n.r || n.srv) {
+          n.lastSync = networkTime.toISOString();
+        }
+      });
+      log('System', 'success', 'Network time synchronized');
     }
     
     // ==================== DNS PANEL ====================
