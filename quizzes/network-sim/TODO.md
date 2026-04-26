@@ -208,6 +208,7 @@
 - [x] **Real-time Statistics** - Traffic in/out, CPU load, error counter in status bar
 - [x] **Enhanced Device Inspector** - Detailed device info, connections list, quick actions
 - [x] **Auto-Save History** - Version history, load/delete previous saves, toolbar button
+- [x] **Enhanced Templates** - 14 templates with categories (Basic/Enterprise/WAN/Special)
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

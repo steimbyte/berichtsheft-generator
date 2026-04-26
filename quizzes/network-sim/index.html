@@ -8292,32 +8292,60 @@ ${S.conns.map(c => {
 
     // ==================== QUICK TEMPLATES ====================
     const QUICK_TEMPLATES = [
-      { name: 'Kleines LAN', icon: 'ph-house', desc: '2 PC + Switch', color: 'var(--copper)', nodes: [{ type: 'end', name: 'PC0' }, { type: 'end', name: 'PC1' }, { type: 'sw', name: 'Switch0' }], conns: [[0,2,'copper'],[1,2,'copper']] },
-      { name: 'Mittleres LAN', icon: 'ph-buildings', desc: '4 PC + 2 Switch', color: 'var(--copper)', nodes: [{ type: 'end', name: 'PC0' }, { type: 'end', name: 'PC1' }, { type: 'end', name: 'PC2' }, { type: 'end', name: 'PC3' }, { type: 'sw', name: 'Switch0' }, { type: 'sw', name: 'Switch1' }], conns: [[0,4,'copper'],[1,4,'copper'],[2,5,'copper'],[3,5,'copper'],[4,5,'copper']] },
-      { name: 'Router LAN', icon: 'ph-globe', desc: '2 PC + Router', color: 'var(--layer3)', nodes: [{ type: 'end', name: 'PC0' }, { type: 'end', name: 'PC1' }, { type: 'r', name: 'Router0' }], conns: [[0,2,'copper'],[1,2,'copper']] },
-      { name: 'Server Farm', icon: 'ph-hard-drives', desc: '3 Server + Switch', color: 'var(--ok)', nodes: [{ type: 'srv', name: 'Server0' }, { type: 'srv', name: 'Server1' }, { type: 'srv', name: 'Server2' }, { type: 'sw', name: 'Switch0' }], conns: [[0,3,'copper'],[1,3,'copper'],[2,3,'copper']] },
-      { name: 'WAN Link', icon: 'ph-cloud', desc: '2 Router + WAN', color: 'var(--fiber)', nodes: [{ type: 'r', name: 'Router0' }, { type: 'r', name: 'Router1' }, { type: 'wan', name: 'WAN0' }], conns: [[0,2,'serial'],[1,2,'serial']] },
-      { name: 'PoE Setup', icon: 'ph-lightning', desc: 'PC + AP + PoE Switch', color: 'var(--poe)', nodes: [{ type: 'end', name: 'PC0' }, { type: 'end', name: 'AccessPoint0' }, { type: 'poe', name: 'PoE Switch0' }], conns: [[0,2,'copper'],[1,2,'copper']] },
-      { name: 'Home Network', icon: 'ph-house-line', desc: 'Router + Switch + PC', color: 'var(--accent)', nodes: [{ type: 'end', name: 'Laptop0' }, { type: 'end', name: 'PC0' }, { type: 'sw', name: 'Switch0' }, { type: 'r', name: 'Router0' }], conns: [[0,2,'copper'],[1,2,'copper'],[2,3,'copper']] },
-      { name: 'Full Network', icon: 'ph-tree-structure', desc: 'Complete Enterprise', color: 'var(--layer3)', nodes: [{ type: 'end', name: 'PC0' }, { type: 'end', name: 'PC1' }, { type: 'end', name: 'PC2' }, { type: 'end', name: 'PC3' }, { type: 'sw', name: 'Access0' }, { type: 'sw', name: 'Access1' }, { type: 'sw', name: 'DistSw' }, { type: 'r', name: 'Router0' }, { type: 'srv', name: 'Server0' }], conns: [[0,4,'copper'],[1,4,'copper'],[2,5,'copper'],[3,5,'copper'],[4,6,'copper'],[5,6,'copper'],[6,7,'copper'],[6,8,'copper']] },
-      { name: 'Data Center', icon: 'ph-database', desc: '4 Server + Core', color: 'var(--ok)', nodes: [{ type: 'srv', name: 'Web1' }, { type: 'srv', name: 'Web2' }, { type: 'srv', name: 'DB1' }, { type: 'srv', name: 'DB2' }, { type: 'sw', name: 'Core Switch' }], conns: [[0,4,'fiber'],[1,4,'fiber'],[2,4,'fiber'],[3,4,'fiber']] },
-      { name: 'IoT Home', icon: 'ph-thermometer', desc: 'Smart Home Setup', color: 'var(--copper)', nodes: [{ type: 'end', name: 'Phone0' }, { type: 'end', name: 'SmartTV0' }, { type: 'end', name: 'SmartLight0' }, { type: 'end', name: 'Thermostat0' }, { type: 'sw', name: 'Hub Switch' }], conns: [[0,4,'copper'],[1,4,'copper'],[2,4,'copper'],[3,4,'copper']] },
-      { name: 'Campus LAN', icon: 'ph-graduation-cap', desc: 'Multi-Building', color: 'var(--layer3)', nodes: [{ type: 'r', name: 'Edge Router' }, { type: 'sw', name: 'Building A' }, { type: 'sw', name: 'Building B' }, { type: 'sw', name: 'Building C' }, { type: 'end', name: 'PC-A1' }, { type: 'end', name: 'PC-B1' }, { type: 'srv', name: 'DHCP Server' }], conns: [[0,1,'fiber'],[0,2,'fiber'],[0,3,'fiber'],[1,4,'copper'],[2,5,'copper'],[0,6,'fiber']] }
+      { name: 'Small LAN', icon: 'ph-house', desc: '2 PC + Switch', category: 'basic', color: 'var(--copper)', nodes: [{ type: 'end', name: 'PC0' }, { type: 'end', name: 'PC1' }, { type: 'sw', name: 'Switch0' }], conns: [[0,2,'copper'],[1,2,'copper']] },
+      { name: 'Medium LAN', icon: 'ph-buildings', desc: '4 PC + 2 Switch', category: 'basic', color: 'var(--copper)', nodes: [{ type: 'end', name: 'PC0' }, { type: 'end', name: 'PC1' }, { type: 'end', name: 'PC2' }, { type: 'end', name: 'PC3' }, { type: 'sw', name: 'Switch0' }, { type: 'sw', name: 'Switch1' }], conns: [[0,4,'copper'],[1,4,'copper'],[2,5,'copper'],[3,5,'copper'],[4,5,'copper']] },
+      { name: 'Router LAN', icon: 'ph-globe', desc: '2 PC + Router', category: 'basic', color: 'var(--layer3)', nodes: [{ type: 'end', name: 'PC0' }, { type: 'end', name: 'PC1' }, { type: 'r', name: 'Router0' }], conns: [[0,2,'copper'],[1,2,'copper']] },
+      { name: 'Home Network', icon: 'ph-house-line', desc: 'Router + Switch + 3 PC', category: 'basic', color: 'var(--accent)', nodes: [{ type: 'end', name: 'Laptop0' }, { type: 'end', name: 'PC0' }, { type: 'end', name: 'Phone0' }, { type: 'sw', name: 'Switch0' }, { type: 'r', name: 'Router0' }], conns: [[0,3,'copper'],[1,3,'copper'],[2,3,'copper'],[3,4,'copper']] },
+      { name: 'Server Farm', icon: 'ph-hard-drives', desc: '3 Server + Switch', category: 'enterprise', color: 'var(--ok)', nodes: [{ type: 'srv', name: 'Server0' }, { type: 'srv', name: 'Server1' }, { type: 'srv', name: 'Server2' }, { type: 'sw', name: 'Switch0' }], conns: [[0,3,'copper'],[1,3,'copper'],[2,3,'copper']] },
+      { name: 'Data Center', icon: 'ph-database', desc: '4 Server + Core + Dist', category: 'enterprise', color: 'var(--ok)', nodes: [{ type: 'srv', name: 'Web1' }, { type: 'srv', name: 'Web2' }, { type: 'srv', name: 'DB1' }, { type: 'srv', name: 'DB2' }, { type: 'sw', name: 'Access Switch' }, { type: 'sw', name: 'Core Switch' }], conns: [[0,4,'fiber'],[1,4,'fiber'],[2,4,'fiber'],[3,4,'fiber'],[4,5,'fiber']] },
+      { name: 'WAN Link', icon: 'ph-cloud', desc: '2 Router + WAN', category: 'wan', color: 'var(--fiber)', nodes: [{ type: 'r', name: 'Router0' }, { type: 'r', name: 'Router1' }, { type: 'wan', name: 'WAN0' }], conns: [[0,2,'serial'],[1,2,'serial']] },
+      { name: 'PoE Setup', icon: 'ph-lightning', desc: 'PC + AP + PoE Switch', category: 'special', color: 'var(--poe)', nodes: [{ type: 'end', name: 'PC0' }, { type: 'end', name: 'AccessPoint0' }, { type: 'poe', name: 'PoE Switch0' }], conns: [[0,2,'copper'],[1,2,'copper']] },
+      { name: 'Full Enterprise', icon: 'ph-tree-structure', desc: 'Complete Network', category: 'enterprise', color: 'var(--layer3)', nodes: [{ type: 'end', name: 'PC0' }, { type: 'end', name: 'PC1' }, { type: 'end', name: 'PC2' }, { type: 'end', name: 'PC3' }, { type: 'sw', name: 'Access0' }, { type: 'sw', name: 'Access1' }, { type: 'sw', name: 'DistSw' }, { type: 'r', name: 'Router0' }, { type: 'srv', name: 'Server0' }], conns: [[0,4,'copper'],[1,4,'copper'],[2,5,'copper'],[3,5,'copper'],[4,6,'copper'],[5,6,'copper'],[6,7,'copper'],[6,8,'copper']] },
+      { name: 'IoT Home', icon: 'ph-thermometer', desc: 'Smart Home Setup', category: 'special', color: 'var(--copper)', nodes: [{ type: 'end', name: 'Phone0' }, { type: 'end', name: 'SmartTV0' }, { type: 'end', name: 'SmartLight0' }, { type: 'end', name: 'Thermostat0' }, { type: 'sw', name: 'Hub Switch' }], conns: [[0,4,'copper'],[1,4,'copper'],[2,4,'copper'],[3,4,'copper']] },
+      { name: 'Campus Network', icon: 'ph-graduation-cap', desc: 'Multi-Building', category: 'enterprise', color: 'var(--layer3)', nodes: [{ type: 'r', name: 'Edge Router' }, { type: 'sw', name: 'Building A' }, { type: 'sw', name: 'Building B' }, { type: 'sw', name: 'Building C' }, { type: 'end', name: 'PC-A1' }, { type: 'end', name: 'PC-B1' }, { type: 'srv', name: 'DHCP Server' }], conns: [[0,1,'fiber'],[0,2,'fiber'],[0,3,'fiber'],[1,4,'copper'],[2,5,'copper'],[0,6,'fiber']] },
+      { name: '3-Tier Architecture', icon: 'ph-stack', desc: 'Core/Dist/Access', category: 'enterprise', color: 'var(--layer3)', nodes: [{ type: 'r', name: 'Core Router' }, { type: 'sw', name: 'Dist Switch' }, { type: 'sw', name: 'Access Sw 1' }, { type: 'sw', name: 'Access Sw 2' }, { type: 'end', name: 'PC1' }, { type: 'end', name: 'PC2' }, { type: 'end', name: 'PC3' }, { type: 'end', name: 'PC4' }, { type: 'srv', name: 'Server' }], conns: [[0,1,'fiber'],[1,2,'fiber'],[1,3,'fiber'],[2,4,'copper'],[2,5,'copper'],[3,6,'copper'],[3,7,'copper'],[1,8,'fiber']] },
+      { name: 'Point-to-Point', icon: 'ph-arrows-horizontal', desc: '2 Sites Connected', category: 'wan', color: 'var(--fiber)', nodes: [{ type: 'r', name: 'Site A Router' }, { type: 'sw', name: 'Site A Switch' }, { type: 'end', name: 'Site A PC' }, { type: 'r', name: 'Site B Router' }, { type: 'sw', name: 'Site B Switch' }, { type: 'end', name: 'Site B PC' }], conns: [[0,1,'copper'],[1,2,'copper'],[3,4,'copper'],[4,5,'copper'],[0,3,'serial']] }
     ];
-
+    
     function openQuickTemplates() {
-      const content = QUICK_TEMPLATES.map((t, i) => `
-        <div class="template-item" onclick="loadTemplate(${i})" style="border-left: 3px solid ${t.color || 'var(--accent)'}">
-          <i class="ph ${t.icon}" style="font-size:20px;color:${t.color || 'var(--accent)'}"></i>
-          <div class="template-item-name">${t.name}</div>
-          <div class="template-item-desc">${t.desc}</div>
-          <div style="font-size:0.5rem;color:var(--text-muted);margin-top:2px;">${t.nodes.length} Geräte</div>
-        </div>
-      `).join('');
+      const categories = {
+        basic: { name: '🌐 Basic', templates: [] },
+        enterprise: { name: '🏢 Enterprise', templates: [] },
+        wan: { name: '🌍 WAN', templates: [] },
+        special: { name: '⚡ Special', templates: [] }
+      };
+      
+      QUICK_TEMPLATES.forEach((t, i) => {
+        categories[t.category].templates.push({ ...t, index: i });
+      });
+      
+      let content = '';
+      Object.entries(categories).forEach(([catKey, cat]) => {
+        if (cat.templates.length === 0) return;
+        content += `<div style="margin-bottom:16px;">
+          <div style="font-size:0.65rem;font-weight:600;color:var(--accent);margin-bottom:8px;">${cat.name}</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">`;
+        cat.templates.forEach(t => {
+          content += `<div class="template-item" onclick="loadTemplate(${t.index})" style="border-left:3px solid ${t.color};cursor:pointer;padding:8px;background:var(--bg-deep);border-radius:6px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <i class="ph ${t.icon}" style="font-size:18px;color:${t.color}"></i>
+              <div>
+                <div style="font-size:0.6rem;font-weight:600;">${t.name}</div>
+                <div style="font-size:0.5rem;color:var(--text-muted);">${t.desc}</div>
+              </div>
+            </div>
+            <div style="font-size:0.45rem;color:var(--text-muted);margin-top:4px;">📦 ${t.nodes.length} devices · 🔗 ${t.conns.length} links</div>
+          </div>`;
+        });
+        content += '</div></div>';
+      });
 
       document.getElementById('modalContent').innerHTML = `
-        <div style="font-size:0.75rem;font-weight:600;margin-bottom:10px;"><i class="ph ph-layout"></i> Schnellvorlagen</div>
-        <div class="template-grid">${content}</div>
+        <div style="font-size:0.75rem;font-weight:600;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+          <span><i class="ph ph-layout"></i> Network Templates</span>
+          <span style="font-size:0.5rem;color:var(--text-muted);font-weight:normal;">${QUICK_TEMPLATES.length} templates</span>
+        </div>
+        <div style="max-height:60vh;overflow-y:auto;">${content}</div>
       `;
       openM('modal');
     }
