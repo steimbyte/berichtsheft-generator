@@ -203,6 +203,7 @@
 - [x] **Layer Visualization** - Core/Distribution/Access layers, layer indicators, toggle button
 - [x] **Packet Tracer Port Interface** - Enhanced port display, status indicators, hover effects
 - [x] **IP Address Planning Panel** - Subnet overview, host list, IP range display
+- [x] **Enhanced Wireless AP** - SSID, Security (WPA2/WPA3/WEP), Channel, Bandwidth settings
 
 ### Templates
 - [x] Basic LAN (2 PCs, 1 Switch)

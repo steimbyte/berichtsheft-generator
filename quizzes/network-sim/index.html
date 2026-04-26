@@ -1635,18 +1635,76 @@
       </div>
 
       <!-- Wireless Panel -->
-      <div class="route-panel" id="wirelessPanel" style="width:280px;top:110px;">
+      <div class="route-panel" id="wirelessPanel" style="width:320px;top:110px;">
         <div class="route-header">
           <span><i class="ph ph-wifi-high"></i> Wireless Networks</span>
           <button onclick="toggleWirelessPanel()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;">×</button>
         </div>
         <div class="route-content">
-          <div style="font-size:0.6rem;margin-bottom:8px;"><span style="color:var(--text-muted);">SSID:</span> <input id="wlanSSID" value="NetSim_WiFi" style="background:var(--bg-deep);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--text-primary);font-size:0.6rem;width:120px;"></div>
-          <div style="font-size:0.55rem;margin:8px 0;"><span style="color:var(--text-muted);">Channel:</span> <select id="wlanChannel" style="background:var(--bg-deep);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--text-primary);font-size:0.55rem;"><option value="1">1 (2.4 GHz)</option><option value="6">6</option><option value="11">11</option><option value="36">36 (5 GHz)</option><option value="157">157</option></select></div>
-          <div style="font-size:0.5rem;color:var(--text-muted);margin-top:8px;">Connected: <span id="wlanConnected" style="color:var(--ok);">0</span> devices</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="form-group">
+              <label class="form-label">SSID</label>
+              <input type="text" class="form-input" id="wlanSSID" value="NetSim_WiFi" placeholder="Network Name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Security</label>
+              <select class="form-select" id="wlanSecurity">
+                <option value="open">Open (None)</option>
+                <option value="wpa2">WPA2-PSK</option>
+                <option value="wpa3">WPA3</option>
+                <option value="wep">WEP</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" id="wlanPassGroup" style="display:none;">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="wlanPass" placeholder="8-63 characters">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="form-group">
+              <label class="form-label">Channel</label>
+              <select class="form-select" id="wlanChannel">
+                <option value="1">1 (2.4 GHz)</option>
+                <option value="6">6 (2.4 GHz)</option>
+                <option value="11">11 (2.4 GHz)</option>
+                <option value="36">36 (5 GHz)</option>
+                <option value="40">40 (5 GHz)</option>
+                <option value="44">44 (5 GHz)</option>
+                <option value="48">48 (5 GHz)</option>
+                <option value="157">157 (5 GHz)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bandwidth</label>
+              <select class="form-select" id="wlanBandwidth">
+                <option value="20">20 MHz</option>
+                <option value="40">40 MHz</option>
+                <option value="80">80 MHz</option>
+                <option value="160">160 MHz</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><input type="checkbox" id="wlanEnabled" checked> Enable SSID Broadcast</label>
+          </div>
+          <div style="margin-top:8px;padding:8px;background:var(--bg-deep);border-radius:6px;">
+            <div style="font-size:0.6rem;font-weight:600;color:var(--accent);margin-bottom:6px;">Status</div>
+            <div style="font-size:0.55rem;display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+              <div>Connected: <span id="wlanConnected" style="color:var(--ok);">0</span></div>
+              <div>Channel: <span id="wlanChannelDisp">1</span></div>
+              <div>Signal: <span id="wlanSignal" style="color:var(--ok);">Excellent</span></div>
+              <div>Type: <span id="wlanType">802.11ac</span></div>
+            </div>
+          </div>
           <div id="wlanDevices" style="margin-top:8px;"></div>
+          <button class="modal-btn" style="width:100%;margin-top:8px;font-size:0.6rem;" onclick="applyWirelessSettings()">Apply Settings</button>
         </div>
       </div>
+      <script>
+        document.getElementById('wlanSecurity')?.addEventListener('change', function() {
+          document.getElementById('wlanPassGroup').style.display = this.value === 'open' ? 'none' : 'block';
+        });
+      </script>
 
       <!-- Routing Table -->
       <div class="route-panel" id="routePanel">
@@ -6832,13 +6890,32 @@ exit                - exit current mode
 
     // ==================== WIRELESS PANEL ====================
     let showWirelessPanel = false;
-    let wirelessNetwork = { ssid: 'NetSim_WiFi', channel: 6, security: 'wpa2', clients: [] };
+    let wirelessNetwork = { ssid: 'NetSim_WiFi', channel: 6, security: 'wpa2', clients: [], bandwidth: '20', enabled: true };
 
     function toggleWirelessPanel() {
       showWirelessPanel = !showWirelessPanel;
       document.getElementById('wirelessPanel').style.display = showWirelessPanel ? 'block' : 'none';
       document.getElementById('btnWireless').classList.toggle('active', showWirelessPanel);
       if (showWirelessPanel) renderWirelessClients();
+    }
+
+    function applyWirelessSettings() {
+      wirelessNetwork.ssid = document.getElementById('wlanSSID').value || 'NetSim_WiFi';
+      wirelessNetwork.channel = parseInt(document.getElementById('wlanChannel').value);
+      wirelessNetwork.security = document.getElementById('wlanSecurity').value;
+      wirelessNetwork.bandwidth = document.getElementById('wlanBandwidth').value;
+      wirelessNetwork.enabled = document.getElementById('wlanEnabled').checked;
+      
+      // Update display
+      document.getElementById('wlanChannelDisp').textContent = wirelessNetwork.channel;
+      document.getElementById('wlanType').textContent = wirelessNetwork.channel >= 36 ? '802.11ac (5G)' : '802.11n (2.4G)';
+      
+      // Log configuration
+      log('WLAN', 'success', `SSID: ${wirelessNetwork.ssid}, Channel: ${wirelessNetwork.channel}`);
+      log('WLAN', 'info', `Security: ${wirelessNetwork.security}, Bandwidth: ${wirelessNetwork.bandwidth}MHz`);
+      
+      renderWirelessClients();
+      updateAll();
     }
 
     function updateWireless() {
